@@ -122,17 +122,20 @@ $('demo-buy').addEventListener('click', () => { if (demo) showEvent({ kind: 'buy
 $('demo-burn').addEventListener('click', () => { if (demo) showEvent({ kind: 'burn', label: 'Token burn', amount: 5000000, sample: true }); });
 
 function drawRadio(message) {
-  text('radio-title', STATIONS[radio.station].name); text('radio-status', message || (radio.playing ? `${STATIONS[radio.station].bpm} BPM · original generative lo-fi` : 'Original lo-fi · tap to listen'));
+  text('radio-title', STATIONS[radio.station].name);
+  const live = radio.playing && radio.session ? `Live set · ${radio.session.bpm} BPM · new mix each play` : 'Original lo-fi · tap play for a fresh mix';
+  text('radio-status', message || live);
   text('radio-play', radio.playing ? 'Ⅱ' : '▶'); $('radio-play').setAttribute('aria-pressed', String(radio.playing)); $('radio-play').setAttribute('aria-label', radio.playing ? 'Pause lo-fi music' : 'Play lo-fi music');
   $('scene').classList.toggle('music-playing', radio.playing); document.querySelector('.radio-panel').classList.toggle('playing', radio.playing);
 }
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
-  try { if (radio.playing) await radio.stop(); else await radio.play(Number($('radio-station').value)); drawRadio(); }
+  try { if (radio.playing) await radio.stop(); else { radio.setVolume(Number($('radio-volume').value) / 100); await radio.play(Number($('radio-station').value)); } drawRadio(); }
   catch { drawRadio('Audio is unavailable in this browser.'); }
   finally { radioBusy = false; $('radio-play').disabled = false; }
 });
 $('radio-volume').addEventListener('input', e => radio.setVolume(Number(e.target.value) / 100));
+radio.setVolume(Number($('radio-volume').value) / 100);
 $('radio-station').addEventListener('change', async e => {
   if (radioBusy) { e.target.value = String(radio.station); return; }
   const wasPlaying = radio.playing; radioBusy = true;
