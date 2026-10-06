@@ -1,5 +1,38 @@
 # Validation
 
+## Visual refresh · October 6, 2026
+
+- Merged `clawd-workshop-visual-refresh.zip` into the live checkout (index.html studio
+  room, `src/studio.css` / `src/studio.js`, local `public/fonts/`). Lounge, market,
+  music, replay, sharing, and Build Report logic were left intact; only
+  `import './studio.js';` was added to `src/app.js`. Removed the package wall clock
+  and framed chart so the burn fireplace stays the clear background reaction.
+- All 48 existing Node tests pass; the static export succeeds.
+- Original source came from the supplied Repomix snapshot. Its omitted share
+  PNG/MP4 were fetched from the same repository and preserved.
+- Chromium 138 browser checks passed at widths 320, 390, 600, 768, 920, 1024,
+  1440, and 1920 with no horizontal page overflow.
+- Desktop and phone screenshots were visually inspected. The five sample
+  states retain their props; safety goggles, shipping box, and sleepy eyes appear.
+- Locally served DM Sans and Lora, including the italic face, load successfully.
+- Focus view retains the exact scene node and pause state, contains keyboard
+  focus, closes with Escape or its button, and restores focus to that button.
+- Radio creates no AudioContext on load. A user click starts a running context;
+  pause updates the controls. Speaker output was not listened to.
+- Sample buy and burn reactions remain distinct. The 25-million-token sample
+  burn displays the level-three fireplace. No real transaction was claimed.
+- Admin sample replay plays, pauses, seeks, advances between chapters, updates
+  project context, suppresses current market effects, and returns to current mode.
+- Explanation and score-card dialogs open and close. Reduced-motion preference
+  stops both the character and the new ambient animation.
+- A fresh visit with external requests blocked shows an unknown signal and no
+  invented project. Public admin controls remain hidden.
+- No JavaScript page errors occurred in these browser checks.
+- This source package has not been pushed or deployed. Production provider,
+  crawler, and audio-listening checks remain as described below.
+
+## Earlier implementation checks
+
 Validated during creation:
 
 - All Node tests pass (`npm test`), including controller integration tests using a small DOM harness.

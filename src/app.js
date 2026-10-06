@@ -1,5 +1,6 @@
 import { CONFIG } from './config.js';
 import './lounge.js';
+import './studio.js';
 import { GithubClient } from './github.js';
 import { deriveStatus, describeEvent, normalizeEvents, pulse, pulseSeries, repoUrl, timeAgo } from './activity.js';
 import { demoSnapshot, demoHistory } from './demo.js';

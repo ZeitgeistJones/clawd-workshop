@@ -23,17 +23,20 @@
   <!-- SHARE-METADATA:END -->
   <title>What is Clawdbotatg Building? — The little workshop</title>
   <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="./public/fonts/dm-sans.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="./public/fonts/lora.woff" as="font" type="font/woff" crossorigin>
   <link rel="stylesheet" href="./src/styles.css">
   <link rel="stylesheet" href="./src/lounge.css">
+  <link rel="stylesheet" href="./src/studio.css">
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Clawd workshop home"><span class="brand-icon">△</span><span>the little workshop<span class="brand-sub">a window into the work</span></span></a>
-      <nav aria-label="Main"><a id="profile-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">GitHub ↗</a><button id="about-button" class="text-button">How it works</button><button id="admin-nav" class="text-button" hidden aria-pressed="false">Admin</button></nav>
+      <a class="brand" href="./" aria-label="Clawd workshop home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 6L6 29Q20 40 34 29Z" fill="#ee795f"/><path d="M20 6V34Q29 33 34 29Z" fill="#ffad85"/><path d="M11 25Q16 22 19 25M22 25Q26 22 30 24" stroke="#633e34" stroke-width="2" fill="none"/><path d="M14 30Q21 33 28 28" stroke="#633e34" stroke-width="1.5" fill="none"/></svg></span><span>clawd workshop<span class="brand-sub">little guy. big ideas.</span></span></a>
+      <nav aria-label="Main"><a class="nav-builds" href="#recent-builds">The builds</a><a id="profile-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">GitHub ↗</a><button id="about-button" class="text-button">How it works</button><button id="admin-nav" class="text-button" hidden aria-pressed="false">Admin</button></nav>
     </header>
     <main>
-      <div class="intro"><div><p class="eyebrow">ONE BUILDER. ONE WORKSHOP.</p><h1>What is <span id="builder-name">Clawdbotatg</span> Building?</h1><p class="intro-copy">little guy. big ideas.</p></div><div class="source-badge" id="source-badge"><span class="dot"></span>Public GitHub signals</div></div>
+      <div class="intro"><div><p class="eyebrow">A WINDOW INTO <span id="builder-name">Clawdbotatg</span>'S WORLD</p><h1>Little guy. <em>Big ideas.</em></h1><p class="intro-copy">Follow the builds. Put a record on. Stay a while.</p></div><div class="intro-aside"><span class="intro-note">Good things take a little tinkering.</span><div class="source-badge" id="source-badge"><span class="dot"></span>Public GitHub signals</div></div></div>
       <div id="notice" class="notice" role="status" hidden></div>
       <div id="admin-shell" class="admin-shell" hidden>
         <div class="mode-bar"><div class="mode-buttons" role="group" aria-label="Admin workshop tools"><button id="current-mode" class="mode-button active" aria-pressed="true">Workshop</button><button id="replay-mode" class="mode-button" aria-pressed="false">↺ Replay 24 hours</button></div><p>Admin · replay tools stay off the public page.</p></div>
@@ -45,30 +48,87 @@
           <ol id="replay-chapters" class="replay-chapters" aria-label="Choose a replay chapter"></ol>
         </section>
       </div>
-      <div class="day-summary" aria-label="Fetched public activity summary"><div><strong id="day-projects">—</strong><span>projects in fetched day</span></div><div><strong id="day-updates">—</strong><span>public updates</span></div><div><strong id="day-releases">—</strong><span>published releases</span></div><p>Every signal has a paper trail.<br><span>Private work stays behind the curtain.</span></p></div>
+      <div class="day-summary" aria-label="Fetched public activity summary"><p class="day-label"><span class="summary-mark" aria-hidden="true">↗</span>THE FETCHED DAY</p><div><strong id="day-projects">—</strong><span>projects touched</span></div><div><strong id="day-updates">—</strong><span>public updates</span></div><div><strong id="day-releases">—</strong><span>published releases</span></div><p class="summary-note">Available signals from the last 24 hours</p></div>
       <div class="dashboard">
         <div class="hero-main">
-        <section class="workshop panel" aria-label="Animated workshop">
-          <div class="workshop-top"><div class="status-tag" id="state-tag">CONNECTING</div><div class="workshop-tools"><button id="motion-button" class="icon-button" aria-pressed="false" aria-label="Pause animation">Ⅱ</button><span class="window-label">WORKSHOP / 01</span></div></div>
+        <section class="workshop panel" id="workshop" aria-label="Animated workshop">
+          <div class="workshop-top"><div class="workshop-heading"><span class="studio-mark" aria-hidden="true">✳</span><span>The workshop</span><div class="status-tag" id="state-tag">CONNECTING</div></div><div class="workshop-tools"><button id="motion-button" class="icon-button" aria-pressed="false" aria-label="Pause animation" title="Pause animation">Ⅱ</button><button id="focus-button" class="focus-button" aria-pressed="false" aria-label="Enlarge the workshop" title="Enlarge the workshop"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3V7M13 3H17V7M3 13V17H7M17 13V17H13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Focus view</span></button></div></div>
           <div class="scene-wrap" data-state="unknown" id="scene">
+            <div class="scene-label" aria-hidden="true"><span>STUDIO / 01</span><small>Public activity, illustrated.</small></div>
             <svg class="scene" viewBox="0 0 800 470" role="img" aria-labelledby="scene-title scene-desc">
-              <title id="scene-title">Clawd's little workshop</title><desc id="scene-desc">A cute red triangular Clawd with mischievous eyes and claws works at a bench in a cozy robot garage.</desc>
+              <title id="scene-title">Clawd's little workshop</title><desc id="scene-desc">Clawd, a red triangular robot with claws, a bow tie and a canvas apron, works at a wooden bench. Dusk falls outside a deep-set window. A record player, illustrated plans and a cold fireplace furnish the warm studio. Project objects are illustrations inferred from public repository details.</desc>
               <defs>
-                <linearGradient id="lamp-glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe8a9" stop-opacity=".65"/><stop offset="1" stop-color="#ffe8a9" stop-opacity="0"/></linearGradient>
-                <linearGradient id="window-sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c5d4c8"/><stop offset=".55" stop-color="#e4dcc8"/><stop offset="1" stop-color="#d8c4a4"/></linearGradient>
+                <linearGradient id="lamp-glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff1b9" stop-opacity=".58"/><stop offset=".72" stop-color="#ffe5a3" stop-opacity=".1"/><stop offset="1" stop-color="#ffe8a9" stop-opacity="0"/></linearGradient>
+                <linearGradient id="window-sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#627d80"/><stop offset=".6" stop-color="#a3b2a2"/><stop offset="1" stop-color="#e0c5a0"/></linearGradient>
                 <linearGradient id="fire-glow" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#f0a050" stop-opacity=".7"/><stop offset="1" stop-color="#f0a050" stop-opacity="0"/></linearGradient>
+                <linearGradient id="studio-wall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f2e8d5"/><stop offset="1" stop-color="#e4d8bd"/></linearGradient>
+                <radialGradient id="wall-light" cx=".48" cy=".23" r=".68"><stop stop-color="#fff2ca" stop-opacity=".8"/><stop offset="1" stop-color="#eee1c2" stop-opacity="0"/></radialGradient>
+                <linearGradient id="studio-floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d6c5a5"/><stop offset="1" stop-color="#e9dbc0"/></linearGradient>
+                <linearGradient id="right-wall" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#d3c8af" stop-opacity=".2"/><stop offset="1" stop-color="#c5b99b" stop-opacity=".48"/></linearGradient>
+                <linearGradient id="bench-top" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d2ac77"/><stop offset=".5" stop-color="#bb8f5d"/><stop offset="1" stop-color="#b18454"/></linearGradient>
+                <linearGradient id="bench-front" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a77c52"/><stop offset="1" stop-color="#906b46"/></linearGradient>
+                <linearGradient id="clawd-face" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#f08869"/><stop offset=".58" stop-color="#e66850"/><stop offset="1" stop-color="#c95643"/></linearGradient>
+                <linearGradient id="clawd-facet" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffbc8c"/><stop offset="1" stop-color="#ef8764"/></linearGradient>
+                <linearGradient id="canvas-apron" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ead0a0"/><stop offset="1" stop-color="#cba56e"/></linearGradient>
+                <linearGradient id="lamp-shade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#4b6653"/><stop offset=".5" stop-color="#7c8e64"/><stop offset="1" stop-color="#465e4b"/></linearGradient>
+                <filter id="paper-grain"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".13"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter>
+                <pattern id="rug-weave" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 2H8M2 0V8" stroke="#f0e5c9" stroke-width=".5" opacity=".25"/></pattern>
               </defs>
-              <rect width="800" height="470" fill="#f2ede3"/>
-              <path d="M0 349H800V470H0Z" fill="#e5dccc"/>
-              <path d="M0 349H800M50 409H750M97 349L60 470M706 349L745 470M295 349L280 470M509 349L520 470" fill="none" stroke="#cabda9" stroke-width="2" opacity=".55"/>
-              <g class="workshop-window" aria-hidden="true" transform="translate(52 68)">
-                <rect width="148" height="118" rx="8" fill="#d9cbb6" stroke="#b9a48a" stroke-width="3"/>
+              <g aria-hidden="true">
+                <rect width="800" height="470" fill="url(#studio-wall)"/>
+                <rect width="800" height="349" fill="url(#wall-light)"/>
+                <path d="M600 0H800V349H600Z" fill="url(#right-wall)"/>
+                <path d="M602 0V347" stroke="#b9ad9060" stroke-width="1.5"/>
+                <path d="M0 7H800" stroke="#b5a080" stroke-width="14" opacity=".4"/>
+                <path d="M0 16H800" stroke="#fff5dc" stroke-width="2" opacity=".65"/>
+                <path d="M0 309H800V349H0Z" fill="#bbb48f" opacity=".18"/>
+                <path d="M0 309H800M0 347H800" stroke="#b6a98a" stroke-width="2" opacity=".65"/>
+                <path d="M0 312H800" stroke="#fff0cf" stroke-width="1.5" opacity=".55"/>
+                <path d="M0 349H800V470H0Z" fill="url(#studio-floor)"/>
+                <path d="M0 350H800M0 381H800M0 423H800M68 349L13 470M223 349L194 470M382 349L378 470M542 349L566 470M703 349L755 470" fill="none" stroke="#b69c72" stroke-width="1.2" opacity=".35"/>
+                <path d="M84 393H138M662 438H744M295 362H328M449 452H518" stroke="#bda67d" stroke-width="1" opacity=".3"/>
+                <path d="M202 384H597L642 444H164Z" fill="#afa884" opacity=".8"/>
+                <path d="M209 389H590L626 437H179Z" fill="none" stroke="#e0d7b9" stroke-width="1.5"/>
+                <path d="M202 384H597L642 444H164Z" fill="url(#rug-weave)"/>
+                <path d="M177 446L174 451M190 446L187 451M204 446L202 451M218 446L216 451M231 446L229 451M576 446L578 451M590 446L592 451M604 446L606 451M618 446L621 451M632 446L635 451" stroke="#b6aa83" stroke-width="2"/>
+                <rect width="800" height="470" fill="transparent" filter="url(#paper-grain)" opacity=".32"/>
+              </g>
+              <g class="workshop-window" aria-hidden="true" transform="translate(52 75)">
+                <rect x="5" y="6" width="148" height="122" rx="4" fill="#9c8e70" opacity=".2"/>
+                <rect x="-5" y="-5" width="158" height="128" rx="5" fill="#c0ad88"/>
+                <rect width="148" height="118" rx="3" fill="#e5d3ad" stroke="#aa936c" stroke-width="2"/>
                 <rect x="10" y="10" width="128" height="98" rx="3" fill="url(#window-sky)"/>
-                <path d="M10 78Q36 68 58 76T118 74T138 78V108H10Z" fill="#9aaf8e" opacity=".45"/>
-                <path d="M28 72Q34 52 44 68M96 70Q104 48 114 66" fill="none" stroke="#7f9678" stroke-width="3" stroke-linecap="round" opacity=".55"/>
-                <path d="M74 10V108M10 59H138" stroke="#cbb89f" stroke-width="4"/>
-                <rect x="10" y="10" width="128" height="98" rx="3" fill="none" stroke="#a89074" stroke-width="3"/>
-                <path d="M4 118H144" stroke="#b8956a" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="113" cy="29" r="10" fill="#e9e6c8" opacity=".8"/>
+                <circle cx="118" cy="25" r="9" fill="#708988"/>
+                <path d="M10 83L35 62L61 82L92 62L138 83V108H10Z" fill="#879c86" opacity=".6"/>
+                <path d="M10 101Q31 83 56 90T100 88T138 97V108H10Z" fill="#5f7b69" opacity=".78"/>
+                <path d="M19 107L24 87L29 107M113 107L118 81L124 107M128 108L133 92L138 108" fill="#47634f" opacity=".6"/>
+                <path d="M29 23L24 38M56 18L49 37M97 68L91 87M124 47L119 61" stroke="#f5f1d9" stroke-width="1.4" opacity=".35"/>
+                <path d="M74 10V108M10 59H138" stroke="#af9770" stroke-width="6"/>
+                <path d="M72 10V108M10 57H138" stroke="#ead8b1" stroke-width="3"/>
+                <rect x="10" y="10" width="128" height="98" rx="2" fill="none" stroke="#9b8562" stroke-width="2"/>
+                <path d="M-7 119H155V126H-7Z" fill="#b79665"/>
+                <path d="M-7 119H155" stroke="#e7c797" stroke-width="2"/>
+                <path d="M-5 129H153" stroke="#ac936b" stroke-width="2" opacity=".3"/>
+              </g>
+              <g class="studio-notebook" aria-hidden="true" transform="translate(234 103) rotate(-6)">
+                <path d="M4 4H48V65H4Z" fill="#b8a88a" opacity=".2"/>
+                <path d="M0 0H44V61H0Z" fill="#f6edd7" stroke="#c4b28f" stroke-width="1.5"/>
+                <path d="M13 0H31V6H13Z" fill="#b9a281"/>
+                <path d="M10 16H29M10 21H35M10 26H24" stroke="#a8ac91" stroke-width="1.3"/>
+                <path d="M11 48L23 32L35 48ZM18 48V52M28 48V52" fill="none" stroke="#cf9574" stroke-width="1.5"/>
+              </g>
+              <g class="radio-cabinet" aria-hidden="true">
+                <ellipse cx="119" cy="357" rx="87" ry="9" fill="#827154" opacity=".12"/>
+                <path d="M51 327L48 356H56L63 327M178 327L183 356H191L188 327" fill="#8c7956"/>
+                <rect x="42" y="280" width="157" height="58" rx="3" fill="#a98c61" stroke="#927854" stroke-width="1.5"/>
+                <rect x="40" y="275" width="161" height="8" rx="2" fill="#c8a575"/>
+                <path d="M42 283H199" stroke="#dfbd8b" stroke-width="1.5"/>
+                <rect x="51" y="289" width="59" height="40" rx="2" fill="#bca078" stroke="#927854" stroke-width="1"/>
+                <circle cx="103" cy="309" r="2" fill="#6c6e52"/>
+                <rect x="119" y="289" width="71" height="40" rx="1" fill="#796d50"/>
+                <path d="M128 298V328M134 296V328M143 301V328M153 294V328M166 299L177 326M173 296L184 323" stroke="#d3bc8d" stroke-width="5"/>
+                <path d="M137 306V323M157 305V324" stroke="#849379" stroke-width="5"/>
               </g>
               <g class="workshop-fireplace" aria-label="Workshop fireplace · lights on CLAWD burns" transform="translate(628 198)">
                 <path d="M8 150H148V156H8Z" fill="#8a6a48"/>
@@ -93,21 +153,25 @@
                   <circle cx="70" cy="78" r="2" fill="#ffe4a0"/><circle cx="96" cy="70" r="1.6" fill="#f4c56a"/><circle cx="84" cy="58" r="1.4" fill="#ffe4a0"/>
                 </g>
               </g>
-              <g class="workshop-radio" transform="translate(70 216)"><rect width="118" height="62" rx="8" fill="#b79c78" stroke="#8b7454" stroke-width="3"/><rect x="8" y="9" width="57" height="43" rx="4" fill="#758a75"/><g class="record-disc"><circle cx="36" cy="30" r="17" fill="#354b3e"/><circle cx="36" cy="30" r="10" fill="none" stroke="#778b6b"/><circle cx="36" cy="30" r="4" fill="#edb96b"/><path d="M23 21L26 18M44 40L48 35" stroke="#82967c" stroke-width="2"/></g><path d="M77 16H105M77 22H105M77 28H105" stroke="#816c52" stroke-width="3"/><circle cx="82" cy="43" r="6" fill="#f1d9a6"/><circle cx="102" cy="43" r="5" fill="#796c51"/><path d="M8 0L0 -10M102 0L114 -10" stroke="#8b7454" stroke-width="3"/></g>
+              <g class="workshop-radio" transform="translate(62 213)"><rect x="4" y="4" width="126" height="63" rx="6" fill="#7c694a" opacity=".16"/><rect width="126" height="62" rx="5" fill="#b4a079" stroke="#8f7d59" stroke-width="2"/><path d="M4 5H122" stroke="#ddc89e" stroke-width="1.5"/><rect x="7" y="8" width="60" height="46" rx="3" fill="#758675" stroke="#8b8968"/><g class="record-disc"><circle cx="36" cy="30" r="18" fill="#354b3e"/><circle cx="36" cy="30" r="15" fill="none" stroke="#536851" stroke-width=".8"/><circle cx="36" cy="30" r="11" fill="none" stroke="#667953" stroke-width=".8"/><circle cx="36" cy="30" r="5" fill="#dab174"/><circle cx="36" cy="30" r="1.5" fill="#465947"/><path d="M23 21L26 18M44 40L48 35" stroke="#82967c" stroke-width="1.3"/></g><path d="M54 14L47 32" stroke="#ded8b5" stroke-width="2.5" stroke-linecap="round"/><circle cx="55" cy="13" r="3" fill="#e8ddba"/><rect x="76" y="9" width="41" height="11" rx="2" fill="#d9d8b4" stroke="#988d66"/><path d="M81 13H113" stroke="#899777" stroke-width="1"/><path d="M103 10V19" stroke="#c98158" stroke-width="1.5"/><path d="M77 28H116M77 33H116M77 38H116" stroke="#7c7757" stroke-width="1.5"/><circle cx="85" cy="49" r="5" fill="#ede0b9" stroke="#8c815b"/><circle cx="109" cy="49" r="4" fill="#617557"/><path d="M12 62V65M114 62V65" stroke="#807152" stroke-width="5"/></g>
               <path d="M400 0V54" stroke="#666c5e" stroke-width="5"/>
               <path class="light-cone" d="M376 83L233 349H565L424 83Z" fill="url(#lamp-glow)"/>
-              <path d="M364 83Q368 49 400 49Q432 49 436 83Z" fill="#496954"/><path d="M364 83H436" stroke="#385140" stroke-width="5" stroke-linecap="round"/>
+              <path d="M364 83Q368 49 400 49Q432 49 436 83Z" fill="url(#lamp-shade)" stroke="#546249" stroke-width="1.5"/><path d="M378 67Q386 55 399 55" stroke="#a7b289" stroke-width="2" fill="none" opacity=".5"/><ellipse cx="400" cy="83" rx="36" ry="4" fill="#f6dea1" stroke="#6f7554" stroke-width="2"/><ellipse cx="400" cy="83" rx="19" ry="2" fill="#fff4cb"/>
+              <g aria-hidden="true" fill="#fff3c3" opacity=".7"><circle class="room-dust" cx="288" cy="210" r="1.5"/><circle class="room-dust delay" cx="512" cy="163" r="1"/><circle class="room-dust" cx="536" cy="237" r="1.3"/><circle class="room-dust delay" cx="273" cy="279" r="1"/></g>
               <ellipse cx="398" cy="417" rx="129" ry="16" fill="#a69882" opacity=".22"/>
               <g class="character">
                 <g class="feet"><path d="M354 353L346 398Q322 399 323 409H368L372 354" fill="#343e3c"/><path d="M421 353L426 398Q450 398 451 409H406L405 354" fill="#343e3c"/></g>
                 <g class="body-bob">
                   <path d="M351 273Q329 306 338 357Q386 377 433 357Q442 309 418 273" fill="#384443" stroke="#293332" stroke-width="4"/>
-                  <path d="M366 277L385 307L404 278L419 359Q391 369 356 357Z" fill="#ddb980" stroke="#bb935f" stroke-width="3"/>
-                  <path d="M374 325H401V347H374Z" fill="#cfa671"/><path d="M378 330H397" stroke="#ae814e" stroke-width="2"/>
+                  <path d="M366 277L385 307L404 278L419 359Q391 369 356 357Z" fill="url(#canvas-apron)" stroke="#b88e5b" stroke-width="2"/>
+                  <path d="M363 324L362 352M410 324L413 353" stroke="#f5e0b3" stroke-width="1" stroke-dasharray="2 3" opacity=".7"/>
+                  <path d="M374 325H401V347Q388 353 374 347Z" fill="#cfa671" stroke="#b28a59" stroke-width="1"/><path d="M378 330H397" stroke="#f0d5a4" stroke-width="1.2"/>
+                  <path d="M385 336L381 343H392L388 336" stroke="#9f8056" stroke-width="1.2" fill="none"/>
                   <path d="M369 283Q374 273 386 286Q399 275 402 284L399 299Q388 294 385 294Q377 300 370 298Z" fill="#222d2c"/><circle cx="385" cy="289" r="4" fill="#46504d"/>
                   <g class="head">
-                    <path d="M385 132L300 260Q303 285 341 299Q381 315 430 291Q457 276 460 258Z" fill="#e76551" stroke="#823f37" stroke-width="4" stroke-linejoin="round"/>
-                    <path d="M385 136V299Q426 294 457 259Z" fill="#f38d6e"/><path d="M304 259L385 239V299Q330 298 304 271Z" fill="#d34e42" opacity=".65"/>
+                    <path d="M385 132L300 260Q303 285 341 299Q381 315 430 291Q457 276 460 258Z" fill="url(#clawd-face)" stroke="#8e5140" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M385 136V299Q426 294 457 259Z" fill="url(#clawd-facet)"/><path d="M304 259L385 239V299Q330 298 304 271Z" fill="#b94b3f" opacity=".26"/>
+                    <path d="M313 248L379 150" fill="none" stroke="#ffb28a" stroke-width="2" stroke-linecap="round" opacity=".6"/>
                     <g class="eyes"><path d="M318 238Q336 222 363 239Q340 251 318 238Z" fill="#fffcf4" stroke="#843f37" stroke-width="3"/><path d="M385 238Q407 220 435 230Q421 249 385 238Z" fill="#fffcf4" stroke="#843f37" stroke-width="3"/><ellipse cx="348" cy="236" rx="9" ry="9" fill="#263a36"/><ellipse cx="410" cy="233" rx="9" ry="9" fill="#263a36"/><circle cx="351" cy="233" r="3" fill="#fff"/><circle cx="413" cy="230" r="3" fill="#fff"/></g>
                     <path d="M316 220Q337 209 360 223M389 220Q409 204 434 219" fill="none" stroke="#a34d3e" stroke-width="3" stroke-linecap="round"/>
                     <path class="smile" d="M318 267Q371 290 425 257" fill="none" stroke="#893f35" stroke-width="4" stroke-linecap="round"/><path d="M421 254Q432 250 435 260" fill="none" stroke="#893f35" stroke-width="2.5" stroke-linecap="round"/>
@@ -118,8 +182,8 @@
                   <g class="right-arm"><path d="M427 304Q456 291 477 273" fill="none" stroke="#384443" stroke-width="23" stroke-linecap="round"/><path d="M461 275Q470 253 486 263Q507 273 490 289Q479 298 461 285Z" fill="#e96c51" stroke="#8d483c" stroke-width="3"/><path d="M481 268L478 280L493 274" fill="#f49473" stroke="#8d483c" stroke-width="2"/><g class="hammer"><path d="M483 267L507 224" stroke="#a87a50" stroke-width="10" stroke-linecap="round"/><path d="M492 213L520 228L513 243L485 228Z" fill="#7b8b83" stroke="#435b50" stroke-width="3"/></g></g>
                 </g>
               </g>
-              <g class="workbench"><path d="M225 344L221 413H241L248 344M545 344L552 413H572L568 344" fill="#a67852" stroke="#825b40" stroke-width="3"/><rect x="207" y="331" width="383" height="21" rx="5" fill="#b5855e" stroke="#805c44" stroke-width="3"/><rect x="214" y="353" width="368" height="9" fill="#947051"/>
-              <path d="M223 352V385H287V352" fill="#c99b71" stroke="#805c44" stroke-width="3"/><path d="M246 368H265" stroke="#805c44" stroke-width="4" stroke-linecap="round"/></g>
+              <g class="workbench"><path d="M230 344L226 412H242L249 344M544 344L551 412H567L563 344" fill="#a67f54" stroke="#836843" stroke-width="2"/><path d="M233 362L231 405M556 361L560 405" stroke="#cba471" stroke-width="2"/><path d="M227 396H568" stroke="#a67f54" stroke-width="8"/><path d="M246 397H551" stroke="#cfaa78" stroke-width="1.5"/><path d="M207 331L220 324H577L590 331Z" fill="#d0a775" stroke="#997247" stroke-width="1.5"/><rect x="207" y="331" width="383" height="18" rx="3" fill="url(#bench-top)" stroke="#937047" stroke-width="2"/><path d="M211 333H586M240 339H325M420 339H551" stroke="#e8c492" stroke-width="1.2" opacity=".7"/><rect x="215" y="349" width="367" height="14" fill="url(#bench-front)"/><path d="M223 353V384H288V353Z" fill="#bf9867" stroke="#8e6c45" stroke-width="1.5"/><path d="M299 353V384H365V353Z" fill="#bf9867" stroke="#8e6c45" stroke-width="1.5"/><path d="M248 367H264M324 367H340" stroke="#6e7153" stroke-width="3" stroke-linecap="round"/><path d="M228 358H282M305 358H359" stroke="#e2bd87" stroke-width="1"/><circle cx="220" cy="338" r="1.8" fill="#8a724e"/><circle cx="578" cy="338" r="1.8" fill="#8a724e"/></g>
+              <g aria-hidden="true"><path d="M237 318H280L286 325H235Z" fill="#f0e3be" stroke="#b3a680" stroke-width="1"/><path d="M243 320H269M247 323H277" stroke="#a7ac8a" stroke-width="1"/><path d="M248 317L276 311" stroke="#e0b462" stroke-width="3" stroke-linecap="round"/><path d="M275 311L280 310" stroke="#77745b" stroke-width="2"/><ellipse cx="494" cy="329" rx="54" ry="4" fill="#795d40" opacity=".18"/></g>
               <g class="blueprint"><path d="M358 315L436 300L455 327L370 333Z" fill="#799fab" stroke="#416673" stroke-width="2"/><path d="M379 317L424 310L435 322L389 327ZM409 312L415 324" fill="none" stroke="#d8ebee" stroke-width="2"/></g>
               <g class="shipping-box"><path d="M441 280H524V330H441Z" fill="#dfb275" stroke="#a57846" stroke-width="3"/><path d="M441 280L459 266H510L524 280Z" fill="#edc891" stroke="#a57846" stroke-width="3"/><path d="M477 270V291H488V273" fill="#f9e8ba"/><path d="M474 304L483 297L492 304M483 298V319" stroke="#9b7043" fill="none" stroke-width="3"/></g>
               <g id="project-object" transform="translate(432 243)"><use id="project-visual" href="./public/objects.svg#blueprint" width="122" height="90"/><g class="transaction-demo-token" fill="#efcd82" stroke="#a9843f" stroke-width="1.5"><circle cx="60" cy="68" r="6"/><path d="M60 64V72M57 66H63M57 70H63"/></g></g>
@@ -128,26 +192,26 @@
               <g class="confetti" fill="#d88254"><path d="M330 109L335 99L341 106L336 115Z"/><path d="M464 134L470 124L476 131L470 141Z"/><path d="M535 180L540 170L546 177L541 187Z"/><circle cx="300" cy="180" r="4" fill="#739889"/><circle cx="491" cy="95" r="5" fill="#dab558"/></g>
               <g class="sleep-z" fill="#6a7d73" font-family="monospace" font-weight="bold"><text x="459" y="214" font-size="23">z</text><text x="480" y="191" font-size="29">z</text><text x="509" y="162" font-size="35">z</text></g>
             </svg>
+            <div class="scene-build" id="scene-build" hidden><span class="eyebrow">ON THE BENCH</span><a id="scene-build-link" target="_blank" rel="noopener noreferrer"></a><small id="scene-build-object"></small></div>
             <div id="scene-event" class="scene-event" role="status" hidden><span id="scene-event-icon" aria-hidden="true">✦</span><div><strong id="scene-event-title"></strong><span id="scene-event-detail"></span></div></div>
-            <div class="scene-caption"><span class="caption-dot"></span><span id="scene-caption">Opening the workshop…</span></div>
           </div>
-          <div class="workshop-bottom"><span>little guy. big ideas.</span><span class="mono" id="last-checked">Waiting for GitHub</span></div>
+          <div class="workshop-bottom"><div class="scene-caption"><span class="caption-dot"></span><span id="scene-caption">Opening the workshop…</span></div><span class="mono" id="last-checked">Waiting for GitHub</span></div>
         </section>
-          <section class="panel build-brief" aria-label="Active build details"><div class="brief-heading"><div><p class="eyebrow">ON THE WORKBENCH</p><h2 id="brief-name">The next little idea</h2></div><a id="brief-source" class="outline-button" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Explore the code ↗</a></div><p id="brief-description">Waiting for the next public project.</p><div id="brief-tags" class="brief-tags"></div><div class="brief-change"><span class="eyebrow">WHAT CHANGED</span><p id="brief-update">Fetching a little context…</p></div><ol id="brief-commits" class="brief-commits" aria-label="Latest repository commits"></ol><a id="brief-website" class="project-website" target="_blank" rel="noopener noreferrer" hidden>Open the project ↗</a><p id="brief-note" class="data-footnote"></p></section>
+          <section class="panel build-brief" aria-label="Active build details"><div class="brief-heading"><div><p class="eyebrow">ON THE WORKBENCH</p><h2 id="brief-name">The next little idea</h2></div><a id="brief-source" class="outline-button" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Explore the code ↗</a></div><div class="brief-body"><div class="brief-overview"><p id="brief-description">Waiting for the next public project.</p><div id="brief-tags" class="brief-tags"></div><a id="brief-website" class="project-website" target="_blank" rel="noopener noreferrer" hidden>Open the project ↗</a></div><div class="brief-change"><span class="eyebrow">THE LATEST CHANGE</span><p id="brief-update">Fetching a little context…</p><ol id="brief-commits" class="brief-commits" aria-label="Latest repository commits"></ol></div></div><p id="brief-note" class="data-footnote"></p></section>
         </div>
         <aside class="signal-column">
-          <section class="panel market-panel" aria-label="CLAWD market"><div class="market-heading"><span class="token-mark">△</span><div><strong>$CLAWD</strong><span>Base · selected pool</span></div><a id="market-link" href="https://dexscreener.com/base/0x9f86db9fc6f7c9408e8fda3ff8ce4e78ac7a6b07" target="_blank" rel="noopener noreferrer" aria-label="CLAWD price source">↗</a></div><div class="market-price-row"><strong id="market-price">—</strong><span id="market-change">—</span></div><svg id="market-chart" viewBox="0 0 320 60" role="img" aria-label="Price samples since opening this page" hidden><path id="market-line" fill="none" stroke="#658975" stroke-width="2.5"/></svg><div class="market-mini"><div><span>24h volume</span><strong id="market-volume">—</strong></div><div><span>Pool liquidity</span><strong id="market-liquidity">—</strong></div></div><p id="market-status" class="market-status" role="status">Connecting to the price feed…</p><details class="market-settings"><summary>Workshop reactions</summary><label>Buy-side swap ≈ USD <input id="buy-threshold" type="number" min="1" step="100" value="1000"></label><label>Burn / sink transfer · tokens <input id="burn-threshold" type="number" min="1" step="100000" value="1000000"></label><label class="effects-label"><input id="market-effects" type="checkbox" checked>Show scene effects</label><p>USD values are estimates at the fetched price. Watching new logs, with a 12-block delay.</p></details><p id="chain-status" class="chain-status" role="status">Opening the transaction feed…</p><ul id="market-events" class="market-events"></ul><div id="market-demo" class="market-demo" hidden><button id="demo-buy" class="outline-button">Preview buy ✦</button><button id="demo-burn" class="outline-button">Preview burn ♨</button></div></section>
-          <section class="panel radio-panel" aria-label="Lo-fi workshop radio"><div class="radio-top"><span class="radio-disc" aria-hidden="true"><i></i></span><div><p class="eyebrow">WORKSHOP RADIO</p><strong id="radio-title">Late-night workbench</strong><span id="radio-status" role="status">Original lo-fi · tap to listen</span></div><button id="radio-play" class="radio-play" aria-label="Play lo-fi music" aria-pressed="false">▶</button></div><div class="radio-controls"><label class="sr-only" for="radio-station">Lo-fi station</label><select id="radio-station"><option value="0">Late-night workbench</option><option value="1">Tea by the window</option><option value="2">Little ideas</option></select><label class="sr-only" for="radio-volume">Music volume</label><input id="radio-volume" type="range" min="0" max="100" value="55" aria-label="Music volume"></div></section>
           <section class="panel status-panel" aria-label="Current activity"><p id="signal-heading" class="eyebrow">THE LATEST SIGNAL</p><h2 id="status-title" aria-live="polite">Let's take a look.</h2><p id="status-reason">Checking public activity on GitHub.</p><div class="working-on"><span class="eyebrow">PROJECT</span><a id="active-repo" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Waiting for a signal ↗</a><span id="last-activity">—</span></div><div class="object-caption"><span class="eyebrow">ON THE BENCH</span><strong id="object-name">Project blueprint</strong><span id="object-basis">Waiting for a project</span></div><a id="evidence-link" class="evidence-link" hidden target="_blank" rel="noopener noreferrer">View the signal on GitHub ↗</a></section>
+          <section class="panel radio-panel" aria-label="Lo-fi workshop radio"><div class="radio-top"><span class="radio-disc" aria-hidden="true"><i></i></span><div><p class="eyebrow">WORKSHOP RADIO</p><strong id="radio-title">Late-night workbench</strong><span id="radio-status" role="status">Original lo-fi · tap to listen</span></div><button id="radio-play" class="radio-play" aria-label="Play lo-fi music" aria-pressed="false">▶</button></div><div class="radio-controls"><label class="sr-only" for="radio-station">Lo-fi station</label><select id="radio-station"><option value="0">Late-night workbench</option><option value="1">Tea by the window</option><option value="2">Little ideas</option></select><label class="sr-only" for="radio-volume">Music volume</label><input id="radio-volume" type="range" min="0" max="100" value="55" aria-label="Music volume"></div></section>
+          <section class="panel market-panel" aria-label="CLAWD market"><div class="market-heading"><span class="token-mark">△</span><div><strong>$CLAWD</strong><span>Base · selected pool</span></div><a id="market-link" href="https://dexscreener.com/base/0x9f86db9fc6f7c9408e8fda3ff8ce4e78ac7a6b07" target="_blank" rel="noopener noreferrer" aria-label="CLAWD price source">↗</a></div><div class="market-price-row"><strong id="market-price">—</strong><span id="market-change">—</span></div><svg id="market-chart" viewBox="0 0 320 60" role="img" aria-label="Price samples since opening this page" hidden><path id="market-line" fill="none" stroke="#658975" stroke-width="2.5"/></svg><div class="market-mini"><div><span>24h volume</span><strong id="market-volume">—</strong></div><div><span>Pool liquidity</span><strong id="market-liquidity">—</strong></div></div><p id="market-status" class="market-status" role="status">Connecting to the price feed…</p><details class="market-settings"><summary>Workshop reactions</summary><label>Buy-side swap ≈ USD <input id="buy-threshold" type="number" min="1" step="100" value="1000"></label><label>Burn / sink transfer · tokens <input id="burn-threshold" type="number" min="1" step="100000" value="1000000"></label><label class="effects-label"><input id="market-effects" type="checkbox" checked>Show scene effects</label><p>USD values are estimates at the fetched price. Watching new logs, with a 12-block delay.</p></details><p id="chain-status" class="chain-status" role="status">Opening the transaction feed…</p><ul id="market-events" class="market-events"></ul><div id="market-demo" class="market-demo" hidden><button id="demo-buy" class="outline-button">Preview buy ✦</button><button id="demo-burn" class="outline-button">Preview burn ♨</button></div></section>
           <section class="panel pulse-panel" aria-label="Build pulse"><div class="pulse-heading"><p class="eyebrow">BUILD PULSE</p><span><strong id="pulse-value">—</strong><small>/100</small></span></div><p id="pulse-copy">Activity has a heartbeat.</p><svg id="pulse-chart" viewBox="0 0 320 82" role="img" aria-label="Weighted public activity over the last 60 minutes"><path id="pulse-fill" fill="#d87954" opacity=".13"/><path id="pulse-line" fill="none" stroke="#cc6b48" stroke-width="2.5" stroke-linejoin="round"/><path d="M0 80H320" stroke="#dfd8cc"/></svg><div class="chart-labels"><span>60 min ago</span><span>now</span></div></section>
         </aside>
       </div>
-      <div class="lower-grid">
+      <div class="lower-grid" id="recent-builds">
         <section class="panel timeline-panel"><div class="section-heading"><div><p class="eyebrow">THE PAPER TRAIL</p><h2 id="timeline-title">Fresh from the workbench</h2></div><button id="refresh-button" class="outline-button">↻ Refresh</button></div><ul id="timeline" class="timeline"><li class="empty">Fetching the latest public activity…</li></ul><p class="data-footnote" id="workflow-note">Workflow checks cover the most recently active repository.</p></section>
         <section class="panel projects-panel"><div class="section-heading"><div><p class="eyebrow">ON THE SHELF</p><h2 id="shelf-title">A few recent projects</h2></div><span class="shelf-icon" aria-hidden="true">▱</span></div><div id="projects" class="project-list"><p class="empty">Dusting off the shelves…</p></div><div class="release-summary" id="release-summary"></div></section>
       </div>
       <section class="panel score-panel" aria-label="High-scoring Build Report projects">
-        <div class="section-heading"><div><p class="eyebrow">BUILD REPORT · HIGH SCORES</p><h2>Trophy shelf from The Build Report</h2></div><a class="outline-button" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">Open report ↗</a></div>
+        <div class="section-heading"><div><p class="eyebrow">FROM THE BUILD REPORT</p><h2>A few builds worth a closer look.</h2></div><a class="outline-button" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">Open report ↗</a></div>
         <p class="score-panel-copy">Click a build to open its score card. Grades are interpretive Build Report scores, not live GitHub pulse.</p>
         <div class="score-sections">
           <div><p class="eyebrow">HOLDER ECONOMICS</p><div id="score-holder" class="score-chip-row"></div></div>
@@ -158,6 +222,7 @@
     </main>
     <footer><span>Made for the people who like watching builders build.</span><span>Public signals. A little imagination.</span></footer>
   </div>
+  <dialog id="focus-dialog" class="focus-dialog" aria-label="Enlarged workshop"></dialog>
   <dialog id="about-dialog"><div class="dialog-content"><button id="close-dialog" class="icon-button dialog-close" aria-label="Close explanation">×</button><p class="eyebrow">A WINDOW, NOT A CAMERA</p><h2>What are we actually seeing?</h2><p>Clawd reacts to <strong>public GitHub activity</strong>, not keystrokes. A recent push or pull request means building signals; a new branch or issue means planning signals; a published release gets a celebration.</p><p>Running or queued GitHub Actions from this builder in the latest active repo put on the safety goggles. A workflow might be a build, a test, or another check.</p><p>No recent signals means a quiet workshop. It doesn't prove Clawd stopped coding. Private work and unsaved code are invisible.</p><p>The pulse is a playful recency score, not a productivity rating: weighted events decay with a 30-minute half-life. The chart covers the last hour of fetched events.</p><p>The page checks every five minutes while visible. GitHub's public event feed can arrive 30 seconds to six hours late. On a fetch failure, we show an unknown state and label saved data.</p><p>The public page fetches 100 public events and checks one repo’s latest 20 workflow runs. An admin-only 24-hour replay can load up to 300 feed events and merge locally saved events from the last day. It groups nearby updates to the same repo into chapters, compresses quiet gaps, and gives every chapter at least seven seconds. Busy days may run longer than the selected duration.</p><p>Admin replay freezes its day while you watch. Historical checks are not invented from current workflows. A partial-day label appears if the public feed reaches its limit or a history page fails.</p><p>Objects on the bench are illustrations chosen from the repo name, description, topics, or a configured mapping. They are recognizable metaphors for the project, not screenshots of the actual software. Unclear project types get a labeled blueprint.</p><p>Workshop radio is original lo-fi synthesis that starts only after you press play. Market reactions use public Base RPC and DEX Screener data; demo mode never claims live price or chain activity.</p><a href="https://docs.github.com/en/rest/activity/events" target="_blank" rel="noopener noreferrer">GitHub's event API documentation ↗</a></div></dialog>
   <dialog id="score-dialog"><div class="dialog-content score-card"><button id="close-score-dialog" class="icon-button dialog-close" aria-label="Close score card">×</button><p class="eyebrow">BUILD REPORT SCORE CARD</p><h2 id="score-card-name">—</h2><p id="score-card-tag" class="score-card-tag"></p><div class="score-grades"><div><span class="eyebrow" id="score-card-econ-label">Economics</span><strong id="score-card-econ">—</strong></div><div><span class="eyebrow">Builder standards</span><strong id="score-card-builder">—</strong></div></div><p id="score-card-blurb"></p><div class="score-card-links"><a id="score-card-github" href="#" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a id="score-card-report" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">The Build Report ↗</a></div></div></dialog>
   <script type="module" src="./src/app.js"></script>
