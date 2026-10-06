@@ -33,11 +33,6 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
   const source = (await readFile(new URL('../src/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
   const elements = Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(m => [m[1], new Element()]));
   elements['replay-length'].value = '300000';
-  const shelfItems = [...html.matchAll(/data-score-id="([^"]+)"/g)].map(([, id]) => {
-    const item = new Element('g');
-    item.dataset.scoreId = id;
-    return item;
-  });
   const fixture = demoHistory(), storage = new Map(), handlers = {};
   if (saved) storage.set(CONFIG.cacheKey, JSON.stringify({ username: CONFIG.username, data: saved }));
   let calls = 0, raf;
@@ -57,8 +52,8 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
     createElement: tag => new Element(tag),
     createElementNS: (_ns, tag) => new Element(tag),
     createTextNode: text => ({ textContent: text }),
-    querySelector: selector => selector === '.shelf-fireplace' ? shelfItems[0] : null,
-    querySelectorAll: selector => selector === '.score-shelf-item' ? shelfItems : [],
+    querySelector: () => null,
+    querySelectorAll: () => [],
     addEventListener: (name, fn) => { handlers[name] = fn; },
   };
   vm.runInNewContext(source, {
@@ -67,7 +62,7 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
     window: { addEventListener() {}, dispatchEvent() { return true; } }, setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, requestAnimationFrame(fn) { raf = fn; }
   });
   for (let i = 0; i < 15; i++) await new Promise(resolve => setImmediate(resolve));
-  return { elements, storage, document, handlers, calls: () => calls, step: t => raf(t), shelfItems };
+  return { elements, storage, document, handlers, calls: () => calls, step: t => raf(t) };
 }
 test('all current demo states, artwork updates, motion controls and dialog work', async () => {
   const h = await harness(), e = h.elements;
@@ -80,7 +75,7 @@ test('all current demo states, artwork updates, motion controls and dialog work'
   e['close-dialog'].events.click(); assert.equal(e['about-dialog'].open, false);
   assert.equal(e['score-holder'].children.length, 4);
   assert.equal(e['score-shipping'].children.length, 2);
-  h.shelfItems[0].events.click();
+  e['score-holder'].children[0].events.click();
   assert.equal(e['score-dialog'].open, true);
   assert.equal(e['score-card-name'].textContent, 'clawd-incinerator');
   e['close-score-dialog'].events.click();

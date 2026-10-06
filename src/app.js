@@ -211,17 +211,9 @@ function skip(direction) { const frame = replayFrame(replay.plan, replay.elapsed
 $('replay-previous').addEventListener('click', () => skip(-1)); $('replay-next').addEventListener('click', () => skip(1));
 $('about-button').addEventListener('click', () => $('about-dialog').showModal()); $('close-dialog').addEventListener('click', () => $('about-dialog').close());
 $('about-dialog').addEventListener('click', e => { if (e.target === $('about-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); } });
-function lightShelfFireplace(ms = 5500) {
-  const fireplace = document.querySelector('.shelf-fireplace');
-  if (!fireplace) return;
-  fireplace.classList.add('lit');
-  clearTimeout(lightShelfFireplace.timer);
-  lightShelfFireplace.timer = setTimeout(() => fireplace.classList.remove('lit'), ms);
-}
 function openScoreCard(id) {
   const build = scoreBuild(id);
   if (!build) return;
-  if (id === 'clawd-incinerator') lightShelfFireplace();
   $('score-card-name').textContent = build.name;
   $('score-card-tag').textContent = build.tag;
   $('score-card-econ-label').textContent = build.econLabel;
@@ -247,17 +239,9 @@ function renderScoreShowcase() {
   holder.replaceChildren(...SCORE_BUILDS.filter(b => b.section === 'holder').map(scoreChip));
   shipping.replaceChildren(...SCORE_BUILDS.filter(b => b.section === 'shipping').map(scoreChip));
 }
-function bindScoreShelf() {
-  document.querySelectorAll('.score-shelf-item').forEach(item => {
-    const open = () => openScoreCard(item.dataset.scoreId);
-    item.addEventListener('click', open);
-    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
-  });
-}
 $('close-score-dialog').addEventListener('click', () => $('score-dialog').close());
 $('score-dialog').addEventListener('click', e => { if (e.target === $('score-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); } });
 renderScoreShowcase();
-bindScoreShelf();
 document.addEventListener('visibilitychange', () => { replay.lastTick = 0; if (document.hidden && mode === 'replay' && replay.playing) { replay.playing = false; render(); } else if (!document.hidden && !demo && mode === 'current' && Date.now() - lastAttempt >= client.pollMs) refresh(); });
 window.addEventListener('online', () => { if (!demo && unavailable && mode === 'current') refresh(); });
 snapshot = safeStore.get();

@@ -21,7 +21,7 @@ Lounge update validation (merged zip 4 into the live checkout, preserving admin 
 - All 48 tests pass after merge. Coverage includes safe build context, original audio scores and failed-start recovery, V3/V4 swap signs, token/chain/pair matching, stale price rejection, burn-versus-sink classification, watcher baseline/retry/dedup, RPC chain/decimal rejection, demo market isolation, and score-card dialog open/close.
 - Static build succeeds.
 - Desktop browser check at `http://localhost:3000`: larger workshop, radio illustration, build brief with commit links, market panel, score shelf/chips, and score-card dialog.
-- Shelf polish: score props sit on the plank without card frames; wall clock removed; incinerator is a fireplace that flares (`.lit` / burn market effect) on Preview burn and when opening clawd-incinerator.
+- Scene focus: pegboard/tools, plant, and score shelf removed; window + full fireplace remain. Fireplace stays cold until burns; `data-burn-level` 1–3 scales flame size from token amount (demo burn uses the burn-threshold input).
 - Mobile check at 390×844: stacked layout, readable headlines, workshop and brief readable without horizontal overflow in the first viewport.
 - Lo-fi radio: silent until Play; after click UI shows `72 BPM · original generative lo-fi`, `aria-pressed=true`, and `music-playing` on the scene. Audio is Web Audio synthesis (cannot prove speaker output from this agent environment beyond a running AudioContext path).
 - Live DEX Screener quote succeeded in the browser (`$CLAWD` price, 24h change, volume, liquidity). Selected Uniswap V4 pool `0x9fd58e73…aa8ce` on Base.

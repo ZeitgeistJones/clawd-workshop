@@ -14,9 +14,8 @@ async function harness(){
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  const source=(await readFile(new URL('../src/lounge.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
  const elements=Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],new Element()]));
- elements['radio-station'].value='0';elements['radio-volume'].value='35';
- const fireplace=new Element();
- const windowHandlers={},docHandlers={};const document={hidden:false,getElementById:id=>{assert.ok(elements[id],id);return elements[id]},querySelector:sel=>sel==='.shelf-fireplace'?fireplace:sel==='.radio-panel'?elements['radio-title']:null,createElement:()=>new Element(),addEventListener:(k,v)=>docHandlers[k]=v};
+ elements['radio-station'].value='0';elements['radio-volume'].value='35';elements['burn-threshold'].value='1000000';elements['buy-threshold'].value='1000';
+ const windowHandlers={},docHandlers={};const document={hidden:false,getElementById:id=>{assert.ok(elements[id],id);return elements[id]},querySelector:sel=>sel==='.radio-panel'?elements['radio-title']:null,createElement:()=>new Element(),addEventListener:(k,v)=>docHandlers[k]=v};
  let marketCalls=0,audioStarts=0,quotes=[];
  class Client{
   constructor(){this.price=null}dispose(){}quote(){marketCalls++;return new Promise(resolve=>quotes.push(q=>{this.price=q;resolve(q)}))}async watch(){marketCalls++;return{events:[],note:'Watching'}}
@@ -30,8 +29,9 @@ async function harness(){
 test('lounge demo makes no market requests, music is opt-in, and buy/burn previews react independently',async()=>{
  const h=await harness(),e=h.elements;await h.emit();
  assert.equal(h.marketCalls(),0);assert.equal(h.audioStarts(),0);assert.match(e['market-status'].textContent,/DEMO/);assert.equal(e['brief-description'].textContent,'A small wallet.');
- e['demo-buy'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'buy');assert.match(e['scene-event-title'].textContent,/DEMO/);
- e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'burn');
+ e['demo-buy'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'buy');assert.equal(e.scene.dataset.burnLevel,undefined);assert.match(e['scene-event-title'].textContent,/DEMO/);
+ e['burn-threshold'].value='1000000';e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'burn');assert.equal(e.scene.dataset.burnLevel,'1');
+ e['burn-threshold'].value='25000000';e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.burnLevel,'3');
  await e['radio-play'].handlers.click();assert.equal(h.audioStarts(),1);assert.equal(e['radio-play'].attributes['aria-pressed'],'true');
  await e['radio-play'].handlers.click();assert.equal(e['radio-play'].attributes['aria-pressed'],'false');
 });

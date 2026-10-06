@@ -66,19 +66,34 @@ function drawEvents() {
     li.append(element('small', '', event.sample ? 'DEMO · sample event' : event.kind === 'buy' ? `≈ ${usd(event.usd)} at fetched price · block ${event.block}` : `Observed token transfer · block ${event.block}`)); $('market-events').append(li);
   }
 }
+function burnLevel(amount) {
+  const n = Math.max(0, Number(amount) || 0);
+  if (n >= 25_000_000) return 3;
+  if (n >= 5_000_000) return 2;
+  return 1;
+}
 function clearEffect() {
-  clearTimeout(effectTimer); delete $('scene').dataset.marketEffect; $('scene-event').hidden = true;
-  document.querySelector('.shelf-fireplace')?.classList.remove('lit');
+  clearTimeout(effectTimer);
+  delete $('scene').dataset.marketEffect;
+  delete $('scene').dataset.burnLevel;
+  $('scene-event').hidden = true;
 }
 function showEvent(event) {
   marketEvents.unshift(event); marketEvents = marketEvents.slice(0, 12); drawEvents();
   if (!effectsEnabled || mode === 'replay' || document.hidden || $('scene').classList.contains('paused')) return;
-  clearEffect(); $('scene').dataset.marketEffect = event.kind; $('scene-event').hidden = false;
-  if (event.kind === 'burn') document.querySelector('.shelf-fireplace')?.classList.add('lit');
+  clearEffect();
+  $('scene').dataset.marketEffect = event.kind;
+  $('scene-event').hidden = false;
+  let holdMs = 5500;
+  if (event.kind === 'burn') {
+    const level = burnLevel(event.amount);
+    $('scene').dataset.burnLevel = String(level);
+    holdMs = level === 3 ? 8200 : level === 2 ? 6500 : 4800;
+  }
   text('scene-event-icon', event.kind === 'buy' ? '✦' : '♨');
   text('scene-event-title', `${event.sample ? 'DEMO · ' : ''}${event.label}`);
   text('scene-event-detail', `${shortAmount(event.amount)} CLAWD${event.kind === 'buy' ? ` · ≈ ${usd(event.usd)}` : ' · a little extra warmth in the workshop'}`);
-  effectTimer = setTimeout(clearEffect, 5500);
+  effectTimer = setTimeout(clearEffect, holdMs);
 }
 async function fetchPrice(generation) {
   if (demo || document.hidden || priceBusy === generation || generation !== epoch) return;
@@ -123,7 +138,11 @@ for (const [id, key] of [['buy-threshold', 'bigBuyUsd'], ['burn-threshold', 'big
 });
 $('market-effects').addEventListener('change', e => { effectsEnabled = e.target.checked; if (!effectsEnabled) clearEffect(); });
 $('demo-buy').addEventListener('click', () => { if (demo) showEvent({ kind: 'buy', label: 'Buy-side swap', amount: 48000000, usd: 2016, sample: true }); });
-$('demo-burn').addEventListener('click', () => { if (demo) showEvent({ kind: 'burn', label: 'Token burn', amount: 5000000, sample: true }); });
+$('demo-burn').addEventListener('click', () => {
+  if (!demo) return;
+  const amount = Math.max(1, Number($('burn-threshold').value) || 1_000_000);
+  showEvent({ kind: 'burn', label: 'Token burn', amount, sample: true });
+});
 
 function drawRadio(message) {
   text('radio-title', STATIONS[radio.station].name);
