@@ -62,10 +62,37 @@
               <g stroke="#4f5e59" stroke-width="8" stroke-linecap="round"><path d="M83 108V158"/><path d="M76 100L83 110L91 100"/><path d="M121 113V163"/><path d="M155 106L166 119L151 135"/></g>
               <path d="M111 103H132V122H111Z" fill="#de7851"/><path d="M142 136L153 142L135 165L127 159Z" fill="#de7851"/>
               <g class="wall-clock"><circle cx="707" cy="93" r="27" fill="#fffaf0" stroke="#76827a" stroke-width="5"/><path d="M707 75V93L720 101" stroke="#596b60" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="707" cy="93" r="3" fill="#596b60"/></g>
-              <path d="M568 193H754" stroke="#9c7858" stroke-width="10" stroke-linecap="round"/>
-              <g class="shelf-bot"><rect x="584" y="145" width="40" height="38" rx="7" fill="#a0aca0" stroke="#586c60" stroke-width="3"/><path d="M604 145V137" stroke="#586c60" stroke-width="3"/><circle cx="604" cy="133" r="4" fill="#df7954"/><circle cx="596" cy="160" r="4" fill="#3f5049"/><circle cx="612" cy="160" r="4" fill="#3f5049"/><path d="M597 173H610M590 184V190M617 184V190" stroke="#586c60" stroke-width="3"/></g>
-              <g><path d="M654 186V163L671 142L688 163V186Z" fill="#d8805d" stroke="#b56348" stroke-width="3"/><circle cx="671" cy="168" r="7" fill="#fff4d7"/><path d="M649 186L654 174M688 174L693 186" stroke="#b56348" stroke-width="4"/></g>
-              <g><rect x="714" y="156" width="21" height="32" rx="4" fill="#dab768"/><path d="M718 153Q714 136 709 136M724 152Q730 135 735 139" stroke="#617b65" stroke-width="6" stroke-linecap="round"/></g>
+              <path d="M548 193H770" stroke="#9c7858" stroke-width="10" stroke-linecap="round"/>
+              <g id="score-shelf" class="score-shelf" aria-label="High-scoring Build Report projects on the workshop shelf">
+                <g class="score-shelf-item" data-score-id="clawd-incinerator" role="button" tabindex="0" aria-label="Open clawd-incinerator score card">
+                  <title>clawd-incinerator · A+</title>
+                  <rect x="552" y="142" width="34" height="42" rx="5" fill="#5c5854" stroke="#3f3c39" stroke-width="2"/>
+                  <path d="M558 152H580V170H558Z" fill="#2b2927"/><path d="M562 156H576" stroke="#ef8b45" stroke-width="2"/><path d="M562 162H576" stroke="#ef8b45" stroke-width="2"/>
+                  <circle cx="569" cy="176" r="3" fill="#ef8b45"/><text x="569" y="138" text-anchor="middle" font-size="7" fill="#6a756d" font-family="Georgia,serif">burn</text>
+                </g>
+                <g class="score-shelf-item" data-score-id="receiver-buy-and-burn" role="button" tabindex="0" aria-label="Open receiver-buy-and-burn score card">
+                  <title>receiver-buy-and-burn · A+</title>
+                  <rect x="592" y="148" width="36" height="36" rx="6" fill="#e8f0ea" stroke="#5f7a66" stroke-width="2"/>
+                  <path d="M600 166H620M610 156V176" stroke="#436b56" stroke-width="3" stroke-linecap="round"/><circle cx="610" cy="166" r="7" fill="none" stroke="#d87954" stroke-width="2"/>
+                </g>
+                <g class="score-shelf-item" data-score-id="clawd-intern" role="button" tabindex="0" aria-label="Open clawd-intern score card">
+                  <title>clawd-intern · A+</title>
+                  <rect x="634" y="150" width="32" height="34" rx="5" fill="#f3e7d2" stroke="#a9843f" stroke-width="2"/>
+                  <path d="M640 168H660M645 160H655" stroke="#8a6a35" stroke-width="2"/><circle cx="650" cy="158" r="4" fill="#e7785b"/>
+                </g>
+                <g class="score-shelf-item" data-score-id="clawd-fomo3d-v2" role="button" tabindex="0" aria-label="Open clawd-fomo3d-v2 score card">
+                  <title>clawd-fomo3d-v2 · A+</title>
+                  <circle cx="692" cy="166" r="16" fill="#dff0e8" stroke="#4f7a62" stroke-width="2"/><path d="M684 166H700M692 158V174" stroke="#d87954" stroke-width="2.5"/><text x="692" y="170" text-anchor="middle" font-size="8" fill="#345244" font-family="Georgia,serif">3d</text>
+                </g>
+                <g class="score-shelf-item" data-score-id="clawd-twitter-proxy" role="button" tabindex="0" aria-label="Open clawd-twitter-proxy score card">
+                  <title>clawd-twitter-proxy · A+</title>
+                  <rect x="714" y="148" width="22" height="36" rx="4" fill="#e7eef8" stroke="#5b6f8a" stroke-width="2"/><path d="M719 156H731M719 164H731M719 172H727" stroke="#5b6f8a" stroke-width="2"/>
+                </g>
+                <g class="score-shelf-item" data-score-id="clawd-containers" role="button" tabindex="0" aria-label="Open clawd-containers score card">
+                  <title>clawd-containers · A+</title>
+                  <rect x="742" y="150" width="24" height="34" rx="3" fill="#d9e2ef" stroke="#586c80" stroke-width="2"/><rect x="746" y="155" width="16" height="10" rx="1" fill="#f7fafc"/><rect x="746" y="168" width="16" height="10" rx="1" fill="#f7fafc"/>
+                </g>
+              </g>
               <path d="M400 0V54" stroke="#666c5e" stroke-width="5"/>
               <path class="light-cone" d="M376 83L233 349H565L424 83Z" fill="url(#lamp-glow)"/>
               <path d="M364 83Q368 49 400 49Q432 49 436 83Z" fill="#496954"/><path d="M364 83H436" stroke="#385140" stroke-width="5" stroke-linecap="round"/>
@@ -115,11 +142,20 @@
         <section class="panel timeline-panel"><div class="section-heading"><div><p class="eyebrow">THE PAPER TRAIL</p><h2 id="timeline-title">Fresh from the workbench</h2></div><button id="refresh-button" class="outline-button">↻ Refresh</button></div><ul id="timeline" class="timeline"><li class="empty">Fetching the latest public activity…</li></ul><p class="data-footnote" id="workflow-note">Workflow checks cover the most recently active repository.</p></section>
         <section class="panel projects-panel"><div class="section-heading"><div><p class="eyebrow">ON THE SHELF</p><h2 id="shelf-title">A few recent projects</h2></div><span class="shelf-icon" aria-hidden="true">▱</span></div><div id="projects" class="project-list"><p class="empty">Dusting off the shelves…</p></div><div class="release-summary" id="release-summary"></div></section>
       </div>
+      <section class="panel score-panel" aria-label="High-scoring Build Report projects">
+        <div class="section-heading"><div><p class="eyebrow">BUILD REPORT · HIGH SCORES</p><h2>Trophy shelf from The Build Report</h2></div><a class="outline-button" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">Open report ↗</a></div>
+        <p class="score-panel-copy">Click a build — on the back shelf or below — to open its score card. Grades are interpretive Build Report scores, not live GitHub pulse.</p>
+        <div class="score-sections">
+          <div><p class="eyebrow">HOLDER ECONOMICS</p><div id="score-holder" class="score-chip-row"></div></div>
+          <div><p class="eyebrow">SHIPPING LEVERAGE</p><div id="score-shipping" class="score-chip-row"></div></div>
+        </div>
+      </section>
       <section class="demo-bar" aria-label="Demo controls"><div><strong>Take the little guy for a spin.</strong><p>Preview his moods with clearly labeled sample activity.</p></div><div class="demo-controls"><button id="demo-toggle" class="outline-button" aria-pressed="false">Try demo</button><select id="demo-state" aria-label="Demo state" hidden><option value="building">Building</option><option value="planning">Planning</option><option value="testing">Testing</option><option value="shipping">Shipping</option><option value="idle">Quiet</option></select></div></section>
     </main>
     <footer><span>Made for the people who like watching builders build.</span><span>Public signals. A little imagination.</span></footer>
   </div>
   <dialog id="about-dialog"><div class="dialog-content"><button id="close-dialog" class="icon-button dialog-close" aria-label="Close explanation">×</button><p class="eyebrow">A WINDOW, NOT A CAMERA</p><h2>What are we actually seeing?</h2><p>Clawd reacts to <strong>public GitHub activity</strong>, not keystrokes. A recent push or pull request means building signals; a new branch or issue means planning signals; a published release gets a celebration.</p><p>Running or queued GitHub Actions from this builder in the latest active repo put on the safety goggles. A workflow might be a build, a test, or another check.</p><p>No recent signals means a quiet workshop. It doesn't prove Clawd stopped coding. Private work and unsaved code are invisible.</p><p>The pulse is a playful recency score, not a productivity rating: weighted events decay with a 30-minute half-life. The chart covers the last hour of fetched events.</p><p>The page checks every five minutes while visible. GitHub's public event feed can arrive 30 seconds to six hours late. On a fetch failure, we show an unknown state and label saved data.</p><p>The public page fetches 100 public events and checks one repo’s latest 20 workflow runs. An admin-only 24-hour replay can load up to 300 feed events and merge locally saved events from the last day. It groups nearby updates to the same repo into chapters, compresses quiet gaps, and gives every chapter at least seven seconds. Busy days may run longer than the selected duration.</p><p>Admin replay freezes its day while you watch. Historical checks are not invented from current workflows. A partial-day label appears if the public feed reaches its limit or a history page fails.</p><p>Objects on the bench are illustrations chosen from the repo name, description, topics, or a configured mapping. They are recognizable metaphors for the project, not screenshots of the actual software. Unclear project types get a labeled blueprint.</p><a href="https://docs.github.com/en/rest/activity/events" target="_blank" rel="noopener noreferrer">GitHub's event API documentation ↗</a></div></dialog>
+  <dialog id="score-dialog"><div class="dialog-content score-card"><button id="close-score-dialog" class="icon-button dialog-close" aria-label="Close score card">×</button><p class="eyebrow">BUILD REPORT SCORE CARD</p><h2 id="score-card-name">—</h2><p id="score-card-tag" class="score-card-tag"></p><div class="score-grades"><div><span class="eyebrow" id="score-card-econ-label">Economics</span><strong id="score-card-econ">—</strong></div><div><span class="eyebrow">Builder standards</span><strong id="score-card-builder">—</strong></div></div><p id="score-card-blurb"></p><div class="score-card-links"><a id="score-card-github" href="#" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a id="score-card-report" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">The Build Report ↗</a></div></div></dialog>
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
