@@ -6,7 +6,7 @@ A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub a
 
 Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. New files are `src/replay.js`, `src/objects.js`, `public/objects.svg`, `tests/replay.test.mjs`, and `tests/ui.test.mjs`. Existing `index.html`, the JavaScript/CSS files, `package.json`, and docs have also changed; upload the whole project rather than just one file. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
 
-Commit the upload; your connected Vercel project can deploy the new commit. Once that deployment is ready, reload the site. Click **Replay 24 hours** above the workshop.
+Commit the upload; your connected Vercel project can deploy the new commit. Once that deployment is ready, reload the site. Replay lives under the admin tools: open `/?admin=1`, then use **Replay 24 hours**.
 
 ## Drop it into GitHub
 
@@ -52,9 +52,9 @@ Click **Try demo**, then choose Building, Planning, Testing, Shipping, or Quiet.
 
 Clawd is drawn in SVG and animated with CSS. He retains the reference character's red triangular face, sly eyes, mischievous smile, bow tie, and claws, with a little workshop apron. No raster assets are required. The pause button stops motion; reduced-motion preferences are respected.
 
-## Replay the last 24 hours
+## Replay the last 24 hours (admin)
 
-Click **Replay 24 hours**. Playback starts after the history loads. Choose **2, 5, or 8 minutes** as your target duration (default: five). The day is a rolling 24-hour window ending when you load it, shown in your browser's local time.
+Replay is hidden from the public page. Open `/?admin=1` (or `/?demo=1&admin=1` for a sample day). The Admin tab and Workshop / Replay controls appear. Click **Replay 24 hours**. Playback starts after the history loads. Choose **2, 5, or 8 minutes** as your target duration (default: five). The day is a rolling 24-hour window ending when you load it, shown in your browser's local time.
 
 - Nearby events for the same repository are grouped into chapters when no more than 30 minutes apart. Project switches and published releases remain separate chapters. Every fetched event appears in its chapter's evidence list.
 - Each chapter stays on screen for at least **7 seconds**. Work chapters last at most **30 seconds**, and quiet gaps last at most **10 seconds**. A dense day extends beyond the requested length to stay readable. A sparse day shortens instead of making you stare at one project for minutes. The actual duration appears next to the slider.

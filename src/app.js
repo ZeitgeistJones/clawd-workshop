@@ -7,7 +7,9 @@ import { makeReplay, replayFrame, formatDuration, mergeEvents, DAY_MS } from './
 
 const $ = id => document.getElementById(id);
 const client = new GithubClient();
-let snapshot = null, unavailable = false, demo = new URLSearchParams(location.search).get('demo') === '1';
+const params = new URLSearchParams(location.search);
+let snapshot = null, unavailable = false, demo = params.get('demo') === '1';
+let admin = params.get('admin') === '1';
 let demoState = 'building', busy = false, timer, lastAttempt = 0, demoData = null;
 let mode = 'current', history = null, historyBusy = false, loadGeneration = 0;
 const replay = { plan: null, elapsed: 0, playing: false, lastTick: 0, lastPaint: 0, paintedChapter: -1 };
@@ -99,9 +101,12 @@ function render() {
   $('demo-toggle').textContent = demo ? 'Back to GitHub' : 'Try demo'; $('demo-toggle').setAttribute('aria-pressed', String(demo)); $('demo-state').hidden = !demo || isReplay;
   $('refresh-button').hidden = isReplay;
   $('refresh-button').disabled = busy || (!demo && Date.now() < client.blockedUntil);
+  $('admin-shell').hidden = !admin;
+  $('admin-nav').hidden = !admin;
+  $('admin-nav').setAttribute('aria-pressed', String(admin && isReplay));
   $('current-mode').classList.toggle('active', !isReplay); $('current-mode').setAttribute('aria-pressed', String(!isReplay));
-  $('replay-mode').classList.toggle('active', isReplay); $('replay-mode').setAttribute('aria-pressed', String(isReplay)); $('replay-mode').disabled = busy || historyBusy;
-  $('replay-panel').hidden = !isReplay;
+  $('replay-mode').classList.toggle('active', isReplay); $('replay-mode').setAttribute('aria-pressed', String(isReplay)); $('replay-mode').disabled = !admin || busy || historyBusy;
+  $('replay-panel').hidden = !admin || !isReplay;
   updateReplayControls();
 }
 function updateReplayControls() {
@@ -138,7 +143,7 @@ function setPlan(keepPosition = false) {
   drawChapters();
 }
 async function openReplay() {
-  if (historyBusy || busy) return;
+  if (!admin || historyBusy || busy) return;
   const generation = ++loadGeneration; mode = 'replay'; replay.playing = false; clearTimeout(timer);
   notice(demo ? 'Demo replay: this is a fictional sample day, not Clawd’s real activity.' : '');
   if (history && Date.now() - Date.parse(history.checkedAt) < CONFIG.refreshMs) { setPlan(); replay.playing = !!replay.plan.chapters.length; render(); return; }
@@ -194,6 +199,7 @@ $('demo-toggle').addEventListener('click', () => { const wasReplay = mode === 'r
 $('demo-state').addEventListener('change', e => { demoState = e.target.value; refresh(); });
 $('motion-button').addEventListener('click', () => { const paused = $('scene').classList.toggle('paused'); $('motion-button').textContent = paused ? '▶' : 'Ⅱ'; $('motion-button').setAttribute('aria-pressed', String(paused)); $('motion-button').setAttribute('aria-label', paused ? 'Resume animation' : 'Pause animation'); });
 $('current-mode').addEventListener('click', currentMode); $('replay-mode').addEventListener('click', openReplay);
+$('admin-nav').addEventListener('click', () => { if (!admin) return; if (mode === 'replay') currentMode(); else openReplay(); });
 $('replay-play').addEventListener('click', () => { if (!replay.plan?.chapters.length) return; if (replay.elapsed >= replay.plan.durationMs) replay.elapsed = 0; replay.playing = !replay.playing; replay.lastTick = 0; render(); });
 $('replay-progress').addEventListener('input', e => { replay.elapsed = Number(e.target.value); replay.playing = false; render(); });
 $('replay-length').addEventListener('change', () => { setPlan(true); render(); });

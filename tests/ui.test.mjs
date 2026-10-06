@@ -22,7 +22,7 @@ class Element {
   showModal() { this.open = true; }
   close() { this.open = false; }
 }
-async function harness({ demo = true, fail = false, saved = null } = {}) {
+async function harness({ demo = true, admin = false, fail = false, saved = null } = {}) {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const source = (await readFile(new URL('../src/app.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
   const elements = Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(m => [m[1], new Element()]));
@@ -37,10 +37,13 @@ async function harness({ demo = true, fail = false, saved = null } = {}) {
       return new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } });
     }); }
   }
+  const query = new URLSearchParams();
+  if (demo) query.set('demo', '1');
+  if (admin) query.set('admin', '1');
   const document = { hidden: false, getElementById: id => { assert.ok(elements[id], `missing HTML element ${id}`); return elements[id]; }, createElement: tag => new Element(tag), createElementNS: (_ns, tag) => new Element(tag), createTextNode: text => ({ textContent: text }), addEventListener: (name, fn) => { handlers[name] = fn; } };
   vm.runInNewContext(source, {
     ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, URL, URLSearchParams, Date,
-    location: { search: demo ? '?demo=1' : '' }, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) }, document,
+    location: { search: query.toString() ? `?${query}` : '' }, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) }, document,
     window: { addEventListener() {} }, setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, requestAnimationFrame(fn) { raf = fn; }
   });
   for (let i = 0; i < 15; i++) await new Promise(resolve => setImmediate(resolve));
@@ -56,8 +59,17 @@ test('all current demo states, artwork updates, motion controls and dialog work'
   e['about-button'].events.click(); assert.equal(e['about-dialog'].open, true);
   e['close-dialog'].events.click(); assert.equal(e['about-dialog'].open, false);
 });
+test('public site hides admin replay controls', async () => {
+  const h = await harness({ demo: true, admin: false }), e = h.elements;
+  assert.equal(e['admin-shell'].hidden, true);
+  assert.equal(e['admin-nav'].hidden, true);
+  await e['replay-mode'].events.click();
+  assert.equal(e['replay-panel'].hidden, true);
+  assert.equal(e.scene.dataset.state, 'building');
+});
 test('replay loads a day, starts playing, pauses, scrubs, changes duration and returns to current mode', async () => {
-  const h = await harness(), e = h.elements;
+  const h = await harness({ admin: true }), e = h.elements;
+  assert.equal(e['admin-shell'].hidden, false);
   await e['replay-mode'].events.click();
   assert.equal(h.calls(), 0); assert.equal(e['replay-panel'].hidden, false);
   assert.match(e['replay-coverage'].textContent, /9 projects/); assert.equal(e.scene.dataset.projectKind, 'wallet');
@@ -72,7 +84,7 @@ test('replay loads a day, starts playing, pauses, scrubs, changes duration and r
   e['current-mode'].events.click(); assert.equal(e['replay-panel'].hidden, true); assert.equal(e['refresh-button'].hidden, false);
 });
 test('replay objects follow the selected chapter and hidden tabs pause time', async () => {
-  const h = await harness(), e = h.elements;
+  const h = await harness({ admin: true }), e = h.elements;
   await e['replay-mode'].events.click();
   const chapters = e['replay-chapters'].querySelectorAll('button');
   const dashboard = chapters.find(b => b.children[1].children[0].textContent === 'clawd-harness');
@@ -84,7 +96,7 @@ test('replay objects follow the selected chapter and hidden tabs pause time', as
   assert.equal(e['replay-progress'].value, at); assert.equal(e['replay-play'].textContent, '▶ Play');
 });
 test('public fixtures render and offline recovery preserves evidence without claiming a current state', async () => {
-  const live = await harness({ demo: false }); assert.equal(live.calls(), 3);
+  const live = await harness({ demo: false, admin: true }); assert.equal(live.calls(), 3);
   assert.ok(live.storage.get(CONFIG.cacheKey)); assert.ok(live.elements.timeline.children.length > 0);
   await live.elements['replay-mode'].events.click();
   assert.ok(live.elements['replay-chapters'].children.length > 0);
@@ -92,4 +104,5 @@ test('public fixtures render and offline recovery preserves evidence without cla
   const offline = await harness({ demo: false, fail: true, saved });
   assert.equal(offline.elements.scene.dataset.state, 'unknown'); assert.match(offline.elements.notice.textContent, /saved snapshot/);
   assert.ok(offline.elements.timeline.children.length > 0);
+  assert.equal(offline.elements['admin-shell'].hidden, true);
 });
