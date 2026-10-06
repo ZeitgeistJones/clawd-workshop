@@ -18,7 +18,7 @@ export function shareMetadata(base, video = false) {
   const tags = [
     ['property', 'og:type', video ? 'video.other' : 'website'],
     ['property', 'og:site_name', 'Clawd Workshop'],
-    ['property', 'og:title', 'What is Clawd Building?'],
+    ['property', 'og:title', 'What is Clawdbotatg Building?'],
     ['property', 'og:description', description],
     ['property', 'og:image', image],
     ['property', 'og:image:type', 'image/png'],
@@ -26,7 +26,7 @@ export function shareMetadata(base, video = false) {
     ['property', 'og:image:height', '630'],
     ['property', 'og:image:alt', 'Clawd working at a bench in his little workshop.'],
     ['name', 'twitter:card', video && base ? 'player' : 'summary_large_image'],
-    ['name', 'twitter:title', 'What is Clawd Building?'],
+    ['name', 'twitter:title', 'What is Clawdbotatg Building?'],
     ['name', 'twitter:description', description],
     ['name', 'twitter:image', image],
     ['name', 'twitter:image:alt', 'Clawd working at a bench in his little workshop.'],

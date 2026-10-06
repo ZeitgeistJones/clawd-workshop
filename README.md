@@ -1,4 +1,4 @@
-# What is Clawd Building?
+# What is Clawdbotatg Building?
 
 A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub activity. A cute red triangular Clawd works in an animated SVG garage; the data changes his behavior. Watch current signals or replay the available last 24 hours as a paced recap. The object on the bench changes with the project: wallets, robots, dashboards, safes, books, and more. Responsive on desktop and phone.
 
