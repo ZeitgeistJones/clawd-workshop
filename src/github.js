@@ -2,7 +2,7 @@ import { CONFIG } from './config.js';
 import { normalizeEvents } from './activity.js';
 
 export class GithubClient {
-  constructor(fetcher = fetch) { this.fetcher = fetcher; this.cache = new Map(); this.blockedUntil = 0; this.pollMs = CONFIG.refreshMs; }
+  constructor(fetcher = globalThis.fetch.bind(globalThis)) { this.fetcher = fetcher; this.cache = new Map(); this.blockedUntil = 0; this.pollMs = CONFIG.refreshMs; }
   async request(path, ttl = 0) {
     const now = Date.now(), cached = this.cache.get(path);
     if (cached && now - cached.at < ttl) return cached.data;
