@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf7f1">
+  <meta name="description" content="A little workshop for watching Clawd build. Public GitHub signals, a build pulse, and one very busy little triangle.">
+  <title>Is Clawd building? — The little workshop</title>
+  <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Clawd workshop home"><span class="brand-icon">△</span><span>the little workshop<span class="brand-sub">a window into the work</span></span></a>
+      <nav aria-label="Main"><a id="profile-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">GitHub ↗</a><button id="about-button" class="text-button">How it works</button></nav>
+    </header>
+    <main>
+      <div class="intro"><div><p class="eyebrow">ONE BUILDER. ONE WORKSHOP.</p><h1>Is <span id="builder-name">Clawd</span> building?</h1><p class="intro-copy">Pull up a chair. See what the little guy is up to.</p></div><div class="source-badge" id="source-badge"><span class="dot"></span>Public GitHub signals</div></div>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <div class="dashboard">
+        <section class="workshop panel" aria-label="Animated workshop">
+          <div class="workshop-top"><div class="status-tag" id="state-tag">CONNECTING</div><div class="workshop-tools"><button id="motion-button" class="icon-button" aria-pressed="false" aria-label="Pause animation">Ⅱ</button><span class="window-label">WORKSHOP / 01</span></div></div>
+          <div class="scene-wrap" data-state="unknown" id="scene">
+            <svg class="scene" viewBox="0 0 800 470" role="img" aria-labelledby="scene-title scene-desc">
+              <title id="scene-title">Clawd's little workshop</title><desc id="scene-desc">A cute red triangular Clawd with mischievous eyes and claws works at a bench in a cozy robot garage.</desc>
+              <defs>
+                <pattern id="peg-grid" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="2" fill="#bba990" opacity=".5"/></pattern>
+                <linearGradient id="lamp-glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe8a9" stop-opacity=".65"/><stop offset="1" stop-color="#ffe8a9" stop-opacity="0"/></linearGradient>
+              </defs>
+              <rect width="800" height="470" fill="#f2ede3"/>
+              <path d="M0 349H800V470H0Z" fill="#e5dccc"/>
+              <path d="M0 349H800M50 409H750M97 349L60 470M706 349L745 470M295 349L280 470M509 349L520 470" fill="none" stroke="#cabda9" stroke-width="2" opacity=".55"/>
+              <rect x="49" y="72" width="155" height="123" rx="12" fill="#e4d8c5" stroke="#cdbda5" stroke-width="3"/>
+              <rect x="58" y="82" width="137" height="103" rx="7" fill="url(#peg-grid)"/>
+              <g stroke="#4f5e59" stroke-width="8" stroke-linecap="round"><path d="M83 108V158"/><path d="M76 100L83 110L91 100"/><path d="M121 113V163"/><path d="M155 106L166 119L151 135"/></g>
+              <path d="M111 103H132V122H111Z" fill="#de7851"/><path d="M142 136L153 142L135 165L127 159Z" fill="#de7851"/>
+              <g class="wall-clock"><circle cx="707" cy="93" r="27" fill="#fffaf0" stroke="#76827a" stroke-width="5"/><path d="M707 75V93L720 101" stroke="#596b60" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="707" cy="93" r="3" fill="#596b60"/></g>
+              <path d="M568 193H754" stroke="#9c7858" stroke-width="10" stroke-linecap="round"/>
+              <g class="shelf-bot"><rect x="584" y="145" width="40" height="38" rx="7" fill="#a0aca0" stroke="#586c60" stroke-width="3"/><path d="M604 145V137" stroke="#586c60" stroke-width="3"/><circle cx="604" cy="133" r="4" fill="#df7954"/><circle cx="596" cy="160" r="4" fill="#3f5049"/><circle cx="612" cy="160" r="4" fill="#3f5049"/><path d="M597 173H610M590 184V190M617 184V190" stroke="#586c60" stroke-width="3"/></g>
+              <g><path d="M654 186V163L671 142L688 163V186Z" fill="#d8805d" stroke="#b56348" stroke-width="3"/><circle cx="671" cy="168" r="7" fill="#fff4d7"/><path d="M649 186L654 174M688 174L693 186" stroke="#b56348" stroke-width="4"/></g>
+              <g><rect x="714" y="156" width="21" height="32" rx="4" fill="#dab768"/><path d="M718 153Q714 136 709 136M724 152Q730 135 735 139" stroke="#617b65" stroke-width="6" stroke-linecap="round"/></g>
+              <path d="M400 0V54" stroke="#666c5e" stroke-width="5"/>
+              <path class="light-cone" d="M376 83L233 349H565L424 83Z" fill="url(#lamp-glow)"/>
+              <path d="M364 83Q368 49 400 49Q432 49 436 83Z" fill="#496954"/><path d="M364 83H436" stroke="#385140" stroke-width="5" stroke-linecap="round"/>
+              <ellipse cx="398" cy="417" rx="129" ry="16" fill="#a69882" opacity=".22"/>
+              <g class="character">
+                <g class="feet"><path d="M354 353L346 398Q322 399 323 409H368L372 354" fill="#343e3c"/><path d="M421 353L426 398Q450 398 451 409H406L405 354" fill="#343e3c"/></g>
+                <g class="body-bob">
+                  <path d="M351 273Q329 306 338 357Q386 377 433 357Q442 309 418 273" fill="#384443" stroke="#293332" stroke-width="4"/>
+                  <path d="M366 277L385 307L404 278L419 359Q391 369 356 357Z" fill="#ddb980" stroke="#bb935f" stroke-width="3"/>
+                  <path d="M374 325H401V347H374Z" fill="#cfa671"/><path d="M378 330H397" stroke="#ae814e" stroke-width="2"/>
+                  <path d="M369 283Q374 273 386 286Q399 275 402 284L399 299Q388 294 385 294Q377 300 370 298Z" fill="#222d2c"/><circle cx="385" cy="289" r="4" fill="#46504d"/>
+                  <g class="head">
+                    <path d="M385 132L300 260Q303 285 341 299Q381 315 430 291Q457 276 460 258Z" fill="#e76551" stroke="#823f37" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M385 136V299Q426 294 457 259Z" fill="#f38d6e"/><path d="M304 259L385 239V299Q330 298 304 271Z" fill="#d34e42" opacity=".65"/>
+                    <g class="eyes"><path d="M318 238Q336 222 363 239Q340 251 318 238Z" fill="#fffcf4" stroke="#843f37" stroke-width="3"/><path d="M385 238Q407 220 435 230Q421 249 385 238Z" fill="#fffcf4" stroke="#843f37" stroke-width="3"/><ellipse cx="348" cy="236" rx="9" ry="9" fill="#263a36"/><ellipse cx="410" cy="233" rx="9" ry="9" fill="#263a36"/><circle cx="351" cy="233" r="3" fill="#fff"/><circle cx="413" cy="230" r="3" fill="#fff"/></g>
+                    <path d="M316 220Q337 209 360 223M389 220Q409 204 434 219" fill="none" stroke="#a34d3e" stroke-width="3" stroke-linecap="round"/>
+                    <path class="smile" d="M318 267Q371 290 425 257" fill="none" stroke="#893f35" stroke-width="4" stroke-linecap="round"/><path d="M421 254Q432 250 435 260" fill="none" stroke="#893f35" stroke-width="2.5" stroke-linecap="round"/>
+                    <path class="sleep-eyes" d="M323 238Q342 247 359 236M391 235Q411 243 429 231" stroke="#793c34" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <g class="goggles"><rect x="312" y="225" width="57" height="28" rx="11" fill="#e3faf7" fill-opacity=".7" stroke="#506b60" stroke-width="5"/><rect x="381" y="221" width="57" height="28" rx="11" fill="#e3faf7" fill-opacity=".7" stroke="#506b60" stroke-width="5"/><path d="M369 235H380" stroke="#506b60" stroke-width="5"/></g>
+                  </g>
+                  <g class="left-arm"><path d="M345 302Q316 295 292 319" stroke="#384443" stroke-width="23" fill="none" stroke-linecap="round"/><path d="M302 309Q273 303 270 321Q271 342 294 337L309 326Z" fill="#e96c51" stroke="#8d483c" stroke-width="3"/><path d="M277 315L291 322L277 325" fill="#f49473" stroke="#8d483c" stroke-width="2"/></g>
+                  <g class="right-arm"><path d="M427 304Q456 291 477 273" fill="none" stroke="#384443" stroke-width="23" stroke-linecap="round"/><path d="M461 275Q470 253 486 263Q507 273 490 289Q479 298 461 285Z" fill="#e96c51" stroke="#8d483c" stroke-width="3"/><path d="M481 268L478 280L493 274" fill="#f49473" stroke="#8d483c" stroke-width="2"/><g class="hammer"><path d="M483 267L507 224" stroke="#a87a50" stroke-width="10" stroke-linecap="round"/><path d="M492 213L520 228L513 243L485 228Z" fill="#7b8b83" stroke="#435b50" stroke-width="3"/></g></g>
+                </g>
+              </g>
+              <g class="workbench"><path d="M225 344L221 413H241L248 344M545 344L552 413H572L568 344" fill="#a67852" stroke="#825b40" stroke-width="3"/><rect x="207" y="331" width="383" height="21" rx="5" fill="#b5855e" stroke="#805c44" stroke-width="3"/><rect x="214" y="353" width="368" height="9" fill="#947051"/>
+              <path d="M223 352V385H287V352" fill="#c99b71" stroke="#805c44" stroke-width="3"/><path d="M246 368H265" stroke="#805c44" stroke-width="4" stroke-linecap="round"/></g>
+              <g class="invention"><rect x="441" y="290" width="83" height="39" rx="8" fill="#9eafa4" stroke="#4b6858" stroke-width="3"/><path d="M455 290V279H511V290" fill="#bdcbc0" stroke="#4b6858" stroke-width="3"/><circle class="machine-light" cx="482" cy="310" r="7" fill="#e8b75a"/><path d="M501 305H515M501 313H515" stroke="#4b6858" stroke-width="3"/><path d="M450 330V325M516 330V325" stroke="#4b6858" stroke-width="5"/><path d="M524 316Q548 321 551 308" fill="none" stroke="#4b6858" stroke-width="3"/></g>
+              <g class="blueprint"><path d="M358 315L436 300L455 327L370 333Z" fill="#799fab" stroke="#416673" stroke-width="2"/><path d="M379 317L424 310L435 322L389 327ZM409 312L415 324" fill="none" stroke="#d8ebee" stroke-width="2"/></g>
+              <g class="shipping-box"><path d="M441 280H524V330H441Z" fill="#dfb275" stroke="#a57846" stroke-width="3"/><path d="M441 280L459 266H510L524 280Z" fill="#edc891" stroke="#a57846" stroke-width="3"/><path d="M477 270V291H488V273" fill="#f9e8ba"/><path d="M474 304L483 297L492 304M483 298V319" stroke="#9b7043" fill="none" stroke-width="3"/></g>
+              <g class="tea"><path d="M310 307H337V322Q334 332 324 332Q313 330 310 322Z" fill="#fffbec" stroke="#9f9c84" stroke-width="2"/><path d="M337 310Q352 310 346 320L338 322" fill="none" stroke="#9f9c84" stroke-width="3"/><path class="steam" d="M316 300Q311 290 316 284M328 300Q335 289 329 281" stroke="#fefcf1" stroke-width="3" fill="none" stroke-linecap="round"/></g>
+              <g class="sparks" stroke="#f5af44" stroke-width="4" stroke-linecap="round"><path d="M477 272L471 261M492 267L497 256M505 281L516 278M479 283L472 290"/></g>
+              <g class="confetti" fill="#d88254"><path d="M330 109L335 99L341 106L336 115Z"/><path d="M464 134L470 124L476 131L470 141Z"/><path d="M535 180L540 170L546 177L541 187Z"/><circle cx="300" cy="180" r="4" fill="#739889"/><circle cx="491" cy="95" r="5" fill="#dab558"/></g>
+              <g class="sleep-z" fill="#6a7d73" font-family="monospace" font-weight="bold"><text x="459" y="214" font-size="23">z</text><text x="480" y="191" font-size="29">z</text><text x="509" y="162" font-size="35">z</text></g>
+              <g><rect x="70" y="304" width="52" height="40" rx="5" fill="#c4b294"/><path d="M76 319H117M88 306V343" stroke="#9d896b" stroke-width="3"/><path d="M116 316Q134 298 151 320L150 343H119" fill="#bec6b0" stroke="#7c8b72" stroke-width="3"/><path d="M126 324H143" stroke="#7c8b72" stroke-width="3"/></g>
+              <g class="floor-plant"><path d="M673 331H720L715 365H680Z" fill="#cb8163" stroke="#a6634b" stroke-width="3"/><path d="M697 331V279M696 310Q668 307 672 288Q694 287 696 310M698 300Q719 296 723 279Q699 278 698 300M696 288Q678 278 685 263Q700 266 696 288" fill="#7d9675" stroke="#567c59" stroke-width="3"/></g>
+            </svg>
+            <div class="scene-caption"><span class="caption-dot"></span><span id="scene-caption">Opening the workshop…</span></div>
+          </div>
+          <div class="workshop-bottom"><span>Small guy. Big plans.</span><span class="mono" id="last-checked">Waiting for GitHub</span></div>
+        </section>
+        <aside class="signal-column">
+          <section class="panel status-panel" aria-label="Current activity"><p class="eyebrow">THE LATEST SIGNAL</p><h2 id="status-title" aria-live="polite">Let's take a look.</h2><p id="status-reason">Checking public activity on GitHub.</p><div class="working-on"><span class="eyebrow">LAST ACTIVE REPO</span><a id="active-repo" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Waiting for a signal ↗</a><span id="last-activity">—</span></div><a id="evidence-link" class="evidence-link" hidden target="_blank" rel="noopener noreferrer">View the signal on GitHub ↗</a></section>
+          <section class="panel pulse-panel" aria-label="Build pulse"><div class="pulse-heading"><p class="eyebrow">BUILD PULSE</p><span><strong id="pulse-value">—</strong><small>/100</small></span></div><p id="pulse-copy">Activity has a heartbeat.</p><svg id="pulse-chart" viewBox="0 0 320 82" role="img" aria-label="Weighted public activity over the last 60 minutes"><path id="pulse-fill" fill="#d87954" opacity=".13"/><path id="pulse-line" fill="none" stroke="#cc6b48" stroke-width="2.5" stroke-linejoin="round"/><path d="M0 80H320" stroke="#dfd8cc"/></svg><div class="chart-labels"><span>60 min ago</span><span>now</span></div></section>
+        </aside>
+      </div>
+      <div class="lower-grid">
+        <section class="panel timeline-panel"><div class="section-heading"><div><p class="eyebrow">THE PAPER TRAIL</p><h2>Fresh from the workbench</h2></div><button id="refresh-button" class="outline-button">↻ Refresh</button></div><ul id="timeline" class="timeline"><li class="empty">Fetching the latest public activity…</li></ul><p class="data-footnote" id="workflow-note">Workflow checks cover the most recently active repository.</p></section>
+        <section class="panel projects-panel"><div class="section-heading"><div><p class="eyebrow">ON THE SHELF</p><h2>A few recent projects</h2></div><span class="shelf-icon" aria-hidden="true">▱</span></div><div id="projects" class="project-list"><p class="empty">Dusting off the shelves…</p></div><div class="release-summary" id="release-summary"></div></section>
+      </div>
+      <section class="demo-bar" aria-label="Demo controls"><div><strong>Take the little guy for a spin.</strong><p>Preview his moods with clearly labeled sample activity.</p></div><div class="demo-controls"><button id="demo-toggle" class="outline-button" aria-pressed="false">Try demo</button><select id="demo-state" aria-label="Demo state" hidden><option value="building">Building</option><option value="planning">Planning</option><option value="testing">Testing</option><option value="shipping">Shipping</option><option value="idle">Quiet</option></select></div></section>
+    </main>
+    <footer><span>Made for the people who like watching builders build.</span><span>Public signals. A little imagination.</span></footer>
+  </div>
+  <dialog id="about-dialog"><div class="dialog-content"><button id="close-dialog" class="icon-button dialog-close" aria-label="Close explanation">×</button><p class="eyebrow">A WINDOW, NOT A CAMERA</p><h2>What are we actually seeing?</h2><p>Clawd reacts to <strong>public GitHub activity</strong>, not keystrokes. A recent push or pull request means building signals; a new branch or issue means planning signals; a published release gets a celebration.</p><p>Running or queued GitHub Actions from this builder in the latest active repo put on the safety goggles. A workflow might be a build, a test, or another check.</p><p>No recent signals means a quiet workshop. It doesn't prove Clawd stopped coding. Private work and unsaved code are invisible.</p><p>The pulse is a playful recency score, not a productivity rating: weighted events decay with a 30-minute half-life. The chart covers the last hour of fetched events.</p><p>The page checks every five minutes while visible. GitHub's public event feed can arrive 30 seconds to six hours late. On a fetch failure, we show an unknown state and label saved data.</p><p>Only the latest 100 public events and one repo's latest 20 workflow runs are fetched. The shelf lists recently pushed repositories, with releases counted separately.</p><a href="https://docs.github.com/en/rest/activity/events" target="_blank" rel="noopener noreferrer">GitHub's event API documentation ↗</a></div></dialog>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
