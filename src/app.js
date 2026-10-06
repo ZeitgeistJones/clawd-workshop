@@ -211,9 +211,17 @@ function skip(direction) { const frame = replayFrame(replay.plan, replay.elapsed
 $('replay-previous').addEventListener('click', () => skip(-1)); $('replay-next').addEventListener('click', () => skip(1));
 $('about-button').addEventListener('click', () => $('about-dialog').showModal()); $('close-dialog').addEventListener('click', () => $('about-dialog').close());
 $('about-dialog').addEventListener('click', e => { if (e.target === $('about-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); } });
+function lightShelfFireplace(ms = 5500) {
+  const fireplace = document.querySelector('.shelf-fireplace');
+  if (!fireplace) return;
+  fireplace.classList.add('lit');
+  clearTimeout(lightShelfFireplace.timer);
+  lightShelfFireplace.timer = setTimeout(() => fireplace.classList.remove('lit'), ms);
+}
 function openScoreCard(id) {
   const build = scoreBuild(id);
   if (!build) return;
+  if (id === 'clawd-incinerator') lightShelfFireplace();
   $('score-card-name').textContent = build.name;
   $('score-card-tag').textContent = build.tag;
   $('score-card-econ-label').textContent = build.econLabel;

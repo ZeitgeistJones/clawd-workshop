@@ -4,7 +4,7 @@ export const OBJECT_TYPES = Object.freeze({
   wallet: 'Wallet', bot: 'Robot', dashboard: 'Control dashboard', simulator: 'Transaction simulator',
   vault: 'Safe', keypad: 'Keypad', grove: 'Tiny grove', frog: 'Frog', bunker: 'Bunker',
   book: 'Lesson book', newspaper: 'Daily dispatch', microscope: 'Research kit',
-  liquidity: 'Liquidity time lock', token: 'Token', web: 'Web crawler', incinerator: 'Burn furnace', blueprint: 'Project blueprint',
+  liquidity: 'Liquidity time lock', token: 'Token', web: 'Web crawler', incinerator: 'Workshop fireplace', blueprint: 'Project blueprint',
 });
 const rules = [
   ['wallet', /\b(wallet|wallets|payments?|checkout)\b/],

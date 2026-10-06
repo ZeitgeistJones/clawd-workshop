@@ -7,7 +7,7 @@ import {buildBrief} from '../src/builds.js';
 import {safeGithubUrl,timeAgo} from '../src/activity.js';
 import {STATIONS} from '../src/music.js';
 class Element{
- constructor(){this.textContent='';this.children=[];this.dataset={};this.attributes={};this.handlers={};this.classes=new Set();this.classList={contains:k=>this.classes.has(k),toggle:(k,v)=>{const enabled=v??!this.classes.has(k);enabled?this.classes.add(k):this.classes.delete(k);return enabled;}};}
+ constructor(){this.textContent='';this.children=[];this.dataset={};this.attributes={};this.handlers={};this.classes=new Set();this.classList={contains:k=>this.classes.has(k),add:k=>this.classes.add(k),remove:k=>this.classes.delete(k),toggle:(k,v)=>{const enabled=v??!this.classes.has(k);enabled?this.classes.add(k):this.classes.delete(k);return enabled;}};}
  setAttribute(k,v){this.attributes[k]=v}append(...n){this.children.push(...n)}replaceChildren(...n){this.children=n}addEventListener(k,v){this.handlers[k]=v}
 }
 async function harness(){
@@ -15,7 +15,8 @@ async function harness(){
  const source=(await readFile(new URL('../src/lounge.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'');
  const elements=Object.fromEntries([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],new Element()]));
  elements['radio-station'].value='0';elements['radio-volume'].value='35';
- const windowHandlers={},docHandlers={};const document={hidden:false,getElementById:id=>{assert.ok(elements[id],id);return elements[id]},querySelector:()=>elements['radio-title'],createElement:()=>new Element(),addEventListener:(k,v)=>docHandlers[k]=v};
+ const fireplace=new Element();
+ const windowHandlers={},docHandlers={};const document={hidden:false,getElementById:id=>{assert.ok(elements[id],id);return elements[id]},querySelector:sel=>sel==='.shelf-fireplace'?fireplace:sel==='.radio-panel'?elements['radio-title']:null,createElement:()=>new Element(),addEventListener:(k,v)=>docHandlers[k]=v};
  let marketCalls=0,audioStarts=0,quotes=[];
  class Client{
   constructor(){this.price=null}dispose(){}quote(){marketCalls++;return new Promise(resolve=>quotes.push(q=>{this.price=q;resolve(q)}))}async watch(){marketCalls++;return{events:[],note:'Watching'}}

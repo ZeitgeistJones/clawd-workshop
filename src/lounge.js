@@ -66,11 +66,15 @@ function drawEvents() {
     li.append(element('small', '', event.sample ? 'DEMO · sample event' : event.kind === 'buy' ? `≈ ${usd(event.usd)} at fetched price · block ${event.block}` : `Observed token transfer · block ${event.block}`)); $('market-events').append(li);
   }
 }
-function clearEffect() { clearTimeout(effectTimer); delete $('scene').dataset.marketEffect; $('scene-event').hidden = true; }
+function clearEffect() {
+  clearTimeout(effectTimer); delete $('scene').dataset.marketEffect; $('scene-event').hidden = true;
+  document.querySelector('.shelf-fireplace')?.classList.remove('lit');
+}
 function showEvent(event) {
   marketEvents.unshift(event); marketEvents = marketEvents.slice(0, 12); drawEvents();
   if (!effectsEnabled || mode === 'replay' || document.hidden || $('scene').classList.contains('paused')) return;
   clearEffect(); $('scene').dataset.marketEffect = event.kind; $('scene-event').hidden = false;
+  if (event.kind === 'burn') document.querySelector('.shelf-fireplace')?.classList.add('lit');
   text('scene-event-icon', event.kind === 'buy' ? '✦' : '♨');
   text('scene-event-title', `${event.sample ? 'DEMO · ' : ''}${event.label}`);
   text('scene-event-detail', `${shortAmount(event.amount)} CLAWD${event.kind === 'buy' ? ` · ≈ ${usd(event.usd)}` : ' · a little extra warmth in the workshop'}`);

@@ -13,7 +13,12 @@ import { SCORE_BUILDS, REPORT_URL, scoreBuild } from '../src/showcase.js';
 class Element {
   constructor(tag = 'div') {
     this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = {}; this.events = {}; this.hidden = false; this.textContent = ''; this.classes = new Set();
-    this.classList = { toggle: (key, force) => { const enabled = force ?? !this.classes.has(key); enabled ? this.classes.add(key) : this.classes.delete(key); return enabled; } };
+    this.classList = {
+      contains: key => this.classes.has(key),
+      add: key => this.classes.add(key),
+      remove: key => this.classes.delete(key),
+      toggle: (key, force) => { const enabled = force ?? !this.classes.has(key); enabled ? this.classes.add(key) : this.classes.delete(key); return enabled; },
+    };
   }
   append(...nodes) { this.children.push(...nodes); }
   replaceChildren(...nodes) { this.children = nodes; }
@@ -52,6 +57,7 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
     createElement: tag => new Element(tag),
     createElementNS: (_ns, tag) => new Element(tag),
     createTextNode: text => ({ textContent: text }),
+    querySelector: selector => selector === '.shelf-fireplace' ? shelfItems[0] : null,
     querySelectorAll: selector => selector === '.score-shelf-item' ? shelfItems : [],
     addEventListener: (name, fn) => { handlers[name] = fn; },
   };
