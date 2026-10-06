@@ -35,3 +35,11 @@ Run relevant tests and the static build after functional changes. Test the UI in
 ## Social sharing
 
 Keep sharing metadata in delivered HTML, not client-side JavaScript. `scripts/share-metadata.mjs` resolves `SITE_URL` or the stable Vercel production domain at build time and preserves repository subpaths. The main link is an image card. `public/share/index.html` is a separate video card with a public HTTPS player and MP4 clip. Keep its demo labeling and PNG fallback. Platform playback and caching need deployment verification; don't claim embedded playback is guaranteed.
+
+## Lounge, audio, and market behavior
+
+Keep the workshop large and readable, with meaningful repository context and linked evidence. Render API descriptions and commit titles using textContent. Do not show present-day commits as historical replay evidence.
+
+Lo-fi music is original local Web Audio synthesis. Start only after an explicit user action; retain volume, stop when hidden, and recover from unsupported or blocked audio. Do not add unlicensed tracks.
+
+Price and transaction feeds are distinct. Validate token/chain, require pool Swap logs for buy reactions, distinguish zero-address burns from sink transfers, estimate USD only from a fresh quote, deduplicate logs, and establish a baseline without historical celebrations. Suppress current market effects in replay. Show stale/unavailable/partial states. Never expose RPC secrets in the static client, invent live activity, or claim end-to-end feed validation without testing.

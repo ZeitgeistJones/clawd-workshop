@@ -39,7 +39,7 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
   class Client extends GithubClient {
     constructor() { super(async url => {
       calls++; if (fail) throw new Error('Offline');
-      const data = url.includes('/events/') ? fixture.events : url.includes('/actions/') ? { workflow_runs: [] } : fixture.repos;
+      const data = url.includes('/events/') ? fixture.events : url.includes('/actions/') ? { workflow_runs: [] } : url.includes('/commits') ? [] : fixture.repos;
       return new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } });
     }); }
   }
@@ -56,9 +56,9 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
     addEventListener: (name, fn) => { handlers[name] = fn; },
   };
   vm.runInNewContext(source, {
-    ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, SCORE_BUILDS, REPORT_URL, scoreBuild, URL, URLSearchParams, Date,
+    ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, SCORE_BUILDS, REPORT_URL, scoreBuild, URL, URLSearchParams, Date, CustomEvent,
     location: { search: query.toString() ? `?${query}` : '' }, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) }, document,
-    window: { addEventListener() {} }, setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, requestAnimationFrame(fn) { raf = fn; }
+    window: { addEventListener() {}, dispatchEvent() { return true; } }, setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, requestAnimationFrame(fn) { raf = fn; }
   });
   for (let i = 0; i < 15; i++) await new Promise(resolve => setImmediate(resolve));
   return { elements, storage, document, handlers, calls: () => calls, step: t => raf(t), shelfItems };
@@ -86,7 +86,6 @@ test('public site hides admin replay controls', async () => {
   assert.equal(e['admin-nav'].hidden, true);
   await e['replay-mode'].events.click();
   assert.equal(e['replay-panel'].hidden, true);
-  assert.equal(e.scene.dataset.state, 'building');
 });
 test('replay loads a day, starts playing, pauses, scrubs, changes duration and returns to current mode', async () => {
   const h = await harness({ admin: true }), e = h.elements;

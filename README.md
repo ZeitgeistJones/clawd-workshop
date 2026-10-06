@@ -1,24 +1,28 @@
-# What is Clawdbotatg Building?
+# Is Clawd building?
 
 A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub activity. A cute red triangular Clawd works in an animated SVG garage; the data changes his behavior. Watch current signals or replay the available last 24 hours as a paced recap. The object on the bench changes with the project: wallets, robots, dashboards, safes, books, and more. Responsive on desktop and phone.
 
-**Using Cursor?** Open [CURSOR.md](CURSOR.md) for setup and a ready-to-paste Agent prompt. `AGENTS.md` and `.cursor/rules/workshop.mdc` provide project context for the agent.
+**Using Cursor?** Open [CURSOR.md](CURSOR.md) for setup, a ready-to-paste Agent prompt, and instructions for updating your existing GitHub/Vercel project. `AGENTS.md` and `.cursor/rules/workshop.mdc` provide project context for the agent.
+
+## Workshop lounge update
+
+The workshop now leads a wider dashboard, with larger text, warmer cards, an illustrated radio, and a full build brief below the scene. Briefs show the repository description, language, license, topics, project website when provided, and linked recent commit messages. The shelf includes six repositories with descriptions. Extra active-repository context is cached for ten minutes. During replay, the changes stay tied to chapter events; current commits are not shown as historical work.
+
+**Music:** click the play button in Workshop Radio. Three original generative lo-fi stations use soft chords, bass, swing drums, and light tape noise through Web Audio. Volume is adjustable. Nothing plays automatically, no external audio service is contacted, and music stops when the tab is hidden. Browser playback and listening quality still need a real-browser check.
+
+**Market:** the panel tracks $CLAWD on Base (`0x9f86dB9fc6f7c9408e8Fda3Ff8ce4e78ac7a6b07`), verified from the builder's [token-hub repository](https://github.com/clawdbotatg/clawd-token-hub). DEX Screener quotes refresh every 30 seconds while visible; the selected pair is the most liquid correctly matched Base pair unless pinned in `src/config.js`. Its mini chart shows samples collected since this page opened, not fabricated historical candles. Failed quotes retain a clearly labeled saved value.
+
+New transaction logs are polled through a public Base RPC with a 12-block observation delay. First load establishes a baseline instead of celebrating old activity. Buy effects require a buy-side Uniswap V3 or V4 Swap log from the selected pool; ordinary transfers and changes in aggregate buy counts cannot trigger them. Values in USD are estimates using the fetched token price, and stale quotes disable USD-threshold buy reactions. Burns use this token's Transfer logs to the zero address; transfers to the dead address have a separate label and are not claimed to reduce total supply. Other markets and unsupported pool formats have no buy decoder.
+
+Defaults are approximately **$1,000 per buy-side swap** and **1,000,000 CLAWD per burn/sink transfer**. Change the thresholds in Workshop reactions or configure defaults in `src/config.js`. Threshold edits last for this visit. Effects include Clawd's buy celebration and a small token/fire animation for burns, with transaction links in the panel. Disable effects independently; animation pause and reduced-motion settings are respected. Market data stays current during historical replay, with scene reactions suppressed so current transactions do not become historical events. Demo mode has explicit sample prices and Preview buy/burn buttons, and initiates no market requests.
+
+Public RPC and price endpoints can have rate limits, downtime, or browser CORS restrictions. Both feeds retry with backoff and show unavailable states; they never silently substitute demo activity. The default provider is best effort. For a production site, Cursor should verify browser access and, if needed, configure a reliable public browser-accessible Base endpoint. Never put a secret RPC credential in front-end source. This environment returned 403s for the real price/RPC endpoints, so this update has **not** been verified against a live market feed. Recent-log watching is partial rather than an all-time burn or buy ledger; long connection gaps can skip old blocks, with a visible notice.
 
 ## Update your existing Vercel project
 
-Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
+Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. New lounge files include `src/lounge.js`, `src/lounge.css`, `src/builds.js`, `src/music.js`, `src/market.js`, and their tests. Earlier replay and sharing files are also included. Existing `index.html`, the JavaScript/CSS files, `package.json`, and docs have also changed; upload the whole project rather than just one file. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
 
 Commit the upload; your connected Vercel project can deploy the new commit. Once that deployment is ready, reload the site. Replay lives under the admin tools: open `/?admin=1`, then use **Replay 24 hours**.
-
-## Link previews and video sharing
-
-The main workshop link has a 1200×630 PNG preview of Clawd. Open Graph and X metadata are written into the HTML during the static build; social crawlers do not need JavaScript.
-
-On Vercel, the build uses `VERCEL_PROJECT_PRODUCTION_URL` for stable absolute links. Enable system environment variables in the project settings if disabled. For a custom domain or another host, set `SITE_URL` to your full public HTTPS address (include a repo subpath when needed), then rebuild. Example: `SITE_URL=https://clawd-workshop.vercel.app/`. Do not set this to a private preview URL or localhost.
-
-For video sharing, use `https://YOUR-DOMAIN/public/share/index.html`. That page includes a short MP4 demo, Open Graph video tags, and X Player Card metadata pointing to `public/share/player.html`, with a PNG poster fallback. The main workshop link stays an ordinary image card. The clip is a labeled demo animation, not a recording of actual work.
-
-Platforms control image rendering, video playback, autoplay, approval, and caching. Player tags do not guarantee an embedded video will show. To post a video directly on X, upload `public/workshop-preview.mp4` with the post and include the workshop link in the text.
 
 ## Drop it into GitHub
 
@@ -58,11 +62,21 @@ Commit those changes, check that the project uses **Other**, then deploy the new
 
 If an earlier version shows `Failed to execute 'fetch' on 'Window': Illegal invocation`, update `src/github.js`. Its constructor now uses `fetcher = globalThis.fetch.bind(globalThis)` so browser fetch receives the correct global context. Commit the change, wait for the new deployment, and refresh. This issue does not require a GitHub token.
 
+## Link previews and video sharing
+
+The main workshop link has a 1200×630 PNG preview of Clawd, a title, and a description. Open Graph and X metadata are written into the HTML during the static build; social crawlers do not need to run the app's JavaScript.
+
+On Vercel, the build uses `VERCEL_PROJECT_PRODUCTION_URL` for stable absolute links. Enable access to system environment variables in the project's settings if disabled. For a custom domain or another host, set the build environment variable `SITE_URL` to your full public HTTPS address, including a repository subpath when applicable, then rebuild. Example: `SITE_URL=https://example.com/workshop/ npm run build`. For GitHub Pages, deploy the contents of that built `dist/`; direct source-only deployment does not have fully configured sharing URLs. Do not set this to a private preview deployment or localhost.
+
+For video sharing, use `https://YOUR-DOMAIN/public/share/index.html` (after your base path, if any). This separate page includes a 12-second MP4 demo, Open Graph video tags, and X Player Card metadata pointing to `public/share/player.html`. It retains a poster image. The main workshop link keeps its ordinary image card. The clip is a labeled demo animation with wallet, robot, and safe objects, not a recording of actual GitHub work or today's replay.
+
+The sharing app controls image rendering, video playback, autoplay, approval, and caching. Player tags do not guarantee X or another app will display an embedded video. To post a video directly on X, upload `public/workshop-preview.mp4` with the post and include the workshop link in its text. After deployment, check the fetched HTML and image/video/player URLs without authentication, then test an actual shared link. Cached previews may take time to update. This package has not been deployed or tested in a social feed.
+
 ## See every animation
 
 Click **Try demo**, then choose Building, Planning, Testing, Shipping, or Quiet. The entire dashboard is labeled **DEMO · SAMPLE ACTIVITY**. Alternatively open `http://localhost:3000/?demo=1`. Demo does not fetch GitHub data. Returning to GitHub fetches real activity; failed requests never silently switch to demo.
 
-Clawd is drawn in SVG and animated with CSS. He retains the reference character's red triangular face, sly eyes, mischievous smile, bow tie, and claws, with a little workshop apron. No raster assets are required. The pause button stops motion; reduced-motion preferences are respected.
+Clawd is drawn in SVG and animated with CSS. He retains the reference character's red triangular face, sly eyes, mischievous smile, bow tie, and claws, with a little workshop apron. Social sharing assets are included as a PNG poster and MP4 demo; the app itself uses SVG. The pause button stops motion; reduced-motion preferences are respected.
 
 ## Replay the last 24 hours (admin)
 

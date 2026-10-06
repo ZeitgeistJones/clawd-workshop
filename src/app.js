@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import './lounge.js';
 import { GithubClient } from './github.js';
 import { deriveStatus, describeEvent, normalizeEvents, pulse, pulseSeries, repoUrl, timeAgo } from './activity.js';
 import { demoSnapshot, demoHistory } from './demo.js';
@@ -86,10 +87,11 @@ function render() {
   if (!shown.length) $('timeline').append(node('li', 'empty', isReplay ? 'No fetched events in this chapter. Skip to the next project with ›.' : unavailable ? 'Activity could not be loaded. Try refreshing later, or take a look at demo mode.' : 'No public building activity in the fetched window. The tea is still warm.'));
   $('shelf-title').textContent = isReplay ? 'Worked on so far' : 'A few recent projects';
   $('projects').replaceChildren();
-  const shelf = isReplay ? [...new Set(events.map(e => e.repo.name))].slice(0, 6).map(full_name => (data.repos || []).find(r => r.full_name === full_name) || { full_name, name: full_name.split('/').slice(1).join('/') }) : (data?.repos || []).slice(0, 3);
+  const shelf = isReplay ? [...new Set(events.map(e => e.repo.name))].slice(0, 6).map(full_name => (data.repos || []).find(r => r.full_name === full_name) || { full_name, name: full_name.split('/').slice(1).join('/') }) : (data?.repos || []).slice(0, 6);
   shelf.forEach(r => {
     const illustration = projectObject(r.full_name, r), a = externalLink(repoUrl(r.full_name), 'project-link'), info = node('span', 'project-info');
     info.append(node('span', 'project-name', r.name), node('span', 'project-meta', isReplay ? illustration.label : `${r.language || 'A work in progress'} · ${r.stargazers_count || 0} stars`));
+    if (r.description) info.append(node('span', 'project-description', r.description));
     const icon = node('span', 'project-icon'); icon.append(objectIcon(illustration.kind));
     a.append(icon, info, node('span', 'project-arrow', '↗')); $('projects').append(a);
   });
@@ -109,6 +111,7 @@ function render() {
   $('replay-mode').classList.toggle('active', isReplay); $('replay-mode').setAttribute('aria-pressed', String(isReplay)); $('replay-mode').disabled = !admin || busy || historyBusy;
   $('replay-panel').hidden = !admin || !isReplay;
   updateReplayControls();
+  if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') window.dispatchEvent(new CustomEvent('workshop:render', { detail: { demo, mode, status, metadata, events: shown, allEvents: events, repos: shelf, data, client } }));
 }
 function updateReplayControls() {
   if (mode !== 'replay') return;
@@ -226,15 +229,12 @@ function scoreChip(build) {
   button.type = 'button';
   button.dataset.scoreId = build.id;
   button.setAttribute('aria-label', `Open ${build.name} score card`);
-  const name = node('span', 'score-chip-name', build.name);
-  const meta = node('span', 'score-chip-meta', `${build.tag} · ${build.econ}`);
-  button.append(name, meta);
+  button.append(node('span', 'score-chip-name', build.name), node('span', 'score-chip-meta', `${build.tag} · ${build.econ}`));
   button.addEventListener('click', () => openScoreCard(build.id));
   return button;
 }
 function renderScoreShowcase() {
-  const holder = $('score-holder');
-  const shipping = $('score-shipping');
+  const holder = $('score-holder'), shipping = $('score-shipping');
   if (!holder || !shipping) return;
   holder.replaceChildren(...SCORE_BUILDS.filter(b => b.section === 'holder').map(scoreChip));
   shipping.replaceChildren(...SCORE_BUILDS.filter(b => b.section === 'shipping').map(scoreChip));
@@ -243,9 +243,7 @@ function bindScoreShelf() {
   document.querySelectorAll('.score-shelf-item').forEach(item => {
     const open = () => openScoreCard(item.dataset.scoreId);
     item.addEventListener('click', open);
-    item.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
-    });
+    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
   });
 }
 $('close-score-dialog').addEventListener('click', () => $('score-dialog').close());

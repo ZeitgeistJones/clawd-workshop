@@ -65,4 +65,16 @@ export class GithubClient {
     const earliest = Math.min(...raw.map(e => Date.parse(e.created_at)).filter(Number.isFinite), ...events.map(e => Date.parse(e.created_at)));
     return { events, repos: seed.repos || [], end, partial: !coversWindow, coverageStart: coversWindow ? cutoff : (Number.isFinite(earliest) ? Math.max(cutoff, earliest) : end), checkedAt: new Date().toISOString(), warning: warning || (!coversWindow ? 'The public feed reached its 300-event limit before covering the full day.' : '') };
   }
+  async details(repo) {
+    if (!/^[-\w.]+\/[-\w.]+$/.test(repo || '')) throw new Error('Invalid repository.');
+    const results = await Promise.allSettled([
+      this.request(`/repos/${repo}`, 600000),
+      this.request(`/repos/${repo}/commits?per_page=4`, 600000),
+    ]);
+    return {
+      metadata: results[0].status === 'fulfilled' ? results[0].value : null,
+      commits: results[1].status === 'fulfilled' && Array.isArray(results[1].value) ? results[1].value : [],
+      warning: results.some(r => r.status === 'rejected') ? 'Some repository details could not be refreshed.' : '',
+    };
+  }
 }
