@@ -14,7 +14,7 @@ export function siteBase(env = process.env) {
 
 export function shareMetadata(base, video = false) {
   const image = base ? new URL('public/share-preview.png', base).href : (video ? '../share-preview.png' : './public/share-preview.png');
-  const description = 'Watch Clawd build from public GitHub signals, or replay the available last 24 hours in about five minutes.';
+  const description = 'little guy, big ideas.';
   const tags = [
     ['property', 'og:type', video ? 'video.other' : 'website'],
     ['property', 'og:site_name', 'Clawd Workshop'],
