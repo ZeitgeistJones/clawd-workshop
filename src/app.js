@@ -193,7 +193,7 @@ function tick(t) {
   requestAnimationFrame(tick);
 }
 $('profile-link').href = `https://github.com/${CONFIG.username}`; $('builder-name').textContent = CONFIG.displayName;
-document.title = `What is ${CONFIG.displayName} up to? — The little workshop`;
+document.title = `What is ${CONFIG.displayName} Building? — The little workshop`;
 $('refresh-button').addEventListener('click', () => { if (!demo && Date.now() - lastAttempt < 15000) { notice('Checked just now. Give GitHub a few seconds before refreshing again.'); return; } refresh(); });
 $('demo-toggle').addEventListener('click', () => { const wasReplay = mode === 'replay'; loadGeneration++; historyBusy = false; mode = 'current'; history = null; replay.playing = false; demo = !demo; clearTimeout(timer); notice(''); if (demo) demoData = demoSnapshot(demoState); render(); if (wasReplay) openReplay(); else refresh(); });
 $('demo-state').addEventListener('change', e => { demoState = e.target.value; refresh(); });
