@@ -1,10 +1,11 @@
 import { CONFIG } from './config.js';
 
 export const OBJECT_TYPES = Object.freeze({
-  wallet: 'Wallet', bot: 'Robot', dashboard: 'Control dashboard', simulator: 'Transaction simulator',
-  vault: 'Safe', keypad: 'Keypad', grove: 'Tiny grove', frog: 'Frog', bunker: 'Bunker',
-  book: 'Lesson book', newspaper: 'Daily dispatch', microscope: 'Research kit',
-  liquidity: 'Liquidity time lock', token: 'Token', web: 'Web crawler', incinerator: 'Workshop fireplace', blueprint: 'Project blueprint',
+  wallet: 'Wallet', bot: 'Robot', dashboard: 'Control dashboard', harness: 'Agent harness',
+  simulator: 'Transaction simulator', vault: 'Safe', keypad: 'Keypad', grove: 'Tiny grove', frog: 'Frog',
+  bunker: 'Bunker', book: 'Lesson book', newspaper: 'Daily dispatch', microscope: 'Research kit',
+  liquidity: 'Liquidity time lock', token: 'Token', web: 'Web crawler', incinerator: 'Workshop fireplace',
+  blueprint: 'Project blueprint',
 });
 const rules = [
   ['wallet', /\b(wallet|wallets|payments?|checkout)\b/],
@@ -20,7 +21,9 @@ const rules = [
   ['newspaper', /\b(daily|morning|news|dispatch|updates?|twitter|proxy)\b/],
   ['book', /\b(lessons?|learn|learning|education|book|chronicle|tutorial)\b/],
   ['web', /\b(crawler|crawl|scraper|spider)\b/],
-  ['dashboard', /\b(dashboard|console|harness|control panel|tracker|monitor)\b/],
+  // Prefer a literal harness when the name asks for one; dashboards stay screens.
+  ['harness', /\bharness(es)?\b/],
+  ['dashboard', /\b(dashboard|console|control panel|tracker|monitor)\b/],
   ['bot', /\b(robot|robots|bot|bots|agent|agents|automation)\b/],
   ['token', /\b(token|tokens|coin|coins)\b/],
 ];

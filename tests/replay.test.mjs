@@ -67,7 +67,10 @@ test('project names map to recognizable objects without matching incidental subs
 test('metadata and explicit mappings help without inventing an unknown project type', () => {
   assert.equal(projectObject('clawdbotatg/mystery', { description: 'A wallet for small payments.' }).kind, 'wallet');
   assert.equal(projectObject('clawdbotatg/mystery', { topics: ['dashboard'] }).kind, 'dashboard');
-  assert.equal(projectObject('clawdbotatg/clawd-harness').label, 'Agent control dashboard');
+  assert.equal(projectObject('clawdbotatg/clawd-harness').kind, 'harness');
+  assert.equal(projectObject('clawdbotatg/clawd-harness').label, 'Agent harness');
+  assert.equal(projectObject('clawdbotatg/agent-harness').kind, 'harness');
+  assert.equal(projectObject('clawdbotatg/mystery', { description: 'control panel tracker' }).kind, 'dashboard');
   assert.equal(projectObject('clawdbotatg/mystery').known, false);
 });
 test('sample day fits the 24-hour window and contains distinct project props', () => {

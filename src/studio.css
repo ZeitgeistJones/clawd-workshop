@@ -65,9 +65,21 @@ h1 em { color: var(--orange); font-weight: 400; }
 .scene-label > span { font: 8px var(--mono); letter-spacing: 1.4px; }
 .scene-label small { font: 9px ui-sans-serif, system-ui, sans-serif; color: #8b8875; }
 .scene-build { position: absolute; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 5px; max-width: 36%; padding: 11px 13px; border: 1px solid #cfc7abe0; border-radius: 9px; background: #faf6e7e6; color: #5e7058; backdrop-filter: blur(7px); }
+.scene-build-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .scene-build .eyebrow { font-size: 7px; letter-spacing: 1.2px; color: #8f947b; }
 .scene-build a { font: 10px/1.5 var(--mono); overflow-wrap: anywhere; }
 .scene-build small { font-size: 9px; color: #93937b; }
+.scene-build-hint { font-size: 8px; color: #a09b82; }
+.bench-prop-toggle { border: 1px solid #d2ceb8; border-radius: 999px; background: #fffdf4; color: #6d7a62; font: 9px/1 var(--mono); padding: 4px 8px; cursor: pointer; }
+.bench-prop-toggle:hover { background: #f3efe0; }
+.bench-prop-toggle[aria-pressed="false"] { color: #9a7a52; border-color: #e0c9a4; background: #fff6e8; }
+.project-object-link { cursor: pointer; outline: none; }
+.project-object-link.is-inactive { pointer-events: none; }
+.project-object-link:hover .project-hit { opacity: .04; }
+.project-object-link:focus-visible { filter: drop-shadow(0 0 5px #d89357); }
+.scene-wrap.bench-prop-hidden .project-object-link { visibility: hidden !important; pointer-events: none; }
+.bench-prop-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.object-repo-link { display: inline-block; margin-top: 2px; font-size: 10px; color: var(--green); }
 .workshop-bottom { padding: 14px 20px; min-height: 54px; align-items: center; background: #fcfaf4; border-color: #ded9c9; gap: 14px; }
 .scene-caption { position: static; transform: none; display: flex; align-items: center; max-width: none; border: 0; background: none; backdrop-filter: none; padding: 0; color: #7b7d68; font-size: 11px; line-height: 1.5; text-align: left; white-space: normal; }
 .caption-dot { width: 5px; height: 5px; flex-shrink: 0; background: #cc8962; }

@@ -9,7 +9,7 @@ export function demoSnapshot(state = 'building', now = Date.now()) {
 }
 export function demoHistory(end = Date.now()) {
   const projects = [
-    ['instant-wallet', 'A small wallet for everyday payments.'], ['clawd-harness', 'An agent control dashboard.'],
+    ['instant-wallet', 'A small wallet for everyday payments.'], ['clawd-harness', 'A little agent harness for the workbench.'],
     ['clawd-txn-simulator', 'A transaction simulator.'], ['wedgie-safe', 'A little safe.'],
     ['wedgie-grove', 'A tiny grove of trees.'], ['wedgie-keypad', 'A keypad.'],
     ['slop-lessons', 'A lesson book.'], ['clawd-research', 'Research tools.'],

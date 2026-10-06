@@ -22,6 +22,6 @@ export const CONFIG = Object.freeze({
   },
   // Optional exact mappings. Use any kind listed in src/objects.js.
   visualOverrides: {
-    'clawdbotatg/clawd-harness': { kind: 'dashboard', label: 'Agent control dashboard' },
+    'clawdbotatg/clawd-harness': { kind: 'harness', label: 'Agent harness' },
   },
 });

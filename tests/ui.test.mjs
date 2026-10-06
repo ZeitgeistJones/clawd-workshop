@@ -108,9 +108,12 @@ test('replay objects follow the selected chapter and hidden tabs pause time', as
   const h = await harness({ admin: true }), e = h.elements;
   await e['replay-mode'].events.click();
   const chapters = e['replay-chapters'].querySelectorAll('button');
-  const dashboard = chapters.find(b => b.children[1].children[0].textContent === 'clawd-harness');
-  dashboard.events.click(); assert.equal(e.scene.dataset.projectKind, 'dashboard'); assert.match(e['object-name'].textContent, /dashboard/);
-  assert.equal(e['project-object'].attributes.visibility, 'visible');
+  const harnessChapter = chapters.find(b => b.children[1].children[0].textContent === 'clawd-harness');
+  harnessChapter.events.click(); assert.equal(e.scene.dataset.projectKind, 'harness'); assert.match(e['object-name'].textContent, /harness/i);
+  assert.match(e['project-object-link'].attributes.href || e['project-object-link'].href || '', /clawd-harness/);
+  e['bench-prop-toggle'].events.click(); assert.equal(e.scene.classes.has('bench-prop-hidden'), true);
+  e['bench-prop-toggle'].events.click(); assert.equal(e.scene.classes.has('bench-prop-hidden'), false);
+  assert.equal(e['project-object-link'].attributes.visibility, 'visible');
   e['replay-play'].events.click(); h.step(100); h.step(1100);
   const at = e['replay-progress'].value;
   h.document.hidden = true; h.handlers.visibilitychange(); h.step(999999);

@@ -22,6 +22,37 @@ const safeStore = {
   get() { try { const s = JSON.parse(localStorage.getItem(CONFIG.cacheKey)); return s?.username === CONFIG.username && s?.data ? s.data : null; } catch { return null; } },
   set(data) { try { localStorage.setItem(CONFIG.cacheKey, JSON.stringify({ username: CONFIG.username, data })); } catch { /* Storage may be disabled. */ } }
 };
+const BENCH_PROP_KEY = 'clawd-workshop-bench-prop';
+let benchPropVisible = (() => { try { return localStorage.getItem(BENCH_PROP_KEY) !== '0'; } catch { return true; } })();
+function setBenchPropVisible(show) {
+  benchPropVisible = show;
+  try { localStorage.setItem(BENCH_PROP_KEY, show ? '1' : '0'); } catch { /* Storage may be disabled. */ }
+  $('scene').classList.toggle('bench-prop-hidden', !show);
+  const hasRepo = Boolean($('object-repo-link') && !$('object-repo-link').hidden);
+  $('project-object-link')?.setAttribute('visibility', hasRepo && show ? 'visible' : 'hidden');
+  for (const id of ['bench-prop-toggle', 'bench-prop-toggle-side']) {
+    const button = $(id); if (!button) continue;
+    button.setAttribute('aria-pressed', String(show));
+    button.textContent = show ? 'Hide' : 'Show';
+    button.setAttribute('aria-label', show ? 'Hide the project on the bench' : 'Show the project on the bench');
+  }
+}
+function bindBenchProp(repo) {
+  const href = repo ? repoUrl(repo) : `https://github.com/${CONFIG.username}`;
+  const link = $('project-object-link');
+  if (link) {
+    link.setAttribute('href', href);
+    link.setAttribute('aria-label', repo ? `Open ${repo.split('/').slice(1).join('/')} on GitHub` : 'Open GitHub profile');
+    link.classList.toggle('is-inactive', !repo);
+  }
+  const title = $('project-object-title');
+  if (title) title.textContent = repo ? `Open ${repo.split('/').slice(1).join('/')} on GitHub` : 'No project on the bench';
+  const side = $('object-repo-link');
+  if (side) { side.href = href; side.hidden = !repo; side.textContent = repo ? 'Open on GitHub ↗' : ''; }
+  for (const id of ['bench-prop-toggle', 'bench-prop-toggle-side']) {
+    const button = $(id); if (button) button.hidden = !repo;
+  }
+}
 function node(tag, className, text) { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; }
 function externalLink(url, className, text) { const a = node('a', className, text); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; }
 function objectIcon(kind) {
@@ -57,9 +88,11 @@ function render() {
   $('scene-caption').textContent = isReplay && frame && !frame.chapter.quiet ? `${object.label} · ${frame.chapter.events.length} public update${frame.chapter.events.length === 1 ? '' : 's'}` : captions[status.state];
   $('scene-title').textContent = `${CONFIG.displayName}'s workshop: ${status.label}. ${status.repo ? object.label : 'No project on the bench'}.`;
   $('project-visual').setAttribute('href', `./public/objects.svg#${object.kind}`);
-  $('project-object').setAttribute('visibility', status.repo ? 'visible' : 'hidden');
+  $('project-object-link')?.setAttribute('visibility', status.repo && benchPropVisible ? 'visible' : 'hidden');
   $('object-name').textContent = status.repo ? object.label : 'No project on the bench';
   $('object-basis').textContent = status.repo ? object.basis : 'Waiting for the next project';
+  bindBenchProp(status.repo);
+  setBenchPropVisible(benchPropVisible);
   $('last-activity').textContent = isReplay && frame ? `Recorded: ${chapterClock(frame.chapter)}` : `Last event: ${timeAgo(status.lastActivity, now)}`;
   $('active-repo').textContent = status.repo ? `${status.repo.split('/').slice(1).join('/')} ↗` : 'No project detected';
   $('active-repo').href = status.repo ? repoUrl(status.repo) : `https://github.com/${CONFIG.username}`;
@@ -212,6 +245,7 @@ function skip(direction) { const frame = replayFrame(replay.plan, replay.elapsed
 $('replay-previous').addEventListener('click', () => skip(-1)); $('replay-next').addEventListener('click', () => skip(1));
 $('about-button').addEventListener('click', () => $('about-dialog').showModal()); $('close-dialog').addEventListener('click', () => $('about-dialog').close());
 $('about-dialog').addEventListener('click', e => { if (e.target === $('about-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); } });
+for (const id of ['bench-prop-toggle', 'bench-prop-toggle-side']) $(id)?.addEventListener('click', () => setBenchPropVisible(!benchPropVisible));
 function openScoreCard(id) {
   const build = scoreBuild(id);
   if (!build) return;
