@@ -28,7 +28,15 @@ You can also serve the folder with `python3 -m http.server 3000`.
 
 ## Other static hosts
 
-`npm run build` creates `dist/` with only deployable files. On Cloudflare Pages or Netlify, use build command `npm run build`, output directory `dist`, and Node 22+. On Vercel, choose the Other preset, build command `npm run build`, output `dist`. No rewrite rules are needed. A GitHub Pages branch deployment does not require the build step.
+`npm run build` creates `dist/` with only deployable files. On Cloudflare Pages or Netlify, use build command `npm run build`, output directory `dist`, and Node 22+. On Vercel, the included `vercel.json` selects the Other preset, build command `npm run build`, and output `dist`. No rewrite rules are needed. A GitHub Pages branch deployment does not require the build step.
+
+### Vercel setup and recovery
+
+Import your GitHub repo into Vercel. Set the root directory to the folder containing `package.json` and `vercel.json`. Framework Preset must be **Other**. The config file supplies the build command and output directory.
+
+If you uploaded the earlier archive, update `package.json`, add `vercel.json`, delete the old root-level `server.mjs`, and upload `scripts/dev-server.mjs`. The development server now lives under `scripts/` and is used only for local previews. This is a static app and does not need a Vercel Function.
+
+Commit those changes, check that the project uses **Other**, then deploy the new commit. A `FUNCTION_INVOCATION_FAILED` page means a function crashed; it does not identify the exact underlying exception. The configuration above removes the need for a server function. If that error persists on the new deployment, open Vercel's **Logs** to inspect the failed invocation and confirm you're opening the latest deployment URL.
 
 ## See every animation
 
@@ -83,8 +91,9 @@ src/demo.js            Explicit fictional sample data
 src/config.js          Builder and timing configuration
 src/styles.css         Responsive design and state animations
 public/favicon.svg     Tiny Clawd icon
-server.mjs             Local development server
+scripts/dev-server.mjs Local development server (not a deployment entry point)
 scripts/build.mjs      Static export
+vercel.json            Explicit static deployment settings
 tests/                 Node's built-in test suite
 ```
 
