@@ -2,11 +2,23 @@
 
 A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub activity. A cute red triangular Clawd works in an animated SVG garage; the data changes his behavior. Watch current signals or replay the available last 24 hours as a paced recap. The object on the bench changes with the project: wallets, robots, dashboards, safes, books, and more. Responsive on desktop and phone.
 
+**Using Cursor?** Open [CURSOR.md](CURSOR.md) for setup and a ready-to-paste Agent prompt. `AGENTS.md` and `.cursor/rules/workshop.mdc` provide project context for the agent.
+
 ## Update your existing Vercel project
 
-Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. New files are `src/replay.js`, `src/objects.js`, `public/objects.svg`, `tests/replay.test.mjs`, and `tests/ui.test.mjs`. Existing `index.html`, the JavaScript/CSS files, `package.json`, and docs have also changed; upload the whole project rather than just one file. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
+Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
 
 Commit the upload; your connected Vercel project can deploy the new commit. Once that deployment is ready, reload the site. Replay lives under the admin tools: open `/?admin=1`, then use **Replay 24 hours**.
+
+## Link previews and video sharing
+
+The main workshop link has a 1200×630 PNG preview of Clawd. Open Graph and X metadata are written into the HTML during the static build; social crawlers do not need JavaScript.
+
+On Vercel, the build uses `VERCEL_PROJECT_PRODUCTION_URL` for stable absolute links. Enable system environment variables in the project settings if disabled. For a custom domain or another host, set `SITE_URL` to your full public HTTPS address (include a repo subpath when needed), then rebuild. Example: `SITE_URL=https://clawd-workshop.vercel.app/`. Do not set this to a private preview URL or localhost.
+
+For video sharing, use `https://YOUR-DOMAIN/public/share/index.html`. That page includes a short MP4 demo, Open Graph video tags, and X Player Card metadata pointing to `public/share/player.html`, with a PNG poster fallback. The main workshop link stays an ordinary image card. The clip is a labeled demo animation, not a recording of actual work.
+
+Platforms control image rendering, video playback, autoplay, approval, and caching. Player tags do not guarantee an embedded video will show. To post a video directly on X, upload `public/workshop-preview.mp4` with the post and include the workshop link in the text.
 
 ## Drop it into GitHub
 

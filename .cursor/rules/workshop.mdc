@@ -1,0 +1,6 @@
+---
+description: Clawd Workshop architecture, replay behavior, SVG visuals, and static deployment
+alwaysApply: true
+---
+
+Read the root `AGENTS.md` for this project's architecture and behavior. Use `CURSOR.md` for setup and the browser validation checklist. Preserve the existing static app and accurate public-activity labels when making changes.
