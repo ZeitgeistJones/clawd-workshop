@@ -1,6 +1,12 @@
 # Is Clawd building?
 
-A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub activity. A cute red triangular Clawd works in an animated SVG garage; the data changes his behavior. Warm paper colors, a workbench, a robot on the shelf, a kettle, a build pulse, and an evidence timeline. Responsive on desktop and phone.
+A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub activity. A cute red triangular Clawd works in an animated SVG garage; the data changes his behavior. Watch current signals or replay the available last 24 hours as a paced recap. The object on the bench changes with the project: wallets, robots, dashboards, safes, books, and more. Responsive on desktop and phone.
+
+## Update your existing Vercel project
+
+Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. New files are `src/replay.js`, `src/objects.js`, `public/objects.svg`, `tests/replay.test.mjs`, and `tests/ui.test.mjs`. Existing `index.html`, the JavaScript/CSS files, `package.json`, and docs have also changed; upload the whole project rather than just one file. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
+
+Commit the upload; your connected Vercel project can deploy the new commit. Once that deployment is ready, reload the site. Click **Replay 24 hours** above the workshop.
 
 ## Drop it into GitHub
 
@@ -38,11 +44,62 @@ If you uploaded the earlier archive, update `package.json`, add `vercel.json`, d
 
 Commit those changes, check that the project uses **Other**, then deploy the new commit. A `FUNCTION_INVOCATION_FAILED` page means a function crashed; it does not identify the exact underlying exception. The configuration above removes the need for a server function. If that error persists on the new deployment, open Vercel's **Logs** to inspect the failed invocation and confirm you're opening the latest deployment URL.
 
+If an earlier version shows `Failed to execute 'fetch' on 'Window': Illegal invocation`, update `src/github.js`. Its constructor now uses `fetcher = globalThis.fetch.bind(globalThis)` so browser fetch receives the correct global context. Commit the change, wait for the new deployment, and refresh. This issue does not require a GitHub token.
+
 ## See every animation
 
 Click **Try demo**, then choose Building, Planning, Testing, Shipping, or Quiet. The entire dashboard is labeled **DEMO · SAMPLE ACTIVITY**. Alternatively open `http://localhost:3000/?demo=1`. Demo does not fetch GitHub data. Returning to GitHub fetches real activity; failed requests never silently switch to demo.
 
 Clawd is drawn in SVG and animated with CSS. He retains the reference character's red triangular face, sly eyes, mischievous smile, bow tie, and claws, with a little workshop apron. No raster assets are required. The pause button stops motion; reduced-motion preferences are respected.
+
+## Replay the last 24 hours
+
+Click **Replay 24 hours**. Playback starts after the history loads. Choose **2, 5, or 8 minutes** as your target duration (default: five). The day is a rolling 24-hour window ending when you load it, shown in your browser's local time.
+
+- Nearby events for the same repository are grouped into chapters when no more than 30 minutes apart. Project switches and published releases remain separate chapters. Every fetched event appears in its chapter's evidence list.
+- Each chapter stays on screen for at least **7 seconds**. Work chapters last at most **30 seconds**, and quiet gaps last at most **10 seconds**. A dense day extends beyond the requested length to stay readable. A sparse day shortens instead of making you stare at one project for minutes. The actual duration appears next to the slider.
+- Pause/play, drag the scrubber, use previous/next, or click any project chapter. Seeking pauses so you can read. Changing the target duration preserves your chapter and approximate position.
+- The character moves at normal animation speed while the recap moves through historical time. Clock labels and evidence show the recorded times. Each working chapter summarizes a burst of events, rather than replaying individual keystrokes or pretending to record exact presence.
+- Quiet gaps longer than 75 minutes receive short gap chapters. They mean no fetched public signals; incomplete earlier coverage is shown as unavailable.
+- Playback pauses when you hide the tab. Current polling stops during replay, and the historical dataset stays frozen. The pulse is recalculated at the displayed historical point. The shelf fills with projects already reached; it does not claim all of them were shipped.
+- Historical testing is not inferred from current workflow runs. The replay uses public events only; it cannot reconstruct workflow history across all projects.
+- **Try demo** while in replay switches to a fictional sample day with nine different project objects. Returning to GitHub restores public history.
+
+Replay loads up to three 100-event pages, stopping when the rolling-day boundary is reached or the feed ends. GitHub caps the feed at 300 events. Saved public events collected by this browser during the last 24 hours are merged and deduplicated. Busy days or failed pagination can therefore have a partial recap; that is labeled above the player. Private work and delayed public events are still invisible. No full-day coverage is promised.
+
+## Objects that match the project
+
+The bench and shelf use 16 original SVG objects. Repository names are matched first, then descriptions, then topics. Exact per-repo mappings take priority. The UI states where the match came from. These are illustrations of the project type, not actual screenshots of its software.
+
+| Repository clue | Illustration |
+| --- | --- |
+| wallet, payments | Wallet with money and a coin |
+| bot, robot, agent | Small robot |
+| dashboard, console, harness | Monitor with a control dashboard |
+| txn, transaction, simulator | Coin moving between transaction machines |
+| safe, vault, treasury | Safe with a wheel door |
+| keypad, keyboard | Keypad |
+| grove, garden, forest | Tiny grove |
+| frog | Frog |
+| bunker | Bunker |
+| lessons, learning, chronicle | Open book |
+| daily, morning, news | Newspaper |
+| research, science | Microscope |
+| liquidity, vesting | Liquid jar with a lock and clock |
+| token, coin | Coin stack |
+| crawler, spider | Spider web |
+| Unclear | Labeled project blueprint |
+
+For precise control, edit `visualOverrides` in `src/config.js`:
+
+```js
+visualOverrides: {
+  'clawdbotatg/clawd-harness': { kind: 'dashboard', label: 'Agent control dashboard' },
+  'clawdbotatg/my-project': { kind: 'wallet', label: 'My wallet project' },
+},
+```
+
+Allowed kinds are listed in `src/objects.js`. The artwork lives in `public/objects.svg`. Unknown projects are not assigned a made-up object.
 
 ## What drives the states?
 
@@ -68,12 +125,12 @@ An intentionally playful activity heuristic, not a productivity or quality metri
 ## Data, limits, and failure behavior
 
 - Requests go from the visitor's browser to `api.github.com`. No personal access token is embedded or requested.
-- Fetches the latest **100** public events, not the user's entire history. The public event feed is limited and delayed; GitHub documents latency from **30 seconds to 6 hours**. This page does not claim true live presence.
+- Current mode fetches the latest **100** public events; replay can load **300** plus locally observed events from the rolling day. The public event feed is limited and delayed; GitHub documents latency from **30 seconds to 6 hours**. This page does not claim true live presence.
 - Refreshes every **five minutes while the tab is visible** and follows longer GitHub `X-Poll-Interval` advice. Event and workflow requests use ETags when exposed. Repository metadata is cached in memory for an hour.
-- Normally about 25 requests per hour per open tab. GitHub's unauthenticated quota is **60 requests per hour per originating IP**; multiple tabs/visitors on one network share that quota. Rate-limit headers trigger backoff. Manual refresh is throttled to 15 seconds.
+- Normally about 25 requests per hour per open tab in current mode. Loading replay costs up to three event requests, with five-minute in-memory caching. Repository metadata for up to 100 repos is cached for an hour. GitHub's unauthenticated quota is **60 requests per hour per originating IP**; multiple tabs/visitors on one network share that quota. Rate-limit headers trigger backoff. Manual refresh is throttled to 15 seconds.
 - Fetch timeout: 15 seconds per request. Failures show a message; the last successful snapshot is kept in localStorage when available, labeled saved. The current character becomes unknown after an event fetch failure or when the last check is too old. A workflow-specific failure still allows event-based inference, with a visible warning.
 - Running workflow data from a snapshot more than two polling intervals old is never presented as current.
-- No analytics, cookies, external fonts, or asset services. Browser localStorage holds the last successful public snapshot only; clearing site data removes it.
+- No analytics, cookies, external fonts, or asset services. Browser localStorage holds the last successful public snapshot and locally collected public events from the last 24 hours; clearing site data removes them. If browser storage is full or disabled, saving is skipped and the in-memory app still works.
 - API text is rendered with `textContent`; outbound event URLs are restricted to HTTPS GitHub links.
 
 For a bigger public audience or actual live state, add a server-side cache / GitHub App and opt-in telemetry. Keep credentials on that server. This v0 intentionally stays static and easy to drop into GitHub.
@@ -88,9 +145,12 @@ src/app.js             Rendering, controls, cache, polling
 src/activity.js        Event descriptions, status, pulse
 src/github.js          GitHub client, ETags, rate-limit backoff
 src/demo.js            Explicit fictional sample data
+src/replay.js          Day chapters, pacing, merging, playback positions
+src/objects.js         Project-to-object matching
 src/config.js          Builder and timing configuration
 src/styles.css         Responsive design and state animations
 public/favicon.svg     Tiny Clawd icon
+public/objects.svg     Sixteen scalable project props
 scripts/dev-server.mjs Local development server (not a deployment entry point)
 scripts/build.mjs      Static export
 vercel.json            Explicit static deployment settings

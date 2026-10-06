@@ -7,3 +7,21 @@ export function demoSnapshot(state = 'building', now = Date.now()) {
   if (state === 'idle') events.forEach(e => { e.created_at = new Date(Date.parse(e.created_at) - 6 * 3600000).toISOString(); });
   return { events, runs: state === 'testing' ? [{ name: 'Workshop checks', status: 'in_progress', repo: `${CONFIG.username}/little-workshop` }] : [], repos: ['little-workshop', 'robot-garage', 'tea-protocol'].map(name => ({ name, full_name: `${CONFIG.username}/${name}`, description: 'An imaginary project for the demo.', language: 'JavaScript', stargazers_count: 0 })), checkedAt: new Date(now).toISOString(), workflowWarning: '', repoWarning: '' };
 }
+export function demoHistory(end = Date.now()) {
+  const projects = [
+    ['instant-wallet', 'A small wallet for everyday payments.'], ['clawd-harness', 'An agent control dashboard.'],
+    ['clawd-txn-simulator', 'A transaction simulator.'], ['wedgie-safe', 'A little safe.'],
+    ['wedgie-grove', 'A tiny grove of trees.'], ['wedgie-keypad', 'A keypad.'],
+    ['slop-lessons', 'A lesson book.'], ['clawd-research', 'Research tools.'],
+    ['workshop-bot', 'A small robot helper.'],
+  ];
+  const events = projects.flatMap(([name], i) => {
+    const base = end - (23 - i * 2.55) * 3600000;
+    return ['CreateEvent', 'PushEvent', 'PushEvent', 'ReleaseEvent'].map((type, j) => ({
+      id: `day-demo-${i}-${j}`, type, repo: { name: `${CONFIG.username}/${name}` },
+      created_at: new Date(base + j * 9 * 60000).toISOString(),
+      payload: type === 'ReleaseEvent' ? { action: 'published', release: { tag_name: `v0.${i + 1}.0` } } : type === 'CreateEvent' ? { ref_type: 'branch', ref: 'a-little-progress' } : { ref: 'refs/heads/main', size: 2 },
+    }));
+  }).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+  return { events, repos: projects.map(([name, description]) => ({ name, description, full_name: `${CONFIG.username}/${name}`, language: 'JavaScript', stargazers_count: 0 })), end, checkedAt: new Date(end).toISOString(), partial: false, warning: '' };
+}

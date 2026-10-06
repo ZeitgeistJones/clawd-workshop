@@ -1,5 +1,6 @@
 import { CONFIG } from './config.js';
 import { normalizeEvents } from './activity.js';
+import { mergeEvents, DAY_MS } from './replay.js';
 
 export class GithubClient {
   constructor(fetcher = globalThis.fetch.bind(globalThis)) { this.fetcher = fetcher; this.cache = new Map(); this.blockedUntil = 0; this.pollMs = CONFIG.refreshMs; }
@@ -31,7 +32,7 @@ export class GithubClient {
     const user = encodeURIComponent(CONFIG.username);
     const events = normalizeEvents(await this.request(`/users/${user}/events/public?per_page=100`));
     // Repo list is context, not a claim that every repo was shipped.
-    const repoResult = await Promise.allSettled([this.request(`/users/${user}/repos?sort=pushed&per_page=6`, 3600000)]);
+    const repoResult = await Promise.allSettled([this.request(`/users/${user}/repos?sort=pushed&per_page=100`, 3600000)]);
     const repos = repoResult[0].status === 'fulfilled' && Array.isArray(repoResult[0].value) ? repoResult[0].value : [];
     const activeRepo = events[0]?.repo.name;
     let runs = [], workflowWarning = '';
@@ -44,5 +45,24 @@ export class GithubClient {
       } catch (error) { workflowWarning = `Workflow check unavailable: ${error.message}`; }
     }
     return { events, repos, runs, checkedAt: new Date().toISOString(), workflowWarning, repoWarning: repoResult[0].status === 'rejected' ? 'Repository list unavailable.' : '' };
+  }
+  async history(seed = {}, end = Date.now()) {
+    const cutoff = end - DAY_MS, user = encodeURIComponent(CONFIG.username);
+    let raw = [], coversWindow = false, warning = '', failed = false;
+    for (let page = 1; page <= 3; page++) {
+      try {
+        const path = `/users/${user}/events/public?per_page=100${page > 1 ? `&page=${page}` : ''}`;
+        const data = await this.request(path, CONFIG.refreshMs);
+        if (!Array.isArray(data)) throw new Error('Unexpected GitHub event response.');
+        raw.push(...data);
+        const oldest = Math.min(...data.map(e => Date.parse(e.created_at)).filter(Number.isFinite));
+        if (data.length < 100 || oldest <= cutoff) { coversWindow = true; break; }
+      } catch (error) { warning = error.message; failed = true; break; }
+    }
+    const all = mergeEvents(raw, seed.historyEvents || [], seed.events || []);
+    const events = all.filter(e => Date.parse(e.created_at) >= cutoff && Date.parse(e.created_at) <= end);
+    if (!events.length && failed) throw new Error(warning || 'Replay history could not be loaded.');
+    const earliest = Math.min(...raw.map(e => Date.parse(e.created_at)).filter(Number.isFinite), ...events.map(e => Date.parse(e.created_at)));
+    return { events, repos: seed.repos || [], end, partial: !coversWindow, coverageStart: coversWindow ? cutoff : (Number.isFinite(earliest) ? Math.max(cutoff, earliest) : end), checkedAt: new Date().toISOString(), warning: warning || (!coversWindow ? 'The public feed reached its 300-event limit before covering the full day.' : '') };
   }
 }

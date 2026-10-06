@@ -2,6 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GithubClient } from '../src/github.js';
 const json = (data, headers = {}) => new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json', ...headers } });
+test('default fetch keeps the browser global receiver instead of the client instance', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = function () {
+    // Browser fetch rejects receivers such as GithubClient with Illegal invocation.
+    if (this !== globalThis) throw new TypeError('Illegal invocation');
+    return Promise.resolve(json(['browser request succeeded']));
+  };
+  try {
+    const c = new GithubClient();
+    assert.deepEqual(await c.request('/test'), ['browser request succeeded']);
+  } finally { globalThis.fetch = originalFetch; }
+});
 test('ETag is sent on the next request and 304 preserves data', async () => {
   let calls = 0;
   const c = new GithubClient(async (_url, options) => {
@@ -45,4 +57,32 @@ test('longer server poll advice is honored and repo data is cached', async () =>
   });
   await c.snapshot(); await c.snapshot();
   assert.equal(repoCalls, 1); assert.equal(c.pollMs, 600000);
+});
+test('replay pages stop once the requested day is covered', async () => {
+  const end = Date.now(), calls = [];
+  const c = new GithubClient(async url => {
+    calls.push(url);
+    const page = new URL(url).searchParams.get('page') || '1';
+    return json(Array.from({ length: 100 }, (_, i) => ({ id: `${page}-${i}`, type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date(end - (page === '1' ? i : 1400 + i) * 60000).toISOString() })));
+  });
+  const history = await c.history({}, end);
+  assert.equal(calls.length, 2); assert.equal(history.partial, false);
+  assert.ok(history.events.every(e => Date.parse(e.created_at) >= end - 86400000));
+});
+test('feed ceiling is labeled partial and collected snapshots are merged', async () => {
+  const end = Date.now(); let calls = 0;
+  const c = new GithubClient(async () => { const page = ++calls; return json(Array.from({ length: 100 }, (_, i) => ({ id: `${page}-${i}`, type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date(end - (page * 100 + i) * 1000).toISOString() }))); });
+  const archived = { id: 'saved', type: 'PushEvent', repo: { name: 'clawdbotatg/safe' }, created_at: new Date(end - 10 * 3600000).toISOString() };
+  const history = await c.history({ historyEvents: [archived] }, end);
+  assert.equal(calls, 3); assert.equal(history.partial, true); assert.equal(history.events.length, 301);
+  assert.match(history.warning, /300-event/);
+});
+test('later history page failures keep evidence and never present complete coverage', async () => {
+  const end = Date.now(); let calls = 0;
+  const c = new GithubClient(async () => {
+    if (++calls > 1) throw new Error('Network unavailable');
+    return json(Array.from({ length: 100 }, (_, i) => ({ id: String(i), type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date(end - i * 1000).toISOString() })));
+  });
+  const history = await c.history({}, end);
+  assert.equal(history.events.length, 100); assert.equal(history.partial, true); assert.match(history.warning, /Network unavailable/);
 });
