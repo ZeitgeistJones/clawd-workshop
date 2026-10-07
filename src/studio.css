@@ -115,9 +115,12 @@ h1 em { color: var(--orange); font-weight: 400; }
 .radio-controls input { width: 60px; height: 20px; }
 .radio-live-caption { flex: 1; color: #536e5b; font-size: 10px; line-height: 1.5; }
 .radio-controls output { min-width: 30px; text-align: right; font: 10px var(--mono); color: #536e5b; }
-.radio-play.requires-action { width: auto; min-width: 74px; border-radius: 10px; padding: 8px 10px; font-size: 10px; }
+.radio-play.requires-action { width: auto; min-width: 74px; border-radius: 10px; padding: 8px 10px; font-size: 10px; background: #3f6a51; color: #f4faf5; border-color: #3f6a51; }
+.radio-play.requires-action:hover { background: #335744; box-shadow: 0 2px 10px #3f6a5126; }
 .radio-play:disabled { cursor: progress; }
 #radio-status[data-state='error'] { color: #9b513c; }
+#radio-status[data-state='blocked'] { color: #8a5a2b; font-weight: 600; }
+.radio-panel.needs-sound { box-shadow: inset 0 0 0 1px #c4a57488; }
 .workshop-heading { flex-wrap: wrap; }
 .workshop-top > * { min-width: 0; }
 .workshop-tools { flex-shrink: 0; }

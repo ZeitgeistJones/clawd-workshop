@@ -128,6 +128,19 @@ let lastAudibleVolume = 55;
 function rememberVolume() {
   try { localStorage.setItem(VOLUME_KEY, $('radio-volume').value); } catch { /* Storage is optional. */ }
 }
+function isAutoplayBlock(error) {
+  const name = error?.name || '';
+  return name === 'NotAllowedError' || name === 'AbortError';
+}
+function ensureAudibleVolume() {
+  let volume = Number($('radio-volume').value);
+  if (!(volume > 0)) {
+    volume = lastAudibleVolume || 55;
+    $('radio-volume').value = String(volume);
+  }
+  radio.setVolume(volume / 100);
+  return volume;
+}
 function drawRadio() {
   const volume = Math.round(radio.volume * 100);
   const waiting = awaitingSound || radio.blocked || !radio.playing;
@@ -135,14 +148,14 @@ function drawRadio() {
   text('radio-title', radio.current()?.name || 'Workshop radio');
   const label = radio.loading ? 'Joining the room radio…'
     : radio.error ? 'Track unavailable · press Retry.'
-    : radio.blocked || awaitingSound ? 'Your browser needs a click to allow sound.'
+    : radio.blocked || awaitingSound ? 'Browser blocked autoplay with sound · press Enable music.'
     : !radio.playing ? 'Press Enable music to join the room.'
     : !audible ? 'Muted · the shared playlist keeps going.'
     : 'Playing · shared room playlist';
   text('radio-status', label);
   $('radio-status').dataset.state = radio.error ? 'error' : radio.blocked || awaitingSound ? 'blocked' : audible ? 'playing' : 'quiet';
   text('radio-play', radio.error ? 'Retry' : waiting && !radio.loading ? 'Enable music' : radio.muted || !volume ? 'Unmute' : 'Mute');
-  $('radio-play').classList.toggle('requires-action', true);
+  $('radio-play').classList.toggle('requires-action', Boolean((waiting && !radio.loading) || radio.error));
   $('radio-play').setAttribute('aria-pressed', String(radio.muted || !volume));
   $('radio-play').setAttribute('aria-label', radio.error ? 'Retry workshop music' : waiting ? 'Enable workshop music' : radio.muted || !volume ? 'Unmute music' : 'Mute music');
   $('radio-play').disabled = radioBusy;
@@ -150,15 +163,37 @@ function drawRadio() {
   text('radio-volume-value', `${volume}%`);
   $('scene').classList.toggle('music-playing', audible);
   document.querySelector('.radio-panel')?.classList.toggle('playing', audible);
+  document.querySelector('.radio-panel')?.classList.toggle('needs-sound', Boolean(radio.blocked || awaitingSound));
 }
 async function startRadio({ withSound = true } = {}) {
-  let volume = Number($('radio-volume').value);
-  if (withSound && !(volume > 0)) { volume = lastAudibleVolume; $('radio-volume').value = String(volume); }
-  radio.setVolume(volume / 100);
+  if (withSound) ensureAudibleVolume();
+  else radio.setVolume(Number($('radio-volume').value) / 100);
   radio.setMuted(!withSound);
   // Always call play after unmuting: browsers can pause media asynchronously.
   await radio.play();
-  if (withSound) awaitingSound = false;
+  if (withSound) {
+    awaitingSound = false;
+    radio.blocked = false;
+  }
+}
+/** Unmute an already-running element inside the click gesture (Chrome needs this). */
+async function unlockSound() {
+  ensureAudibleVolume();
+  radio.setMuted(false);
+  const audio = radio.audio;
+  if (audio) {
+    audio.muted = false;
+    audio.volume = radio.volume;
+    // Start play() before any other await so Chrome keeps the user gesture.
+    const pending = audio.paused ? audio.play() : Promise.resolve();
+    awaitingSound = false;
+    radio.blocked = false;
+    radio.error = null;
+    await pending;
+    radio.playing = !audio.paused;
+    return;
+  }
+  await startRadio({ withSound: true });
 }
 async function bootRadio() {
   if (radioBusy) return;
@@ -167,7 +202,7 @@ async function bootRadio() {
     // Audible playback is the first attempt, never the muted-first path.
     await startRadio({ withSound: true });
   } catch (error) {
-    if (error?.name === 'NotAllowedError') {
+    if (isAutoplayBlock(error)) {
       awaitingSound = true;
       try { await startRadio({ withSound: false }); } catch { /* State is set by the player. */ }
       // Muted playback may run, but it is still waiting for permission for sound.
@@ -180,10 +215,15 @@ $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return;
   radioBusy = true;
   try {
-    if (!radio.playing || awaitingSound || radio.blocked || radio.error || radio.muted || radio.volume === 0) await startRadio({ withSound: true });
+    if (radio.error || !radio.playing) await startRadio({ withSound: true });
+    else if (awaitingSound || radio.blocked || radio.muted || radio.volume === 0) await unlockSound();
     else radio.setMuted(true);
-  } catch { /* Playback state, including errors, is kept by the player. */ }
-  finally { radioBusy = false; drawRadio(); }
+  } catch (error) {
+    if (isAutoplayBlock(error)) {
+      awaitingSound = true;
+      radio.blocked = true;
+    }
+  } finally { radioBusy = false; drawRadio(); }
 });
 $('radio-volume').addEventListener('input', async e => {
   const volume = Number(e.target.value);
@@ -193,7 +233,7 @@ $('radio-volume').addEventListener('input', async e => {
   rememberVolume(); drawRadio();
   if (volume > 0 && !radioBusy && (awaitingSound || radio.blocked || !radio.playing)) {
     radioBusy = true;
-    try { await radio.play(); awaitingSound = false; } catch { /* The Enable music control remains available. */ }
+    try { await unlockSound(); } catch { /* The Enable music control remains available. */ }
     finally { radioBusy = false; drawRadio(); }
   }
 });

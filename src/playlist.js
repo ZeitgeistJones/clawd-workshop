@@ -183,9 +183,17 @@ export class TrackRadio {
     catch (error) {
       if (generation !== this.generation) return;
       this.playing = false; this.loading = false;
-      this.blocked = error?.name === 'NotAllowedError';
-      this.error = this.blocked ? null : error;
-      this.release(this.audio); this.audio = null; this.clearSync(); this.onchange?.();
+      // Chrome often uses NotAllowedError; AbortError can appear when a start is interrupted.
+      const autoplayBlocked = error?.name === 'NotAllowedError' || error?.name === 'AbortError';
+      this.blocked = autoplayBlocked;
+      this.error = autoplayBlocked ? null : error;
+      // Keep the element on autoplay blocks so a later click can unmute the same media.
+      if (!autoplayBlocked) {
+        this.release(this.audio);
+        this.audio = null;
+      }
+      this.clearSync();
+      this.onchange?.();
       throw error;
     }
   }

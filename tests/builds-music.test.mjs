@@ -127,4 +127,9 @@ test('browser sound denial is distinct from a missing track', async () => {
   const radio = new TrackRadio(() => ({play: async () => { const e = new Error('Sound blocked'); e.name = 'NotAllowedError'; throw e; },pause() {},load() {},removeAttribute() {}}));
   await assert.rejects(radio.play(), {name: 'NotAllowedError'});
   assert.equal(radio.blocked, true); assert.equal(radio.error, null); assert.equal(radio.loading, false);
+  assert.ok(radio.audio, 'keep the media element so a click can unmute it');
+  await radio.stop();
+  const aborted = new TrackRadio(() => ({play: async () => { const e = new Error('aborted'); e.name = 'AbortError'; throw e; },pause() {},load() {},removeAttribute() {}}));
+  await assert.rejects(aborted.play(), {name: 'AbortError'});
+  assert.equal(aborted.blocked, true); assert.equal(aborted.error, null);
 });
