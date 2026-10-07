@@ -175,47 +175,71 @@ function drawRadio(message) {
   $('scene').classList.toggle('music-playing', radio.playing && !radio.muted);
   document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing && !radio.muted);
 }
-async function startRadio({ forceMuted = false } = {}) {
+async function startRadioLoud() {
   radio.setVolume(Number($('radio-volume').value) / 100);
-  radio.setMuted(forceMuted);
-  try {
-    if (!radio.playing) await radio.play();
-    else if (radio.audio?.paused) await radio.audio.play();
-    return true;
-  } catch {
-    if (forceMuted) return false;
-    return startRadio({ forceMuted: true });
+  radio.setMuted(false);
+  if (!radio.playing) await radio.play();
+  else if (radio.audio?.paused) await radio.audio.play();
+  else if (radio.audio) {
+    radio.audio.muted = false;
+    await radio.audio.play();
   }
+}
+function armSoundUnlock() {
+  const unlock = async () => {
+    if (radioBusy) return;
+    radioBusy = true;
+    try {
+      await startRadioLoud();
+      drawRadio();
+      document.removeEventListener('pointerdown', unlock, true);
+      document.removeEventListener('keydown', unlock, true);
+      document.removeEventListener('touchstart', unlock, true);
+    } catch {
+      drawRadio('Tap anywhere for sound');
+    } finally {
+      radioBusy = false;
+    }
+  };
+  document.addEventListener('pointerdown', unlock, true);
+  document.addEventListener('keydown', unlock, true);
+  document.addEventListener('touchstart', unlock, true);
 }
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
   try {
     if (!radio.playing) {
-      const ok = await startRadio({ forceMuted: false });
-      if (!ok) {
-        drawRadio('Audio is unavailable in this browser.');
-        return;
-      }
-      radio.setMuted(false);
-      if (radio.audio?.paused) await radio.audio.play();
+      await startRadioLoud();
       drawRadio();
       return;
     }
+    // Mute only after sound is already running — never a pause.
     radio.setMuted(!radio.muted);
-    if (!radio.muted && radio.audio?.paused) await radio.audio.play();
+    if (!radio.muted) {
+      radio.audio && (radio.audio.muted = false);
+      if (radio.audio?.paused) await radio.audio.play();
+    }
     drawRadio();
-  } catch { drawRadio('Audio is unavailable in this browser.'); }
-  finally { radioBusy = false; $('radio-play').disabled = false; }
+  } catch {
+    drawRadio('Tap anywhere for sound');
+    armSoundUnlock();
+  } finally { radioBusy = false; $('radio-play').disabled = false; }
 });
 $('radio-volume').addEventListener('input', e => {
   radio.setVolume(Number(e.target.value) / 100);
+  if (radio.muted && Number(e.target.value) > 0) {
+    radio.setMuted(false);
+    if (radio.audio) radio.audio.muted = false;
+    drawRadio();
+  }
 });
 radio.setVolume(Number($('radio-volume').value) / 100);
 document.addEventListener('visibilitychange', () => {
   clearTimeout(priceTimer); clearTimeout(watchTimer);
   if (document.hidden) clearEffect();
   else {
-    if (radio.playing) {
+    if (radio.playing && !radio.muted) {
+      if (radio.audio) radio.audio.muted = false;
       if (radio.audio?.paused) radio.audio.play().catch(() => {});
       drawRadio();
     }
@@ -226,17 +250,9 @@ window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); c
 let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
 window.addEventListener('pagehide', () => clearInterval(radioClock));
 drawRadio();
-startRadio({ forceMuted: false }).then(ok => {
-  drawRadio(ok ? undefined : 'Tap the speaker to start music.');
-  if (ok && radio.muted) {
-    const unmute = () => {
-      radio.setMuted(false);
-      if (radio.audio?.paused) radio.audio.play().catch(() => {});
-      drawRadio();
-      document.removeEventListener('pointerdown', unmute);
-      document.removeEventListener('keydown', unmute);
-    };
-    document.addEventListener('pointerdown', unmute, { once: true });
-    document.addEventListener('keydown', unmute, { once: true });
-  }
+startRadioLoud().then(() => {
+  drawRadio();
+}).catch(() => {
+  drawRadio('Tap anywhere for sound');
+  armSoundUnlock();
 });

@@ -33,6 +33,7 @@ test('lounge demo makes no market requests, music auto-starts with mute-only con
  e['demo-buy'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'buy');assert.equal(e.scene.dataset.burnLevel,undefined);assert.match(e['scene-event-title'].textContent,/DEMO/);
  e['burn-threshold'].value='1000000';e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'burn');assert.equal(e.scene.dataset.burnLevel,'1');
  e['burn-threshold'].value='25000000';e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.burnLevel,'3');
+ for(let i=0;i<5;i++) await new Promise(setImmediate);
  assert.equal(e['radio-play'].attributes['aria-pressed'],'false');
  await e['radio-play'].handlers.click();assert.equal(e['radio-play'].attributes['aria-pressed'],'true');
  await e['radio-play'].handlers.click();assert.equal(e['radio-play'].attributes['aria-pressed'],'false');

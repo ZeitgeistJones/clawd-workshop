@@ -45,8 +45,8 @@ h1 em { color: var(--orange); font-weight: 400; }
 .dashboard { grid-template-columns: minmax(0, 1fr) 314px; gap: 22px; align-items: start; }
 .hero-main { gap: 20px; }
 .panel { border-radius: 16px; border-color: var(--line); box-shadow: 0 3px 10px #253a2703; }
-.workshop { border-color: #c5d4cb; box-shadow: 0 7px 28px #2a433410; }
-.workshop-top { padding: 12px 18px; min-height: 60px; background: #f4f8f5; border-color: #d2ddd6; gap: 12px; }
+.workshop { border: 0; box-shadow: 0 7px 28px #2a433410; }
+.workshop-top { padding: 12px 18px; min-height: 60px; background: #f4f8f5; border: 0; border-bottom: 0; gap: 12px; }
 .workshop-heading { display: flex; align-items: center; gap: 11px; min-width: 0; font-size: 13px; font-weight: 600; }
 .studio-mark { font-size: 21px; color: #6e8f74; font-weight: 400; }
 .status-tag { display: flex; align-items: center; gap: 6px; margin-left: 9px; font: 8px var(--mono); letter-spacing: .6px; border-radius: 20px; padding: 7px 9px; background: #e3efe7; color: #456a52; }
@@ -60,8 +60,8 @@ h1 em { color: var(--orange); font-weight: 400; }
 .focus-button svg { width: 17px; height: 17px; }
 .focus-button:hover, .outline-button:hover, .icon-button:hover { background: #e7f0ea; border-color: #b7cbbc; text-decoration: none; }
 .focus-button[aria-pressed='true'] { background: #e2eee6; border-color: #b4cbb9; }
-.scene-wrap { min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #e4ebe6; display: block; border: 0; box-shadow: none; }
-.scene { width: 100%; height: 100%; display: block; vertical-align: top; }
+.scene-wrap { min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #e4ebe6; display: block; border: 0; outline: 0; box-shadow: none; }
+.scene { width: 100%; height: 100%; display: block; vertical-align: top; border: 0; outline: 0; }
 .scene-build { position: absolute; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 5px; max-width: 36%; padding: 11px 13px; border: 1px solid #c2d2c8e0; border-radius: 9px; background: #f4faf6e8; color: #425f4d; backdrop-filter: blur(7px); }
 .scene-build-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .scene-build .eyebrow { font-size: 7px; letter-spacing: 1.2px; color: #6d8174; }
@@ -89,7 +89,7 @@ h1 em { color: var(--orange); font-weight: 400; }
 .bench-prop-note { margin: 0; font-size: 10px; line-height: 1.5; color: var(--muted); }
 .bench-prop-links { display: flex; flex-wrap: wrap; gap: 12px; }
 .bench-prop-links a { font: 11px/1.4 var(--mono); color: var(--green); }
-.workshop-bottom { padding: 14px 20px; min-height: 54px; align-items: center; background: #f4f8f5; border-color: #d2ddd6; gap: 14px; }
+.workshop-bottom { padding: 14px 20px; min-height: 54px; align-items: center; background: #f4f8f5; border: 0; border-top: 0; gap: 14px; }
 .scene-caption { position: static; transform: none; display: flex; align-items: center; max-width: none; border: 0; background: none; backdrop-filter: none; padding: 0; color: #5f7268; font-size: 11px; line-height: 1.5; text-align: left; white-space: normal; }
 .caption-dot { width: 5px; height: 5px; flex-shrink: 0; background: #c45a3e; }
 .workshop-bottom .mono { font-size: 9px; color: #73857a; text-align: right; flex-shrink: 0; }
