@@ -10,6 +10,7 @@ export const TRACKS = [
   { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752 },
   { id: 'clawd-calendar', name: 'clawd calendar', src: './public/music/clawd-calendar.mp3', duration: 168.024 },
   { id: 'clawd-talk-to-your-wallet', name: 'talk to your wallet', src: './public/music/clawd-talk-to-your-wallet.mp3', duration: 158.64 },
+  { id: 'wedgie-frog', name: 'wedgie frog', src: './public/music/wedgie-frog.mp3', duration: 141.792 },
 ];
 
 /** @param {Track[]} [tracks] */
