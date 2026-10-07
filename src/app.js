@@ -77,7 +77,7 @@ function render() {
   const now = frame?.at ?? Date.now();
   const events = (data?.events || []).filter(e => !isReplay || Date.parse(e.created_at) <= now);
   const old = !data || Date.now() - Date.parse(data.checkedAt) > Math.max(CONFIG.refreshMs * 2, client.pollMs * 2);
-  const status = isReplay ? frameStatus(frame) : deriveStatus(events, data?.runs || [], now, !demo && (unavailable || old));
+  const status = isReplay ? frameStatus(frame) : deriveStatus(events, data?.runs || [], now, !demo && (unavailable || old), data?.repos || []);
   const metadata = (data?.repos || []).find(r => r.full_name === status.repo) || {};
   const object = projectObject(status.repo, metadata);
   $('scene').dataset.state = status.state; $('scene').dataset.projectKind = object.kind;
@@ -94,7 +94,7 @@ function render() {
   $('object-basis').textContent = status.repo ? object.basis : 'Waiting for the next project';
   bindBenchProp(status.repo);
   setBenchPropVisible(benchPropVisible);
-  $('last-activity').textContent = isReplay && frame ? `Recorded: ${chapterClock(frame.chapter)}` : `Last event: ${timeAgo(status.lastActivity, now)}`;
+  $('last-activity').textContent = isReplay && frame ? `Recorded: ${chapterClock(frame.chapter)}` : `${status.signalSource === 'repo-push' ? 'Last push' : 'Last event'}: ${timeAgo(status.lastActivity, now)}`;
   $('active-repo').textContent = status.repo ? `${status.repo.split('/').slice(1).join('/')} ↗` : 'No project detected';
   $('active-repo').href = status.repo ? repoUrl(status.repo) : `https://github.com/${CONFIG.username}`;
   $('evidence-link').hidden = !status.evidenceUrl;

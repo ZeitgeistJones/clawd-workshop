@@ -10,6 +10,20 @@ test('recent pushes, old activity, and missing signals produce distinct honest s
   assert.equal(deriveStatus([], [], now).state, 'idle');
   assert.equal(deriveStatus([event('PushEvent')], [], now, true).state, 'unknown');
 });
+test('a newer repo push beats a lagging public event feed', () => {
+  const stale = [event('PushEvent', 180, { head: 'aaaaaaaa' })];
+  stale[0].repo = { name: 'clawdbotatg/slop-computer-frontpage' };
+  const repos = [
+    { full_name: 'clawdbotatg/wedgie-dev', pushed_at: new Date(now - 8 * 60000).toISOString() },
+    { full_name: 'clawdbotatg/slop-computer-frontpage', pushed_at: new Date(now - 180 * 60000).toISOString() },
+  ];
+  const status = deriveStatus(stale, [], now, false, repos);
+  assert.equal(status.state, 'building');
+  assert.equal(status.repo, 'clawdbotatg/wedgie-dev');
+  assert.equal(status.signalSource, 'repo-push');
+  assert.match(status.reason, /newer push|activity feed/i);
+  assert.equal(deriveStatus(stale, [], now, false, []).repo, 'clawdbotatg/slop-computer-frontpage');
+});
 test('queued workflows override event inference, but completed jobs do not', () => {
   assert.equal(deriveStatus([], [{ status: 'queued', repo: 'clawdbotatg/workshop' }], now).state, 'testing');
   assert.equal(deriveStatus([], [{ status: 'completed' }], now).state, 'idle');

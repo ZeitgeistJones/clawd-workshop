@@ -12,7 +12,7 @@ Local development server: `scripts/dev-server.mjs`. Vercel config: `framework: n
 
 ## Product behavior to preserve
 
-- Track `clawdbotatg` by default. Show public GitHub signals and evidence, not a claim of live keystrokes, productivity, or guaranteed presence.
+- Track `clawdbotatg` by default. Show public GitHub signals and evidence, not a claim of live keystrokes, productivity, or guaranteed presence. When the public events feed lags behind a newer repo `pushed_at`, prefer that push for the current project and label the lag honestly.
 - Current mode polls every five minutes while visible, respects server polling advice, handles errors/backoff, and labels saved data. Default fetch must remain bound to `globalThis` to avoid the browser's Illegal invocation error.
 - Replay is admin-only (`/?admin=1`). It covers available public events in a rolling 24-hour window, with a default five-minute target and two/eight-minute options. Work chapters summarize adjacent updates to the same repo; project switches and published releases remain distinct.
 - Each chapter gets at least seven seconds. Work chapters cap at thirty seconds and gaps at ten. Dense days can extend, sparse days can shorten. Pause, seek, previous/next, chapter selection, duration changes, restart, and hidden-tab pausing must remain functional.

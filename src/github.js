@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { normalizeEvents } from './activity.js';
+import { normalizeEvents, freshestSignal } from './activity.js';
 import { mergeEvents, DAY_MS } from './replay.js';
 
 export class GithubClient {
@@ -31,10 +31,10 @@ export class GithubClient {
   async snapshot() {
     const user = encodeURIComponent(CONFIG.username);
     const events = normalizeEvents(await this.request(`/users/${user}/events/public?per_page=100`));
-    // Repo list is context, not a claim that every repo was shipped.
-    const repoResult = await Promise.allSettled([this.request(`/users/${user}/repos?sort=pushed&per_page=100`, 3600000)]);
+    // Repo list is context + a fresher "Updated" signal when the public event feed lags.
+    const repoResult = await Promise.allSettled([this.request(`/users/${user}/repos?sort=pushed&per_page=100`)]);
     const repos = repoResult[0].status === 'fulfilled' && Array.isArray(repoResult[0].value) ? repoResult[0].value : [];
-    const activeRepo = events[0]?.repo.name;
+    const activeRepo = freshestSignal(events, repos)?.repo;
     let runs = [], workflowWarning = '';
     if (activeRepo) {
       try {

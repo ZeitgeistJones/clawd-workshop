@@ -49,14 +49,14 @@ test('workflow runs from other contributors cannot impersonate Clawd', async () 
   });
   assert.deepEqual((await c.snapshot()).runs.map(r => r.id), [2]);
 });
-test('longer server poll advice is honored and repo data is cached', async () => {
+test('longer server poll advice is honored and the repo list refreshes with each snapshot', async () => {
   let repoCalls = 0;
   const c = new GithubClient(async url => {
     if (url.includes('/repos?')) repoCalls++;
     return json([], { 'x-poll-interval': '600' });
   });
   await c.snapshot(); await c.snapshot();
-  assert.equal(repoCalls, 1); assert.equal(c.pollMs, 600000);
+  assert.equal(repoCalls, 2); assert.equal(c.pollMs, 600000);
 });
 test('replay pages stop once the requested day is covered', async () => {
   const end = Date.now(), calls = [];
