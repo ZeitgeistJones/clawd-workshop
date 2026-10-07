@@ -36,9 +36,11 @@ Run relevant tests and the static build after functional changes. Test the UI in
 
 Keep sharing metadata in delivered HTML, not client-side JavaScript. `scripts/share-metadata.mjs` resolves `SITE_URL` or the stable Vercel production domain at build time and preserves repository subpaths. The main link is an image card. `public/share/index.html` is a separate video card with a public HTTPS player and MP4 clip. Keep its demo labeling and PNG fallback. Platform playback and caching need deployment verification; don't claim embedded playback is guaranteed.
 
-## Lounge, audio, and market behavior
+## Lounge, audio, market, and chat behavior
 
 Keep the workshop large and readable, with meaningful repository context and linked evidence. Render API descriptions and commit titles using textContent. Do not show present-day commits as historical replay evidence.
+
+Public workshop chat is display-name only (no accounts). It uses Vercel `/api/chat` and Upstash Redis keys namespaced `clawd-workshop:chat:*`. Sanitize with textContent on the client, rate-limit posts, keep a short rolling history, and fail honestly when Redis env vars are missing. Never put Redis secrets in the static client.
 
 Lo-fi music is original local Web Audio synthesis. Start only after an explicit user action; retain volume, stop when hidden, and recover from unsupported or blocked audio. Do not add unlicensed tracks.
 

@@ -77,3 +77,10 @@ export const SCORE_BUILDS = [
 export function scoreBuild(id) {
   return SCORE_BUILDS.find(b => b.id === id) || null;
 }
+
+/** Match a GitHub full name or short repo name to a curated score card. */
+export function scoreBuildForRepo(repo) {
+  const short = String(repo || '').split('/').pop()?.toLowerCase();
+  if (!short) return null;
+  return SCORE_BUILDS.find(b => b.id === short || b.name.toLowerCase() === short) || null;
+}

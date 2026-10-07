@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#faf7f1">
+  <meta name="theme-color" content="#eef2ef">
   <meta name="description" content="A little workshop for watching Clawdbotatg build. Public GitHub signals, a build pulse, and one very busy little triangle.">
   <!-- SHARE-METADATA:START -->
   <meta property="og:type" content="website">
@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="./src/styles.css">
   <link rel="stylesheet" href="./src/lounge.css">
   <link rel="stylesheet" href="./src/studio.css">
+  <link rel="stylesheet" href="./src/chat.css">
 </head>
 <body>
   <div class="app">
@@ -61,10 +62,10 @@
                 <linearGradient id="lamp-glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff1b9" stop-opacity=".58"/><stop offset=".72" stop-color="#ffe5a3" stop-opacity=".1"/><stop offset="1" stop-color="#ffe8a9" stop-opacity="0"/></linearGradient>
                 <linearGradient id="window-sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#627d80"/><stop offset=".6" stop-color="#a3b2a2"/><stop offset="1" stop-color="#e0c5a0"/></linearGradient>
                 <linearGradient id="fire-glow" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#f0a050" stop-opacity=".7"/><stop offset="1" stop-color="#f0a050" stop-opacity="0"/></linearGradient>
-                <linearGradient id="studio-wall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f2e8d5"/><stop offset="1" stop-color="#e4d8bd"/></linearGradient>
-                <radialGradient id="wall-light" cx=".48" cy=".23" r=".68"><stop stop-color="#fff2ca" stop-opacity=".8"/><stop offset="1" stop-color="#eee1c2" stop-opacity="0"/></radialGradient>
-                <linearGradient id="studio-floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d6c5a5"/><stop offset="1" stop-color="#e9dbc0"/></linearGradient>
-                <linearGradient id="right-wall" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#d3c8af" stop-opacity=".2"/><stop offset="1" stop-color="#c5b99b" stop-opacity=".48"/></linearGradient>
+                <linearGradient id="studio-wall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e4ebe6"/><stop offset="1" stop-color="#d5e0d9"/></linearGradient>
+                <radialGradient id="wall-light" cx=".48" cy=".23" r=".68"><stop stop-color="#e8f2ea" stop-opacity=".72"/><stop offset="1" stop-color="#d7e4dc" stop-opacity="0"/></radialGradient>
+                <linearGradient id="studio-floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c9b89a"/><stop offset="1" stop-color="#d8c9ad"/></linearGradient>
+                <linearGradient id="right-wall" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#c5d0c8" stop-opacity=".18"/><stop offset="1" stop-color="#aebcb4" stop-opacity=".42"/></linearGradient>
                 <linearGradient id="bench-top" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d2ac77"/><stop offset=".5" stop-color="#bb8f5d"/><stop offset="1" stop-color="#b18454"/></linearGradient>
                 <linearGradient id="bench-front" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a77c52"/><stop offset="1" stop-color="#906b46"/></linearGradient>
                 <linearGradient id="clawd-face" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#f08869"/><stop offset=".58" stop-color="#e66850"/><stop offset="1" stop-color="#c95643"/></linearGradient>
@@ -199,7 +200,20 @@
               <div class="scene-build-top"><span class="eyebrow">ON THE BENCH</span><button type="button" id="bench-prop-toggle" class="bench-prop-toggle" aria-pressed="true" aria-label="Hide the project on the bench">Hide</button></div>
               <a id="scene-build-link" target="_blank" rel="noopener noreferrer"></a>
               <small id="scene-build-object"></small>
-              <span class="scene-build-hint">Click the prop for GitHub</span>
+              <span class="scene-build-hint">Hover the prop for grades · click for GitHub</span>
+            </div>
+            <div id="bench-prop-card" class="bench-prop-card" hidden>
+              <p class="eyebrow">ON THE BENCH</p>
+              <strong id="bench-prop-card-name">—</strong>
+              <div id="bench-prop-card-grades" class="bench-prop-grades" hidden>
+                <div><span id="bench-prop-card-econ-label">Economics</span><b id="bench-prop-card-econ">—</b></div>
+                <div><span>Builder</span><b id="bench-prop-card-builder">—</b></div>
+              </div>
+              <p id="bench-prop-card-note" class="bench-prop-note" hidden>No Build Report grade curated for this project yet.</p>
+              <div class="bench-prop-links">
+                <a id="bench-prop-card-github" href="#" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                <a id="bench-prop-card-report" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">Build Report ↗</a>
+              </div>
             </div>
             <div id="scene-event" class="scene-event" role="status" hidden><span id="scene-event-icon" aria-hidden="true">✦</span><div><strong id="scene-event-title"></strong><span id="scene-event-detail"></span></div></div>
           </div>
@@ -210,6 +224,33 @@
         <aside class="signal-column">
           <section class="panel status-panel" aria-label="Current activity"><p id="signal-heading" class="eyebrow">THE LATEST SIGNAL</p><h2 id="status-title" aria-live="polite">Let's take a look.</h2><p id="status-reason">Checking public activity on GitHub.</p><div class="working-on"><span class="eyebrow">PROJECT</span><a id="active-repo" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Waiting for a signal ↗</a><span id="last-activity">—</span></div><div class="object-caption"><span class="eyebrow">ON THE BENCH</span><div class="bench-prop-row"><strong id="object-name">Project blueprint</strong><button type="button" id="bench-prop-toggle-side" class="bench-prop-toggle" aria-pressed="true" aria-label="Hide the project on the bench">Hide</button></div><a id="object-repo-link" class="object-repo-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Open on GitHub ↗</a><span id="object-basis">Waiting for a project</span></div><a id="evidence-link" class="evidence-link" hidden target="_blank" rel="noopener noreferrer">View the signal on GitHub ↗</a></section>
           <section class="panel radio-panel" aria-label="Lo-fi workshop radio"><div class="radio-top"><span class="radio-disc" aria-hidden="true"><i></i></span><div><p class="eyebrow">WORKSHOP RADIO</p><strong id="radio-title">Late-night workbench</strong><span id="radio-status" role="status">Original lo-fi · tap to listen</span></div><button id="radio-play" class="radio-play" aria-label="Play lo-fi music" aria-pressed="false">▶</button></div><div class="radio-controls"><label class="sr-only" for="radio-station">Lo-fi station</label><select id="radio-station"><option value="0">Late-night workbench</option><option value="1">Tea by the window</option><option value="2">Little ideas</option></select><label class="sr-only" for="radio-volume">Music volume</label><input id="radio-volume" type="range" min="0" max="100" value="55" aria-label="Music volume"></div></section>
+          <section class="panel chat-panel" aria-label="Workshop chat">
+            <div class="chat-heading">
+              <div>
+                <p class="eyebrow">WORKSHOP CHAT</p>
+                <strong>Drop in. Say hi.</strong>
+              </div>
+              <span class="chat-pill">No signup</span>
+            </div>
+            <p id="chat-status" class="chat-status" role="status">Pick a name to join the public workshop chat.</p>
+            <form id="chat-gate" class="chat-gate">
+              <label class="sr-only" for="chat-name">Display name</label>
+              <input id="chat-name" name="name" maxlength="20" autocomplete="nickname" placeholder="Display name" required>
+              <button type="submit" class="outline-button" id="chat-join">Join chat</button>
+            </form>
+            <div id="chat-room" class="chat-room" hidden>
+              <div class="chat-room-top">
+                <span>Chatting as <strong id="chat-you">—</strong></span>
+                <button type="button" id="chat-leave" class="text-button">Leave</button>
+              </div>
+              <ul id="chat-messages" class="chat-messages" aria-live="polite"></ul>
+              <form id="chat-send-form" class="chat-send">
+                <label class="sr-only" for="chat-input">Message</label>
+                <input id="chat-input" maxlength="240" autocomplete="off" placeholder="Say something to the room">
+                <button type="submit" id="chat-send" class="outline-button">Send</button>
+              </form>
+            </div>
+          </section>
           <section class="panel market-panel" aria-label="CLAWD market"><div class="market-heading"><span class="token-mark">△</span><div><strong>$CLAWD</strong><span>Base · selected pool</span></div><a id="market-link" href="https://dexscreener.com/base/0x9f86db9fc6f7c9408e8fda3ff8ce4e78ac7a6b07" target="_blank" rel="noopener noreferrer" aria-label="CLAWD price source">↗</a></div><div class="market-price-row"><strong id="market-price">—</strong><span id="market-change">—</span></div><svg id="market-chart" viewBox="0 0 320 60" role="img" aria-label="Price samples since opening this page" hidden><path id="market-line" fill="none" stroke="#658975" stroke-width="2.5"/></svg><div class="market-mini"><div><span>24h volume</span><strong id="market-volume">—</strong></div><div><span>Pool liquidity</span><strong id="market-liquidity">—</strong></div></div><p id="market-status" class="market-status" role="status">Connecting to the price feed…</p><details class="market-settings"><summary>Workshop reactions</summary><label>Buy-side swap ≈ USD <input id="buy-threshold" type="number" min="1" step="100" value="1000"></label><label>Burn / sink transfer · tokens <input id="burn-threshold" type="number" min="1" step="100000" value="1000000"></label><label class="effects-label"><input id="market-effects" type="checkbox" checked>Show scene effects</label><p>USD values are estimates at the fetched price. Watching new logs, with a 12-block delay.</p></details><p id="chain-status" class="chain-status" role="status">Opening the transaction feed…</p><ul id="market-events" class="market-events"></ul><div id="market-demo" class="market-demo" hidden><button id="demo-buy" class="outline-button">Preview buy ✦</button><button id="demo-burn" class="outline-button">Preview burn ♨</button></div></section>
           <section class="panel pulse-panel" aria-label="Build pulse"><div class="pulse-heading"><p class="eyebrow">BUILD PULSE</p><span><strong id="pulse-value">—</strong><small>/100</small></span></div><p id="pulse-copy">Activity has a heartbeat.</p><svg id="pulse-chart" viewBox="0 0 320 82" role="img" aria-label="Weighted public activity over the last 60 minutes"><path id="pulse-fill" fill="#d87954" opacity=".13"/><path id="pulse-line" fill="none" stroke="#cc6b48" stroke-width="2.5" stroke-linejoin="round"/><path d="M0 80H320" stroke="#dfd8cc"/></svg><div class="chart-labels"><span>60 min ago</span><span>now</span></div></section>
         </aside>

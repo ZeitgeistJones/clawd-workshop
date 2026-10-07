@@ -6,7 +6,8 @@ import { deriveStatus, describeEvent, normalizeEvents, pulse, pulseSeries, repoU
 import { demoSnapshot, demoHistory } from './demo.js';
 import { projectObject } from './objects.js';
 import { makeReplay, replayFrame, formatDuration, mergeEvents, DAY_MS } from './replay.js';
-import { SCORE_BUILDS, REPORT_URL, scoreBuild } from './showcase.js';
+import { SCORE_BUILDS, REPORT_URL, scoreBuild, scoreBuildForRepo } from './showcase.js';
+import './chat.js';
 
 const $ = id => document.getElementById(id);
 const client = new GithubClient();
@@ -37,8 +38,38 @@ function setBenchPropVisible(show) {
     button.setAttribute('aria-label', show ? 'Hide the project on the bench' : 'Show the project on the bench');
   }
 }
+let benchCardTimer = null, benchCardRepo = null;
+function fillBenchPropCard(repo) {
+  const card = $('bench-prop-card'); if (!card) return;
+  const short = repo ? repo.split('/').slice(1).join('/') : '';
+  const href = repo ? repoUrl(repo) : `https://github.com/${CONFIG.username}`;
+  const score = scoreBuildForRepo(repo);
+  $('bench-prop-card-name').textContent = short || 'No project';
+  $('bench-prop-card-github').href = href;
+  $('bench-prop-card-github').textContent = 'GitHub ↗';
+  $('bench-prop-card-report').href = REPORT_URL;
+  $('bench-prop-card-report').textContent = 'Build Report ↗';
+  const grades = $('bench-prop-card-grades'), note = $('bench-prop-card-note');
+  if (score) {
+    grades.hidden = false; note.hidden = true;
+    $('bench-prop-card-econ-label').textContent = score.econLabel;
+    $('bench-prop-card-econ').textContent = score.econ;
+    $('bench-prop-card-builder').textContent = score.builder;
+  } else {
+    grades.hidden = true; note.hidden = false;
+  }
+}
+function showBenchPropCard(show) {
+  const card = $('bench-prop-card'); if (!card) return;
+  clearTimeout(benchCardTimer);
+  if (!show) { benchCardTimer = setTimeout(() => { card.hidden = true; }, 160); return; }
+  if (!benchCardRepo || $('scene').classList.contains('bench-prop-hidden')) { card.hidden = true; return; }
+  fillBenchPropCard(benchCardRepo);
+  card.hidden = false;
+}
 function bindBenchProp(repo) {
   const href = repo ? repoUrl(repo) : `https://github.com/${CONFIG.username}`;
+  benchCardRepo = repo || null;
   const link = $('project-object-link');
   if (link) {
     link.setAttribute('href', href);
@@ -52,6 +83,8 @@ function bindBenchProp(repo) {
   for (const id of ['bench-prop-toggle', 'bench-prop-toggle-side']) {
     const button = $(id); if (button) button.hidden = !repo;
   }
+  if (!repo) showBenchPropCard(false);
+  else fillBenchPropCard(repo);
 }
 function node(tag, className, text) { const n = document.createElement(tag); if (className) n.className = className; if (text !== undefined) n.textContent = text; return n; }
 function externalLink(url, className, text) { const a = node('a', className, text); a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; }
@@ -245,7 +278,18 @@ function skip(direction) { const frame = replayFrame(replay.plan, replay.elapsed
 $('replay-previous').addEventListener('click', () => skip(-1)); $('replay-next').addEventListener('click', () => skip(1));
 $('about-button').addEventListener('click', () => $('about-dialog').showModal()); $('close-dialog').addEventListener('click', () => $('about-dialog').close());
 $('about-dialog').addEventListener('click', e => { if (e.target === $('about-dialog')) { const r = e.target.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close(); } });
-for (const id of ['bench-prop-toggle', 'bench-prop-toggle-side']) $(id)?.addEventListener('click', () => setBenchPropVisible(!benchPropVisible));
+for (const id of ['bench-prop-toggle', 'bench-prop-toggle-side']) $(id)?.addEventListener('click', () => { setBenchPropVisible(!benchPropVisible); if (!benchPropVisible) showBenchPropCard(false); });
+const propLink = $('project-object-link'), propCard = $('bench-prop-card');
+if (propLink) {
+  propLink.addEventListener('mouseenter', () => showBenchPropCard(true));
+  propLink.addEventListener('mouseleave', () => showBenchPropCard(false));
+  propLink.addEventListener('focus', () => showBenchPropCard(true));
+  propLink.addEventListener('blur', () => showBenchPropCard(false));
+}
+if (propCard) {
+  propCard.addEventListener('mouseenter', () => showBenchPropCard(true));
+  propCard.addEventListener('mouseleave', () => showBenchPropCard(false));
+}
 function openScoreCard(id) {
   const build = scoreBuild(id);
   if (!build) return;

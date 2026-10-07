@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeReplay, replayFrame, mergeEvents, DAY_MS } from '../src/replay.js';
 import { projectObject } from '../src/objects.js';
+import { scoreBuildForRepo } from '../src/showcase.js';
 import { demoHistory } from '../src/demo.js';
 import { CONFIG } from '../src/config.js';
 const end = Date.parse('2026-10-06T04:00:00Z');
@@ -72,6 +73,8 @@ test('metadata and explicit mappings help without inventing an unknown project t
   assert.equal(projectObject('clawdbotatg/agent-harness').kind, 'harness');
   assert.equal(projectObject('clawdbotatg/mystery', { description: 'control panel tracker' }).kind, 'dashboard');
   assert.equal(projectObject('clawdbotatg/mystery').known, false);
+  assert.equal(scoreBuildForRepo('clawdbotatg/clawd-incinerator')?.econ, 'A+');
+  assert.equal(scoreBuildForRepo('clawdbotatg/unknown-repo'), null);
 });
 test('sample day fits the 24-hour window and contains distinct project props', () => {
   const history = demoHistory(end), plan = makeReplay(history.events, { end });

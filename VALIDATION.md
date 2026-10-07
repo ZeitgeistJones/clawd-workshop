@@ -1,5 +1,25 @@
 # Validation
 
+## Workshop chat · October 6, 2026
+
+- Public room behind `/api/chat` on Vercel. Display name only (localStorage), no
+  accounts. Messages live in Upstash Redis under `clawd-workshop:chat:*`.
+- Rate-limited (~3s/IP), capped length, last 80 messages kept. Missing Redis env
+  returns a clear 503 instead of inventing a room.
+- Node unit tests cover sanitization, posting, and rate limits. End-to-end chat
+  on production still needs the two Upstash env vars on the clawd-workshop
+  Vercel project and a live browser pass after deploy.
+
+## Bench hover card + cooler palette · October 6, 2026
+
+- Hovering (or focusing) the bench prop shows Build Report economics/builder
+  grades when curated, plus GitHub and Build Report links. Untagged repos show
+  a short “not curated yet” note with the same links.
+- Page chrome shifted from warm beige to mist/sage; workshop wall and light
+  wash cooled. Wood bench/floor still read as warm wood.
+- Node tests and static export should be re-run after this change; browser hover
+  path needs a real Chromium pass on the prop.
+
 ## Visual refresh · October 6, 2026
 
 - Merged `clawd-workshop-visual-refresh.zip` into the live checkout (index.html studio

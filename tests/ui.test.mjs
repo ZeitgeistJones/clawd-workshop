@@ -9,7 +9,7 @@ import { CONFIG } from '../src/config.js';
 import { GithubClient } from '../src/github.js';
 import { demoSnapshot, demoHistory } from '../src/demo.js';
 import { projectObject } from '../src/objects.js';
-import { SCORE_BUILDS, REPORT_URL, scoreBuild } from '../src/showcase.js';
+import { SCORE_BUILDS, REPORT_URL, scoreBuild, scoreBuildForRepo } from '../src/showcase.js';
 class Element {
   constructor(tag = 'div') {
     this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = {}; this.events = {}; this.hidden = false; this.textContent = ''; this.classes = new Set();
@@ -57,7 +57,7 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
     addEventListener: (name, fn) => { handlers[name] = fn; },
   };
   vm.runInNewContext(source, {
-    ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, SCORE_BUILDS, REPORT_URL, scoreBuild, URL, URLSearchParams, Date, CustomEvent,
+    ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, SCORE_BUILDS, REPORT_URL, scoreBuild, scoreBuildForRepo, URL, URLSearchParams, Date, CustomEvent,
     location: { search: query.toString() ? `?${query}` : '' }, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) }, document,
     window: { addEventListener() {}, dispatchEvent() { return true; } }, setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, requestAnimationFrame(fn) { raf = fn; }
   });
@@ -80,6 +80,10 @@ test('all current demo states, artwork updates, motion controls and dialog work'
   assert.equal(e['score-card-name'].textContent, 'clawd-incinerator');
   e['close-score-dialog'].events.click();
   assert.equal(e['score-dialog'].open, false);
+  e['project-object-link'].events.mouseenter?.();
+  assert.equal(e['bench-prop-card'].hidden, false);
+  assert.match(e['bench-prop-card-github'].href || e['bench-prop-card-github'].attributes?.href || '', /github\.com/);
+  assert.match(e['bench-prop-card-report'].href || e['bench-prop-card-report'].attributes?.href || '', /the-build-report/);
 });
 test('public site hides admin replay controls', async () => {
   const h = await harness({ demo: true, admin: false }), e = h.elements;
