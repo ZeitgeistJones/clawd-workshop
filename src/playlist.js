@@ -53,6 +53,7 @@ export class TrackRadio {
     this.audio = null;
     this.track = 0;
     this.volume = 0.55;
+    this.muted = false;
     this.playing = false;
     this.generation = 0;
     this.syncTimer = 0;
@@ -65,6 +66,11 @@ export class TrackRadio {
   setVolume(value) {
     this.volume = Math.max(0, Math.min(1, Number(value) || 0));
     if (this.audio) this.audio.volume = this.volume;
+  }
+
+  setMuted(muted) {
+    this.muted = Boolean(muted);
+    if (this.audio) this.audio.muted = this.muted;
   }
 
   release(audio) {
@@ -102,6 +108,7 @@ export class TrackRadio {
     const audio = this.factory(live.track.src);
     audio.loop = false;
     audio.volume = this.volume;
+    audio.muted = this.muted;
     this.audio = audio;
     audio.onended = () => {
       if (generation !== this.generation || !this.playing) return;

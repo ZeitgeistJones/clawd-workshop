@@ -20,19 +20,20 @@ async function harness(){
  class Client{
   constructor(){this.price=null}dispose(){}quote(){marketCalls++;return new Promise(resolve=>quotes.push(q=>{this.price=q;resolve(q)}))}async watch(){marketCalls++;return{events:[],note:'Watching'}}
  }
- class Radio{constructor(){this.track=0;this.playing=false}current(){return TRACKS[this.track]||TRACKS[0]}async play(){audioStarts++;this.playing=true}async stop(){this.playing=false}setVolume(v){this.volume=v}}
- vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>1,clearInterval:()=>{},console});
+ class Radio{constructor(){this.track=0;this.playing=false;this.muted=false;this.audio={paused:false,play:async()=>{}}}current(){return TRACKS[this.track]||TRACKS[0]}async play(){audioStarts++;this.playing=true}async stop(){this.playing=false}setVolume(v){this.volume=v}setMuted(m){this.muted=m}}
+ vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>1,clearInterval:()=>{},console,Promise});
  const fixture={demo:true,mode:'current',status:{repo:'clawdbotatg/test-wallet'},metadata:{description:'A small wallet.',language:'JavaScript'},events:[],allEvents:[],repos:[],data:{},client:{details:async()=>({metadata:{description:'A fetched wallet.'},commits:[]})}};
  const emit=async(detail={})=>{windowHandlers['workshop:render']({detail:{...fixture,...detail}});await new Promise(setImmediate)};
  return{elements,document,docHandlers,emit,marketCalls:()=>marketCalls,audioStarts:()=>audioStarts,quotes};
 }
-test('lounge demo makes no market requests, music is opt-in, and buy/burn previews react independently',async()=>{
+test('lounge demo makes no market requests, music auto-starts with mute-only control, and buy/burn previews react independently',async()=>{
  const h=await harness(),e=h.elements;await h.emit();
- assert.equal(h.marketCalls(),0);assert.equal(h.audioStarts(),0);assert.match(e['market-status'].textContent,/DEMO/);assert.equal(e['brief-description'].textContent,'A small wallet.');
+ for(let i=0;i<5;i++) await new Promise(setImmediate);
+ assert.equal(h.marketCalls(),0);assert.ok(h.audioStarts()>=1);assert.match(e['market-status'].textContent,/DEMO/);assert.equal(e['brief-description'].textContent,'A small wallet.');
  e['demo-buy'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'buy');assert.equal(e.scene.dataset.burnLevel,undefined);assert.match(e['scene-event-title'].textContent,/DEMO/);
  e['burn-threshold'].value='1000000';e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.marketEffect,'burn');assert.equal(e.scene.dataset.burnLevel,'1');
  e['burn-threshold'].value='25000000';e['demo-burn'].handlers.click();assert.equal(e.scene.dataset.burnLevel,'3');
- await e['radio-play'].handlers.click();assert.equal(h.audioStarts(),1);assert.equal(e['radio-play'].attributes['aria-pressed'],'true');
+ await e['radio-play'].handlers.click();assert.equal(e['radio-play'].attributes['aria-pressed'],'true');
  await e['radio-play'].handlers.click();assert.equal(e['radio-play'].attributes['aria-pressed'],'false');
 });
 test('historical replay and paused animations suppress current market effects',async()=>{

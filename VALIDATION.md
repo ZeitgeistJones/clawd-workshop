@@ -4,8 +4,9 @@
 
 - Removed generative Web Audio stations. Radio plays local MP3s from
   `public/music/` via `src/playlist.js` (`fwahh`, `Slop Lessons`).
-- Shared live loop: wall-clock schedule so Play joins mid-track with everyone
-  else. Keeps playing when the tab is hidden; stops on pagehide.
+- Shared live loop: wall-clock schedule so listeners join mid-track together.
+  Auto-starts on load (mute-only control; muted fallback if autoplay is blocked).
+  Keeps playing when the tab is hidden; stops on pagehide.
 - Studio / 01 overlay removed; scene fill tightened to reduce fringe borders.
 - Node tests cover schedule math and blocked play recovery. Speaker sync still
   needs a real two-browser listen after deploy.

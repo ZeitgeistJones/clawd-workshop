@@ -163,30 +163,68 @@ function drawRadio(message) {
   fillTrackSelect();
   const track = radio.current();
   text('radio-title', track?.name || 'Workshop radio');
-  const live = radio.playing ? 'Live room · synced for everyone' : 'Shared loop · tap play to join live';
+  const live = !radio.playing
+    ? 'Starting the shared loop…'
+    : radio.muted
+      ? 'Muted · still live for the room'
+      : 'Live room · synced for everyone';
   text('radio-status', message || live);
-  text('radio-play', radio.playing ? 'Ⅱ' : '▶');
-  $('radio-play').setAttribute('aria-pressed', String(radio.playing));
-  $('radio-play').setAttribute('aria-label', radio.playing ? 'Pause music' : 'Play music');
-  $('scene').classList.toggle('music-playing', radio.playing);
-  document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing);
+  text('radio-play', radio.muted ? '🔇' : '🔊');
+  $('radio-play').setAttribute('aria-pressed', String(radio.muted));
+  $('radio-play').setAttribute('aria-label', radio.muted ? 'Unmute music' : 'Mute music');
+  $('scene').classList.toggle('music-playing', radio.playing && !radio.muted);
+  document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing && !radio.muted);
+}
+async function startRadio({ allowMutedFallback = true } = {}) {
+  radio.setVolume(Number($('radio-volume').value) / 100);
+  try {
+    if (!radio.playing) await radio.play();
+    else if (radio.audio?.paused) await radio.audio.play();
+    return true;
+  } catch {
+    if (!allowMutedFallback) return false;
+    radio.setMuted(true);
+    try {
+      if (!radio.playing) await radio.play();
+      else if (radio.audio?.paused) await radio.audio.play();
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
   try {
-    if (radio.playing) await radio.stop();
-    else { radio.setVolume(Number($('radio-volume').value) / 100); await radio.play(); }
+    if (!radio.playing) {
+      radio.setMuted(false);
+      const ok = await startRadio({ allowMutedFallback: false });
+      if (!ok) drawRadio('Audio is unavailable in this browser.');
+      else drawRadio();
+      return;
+    }
+    radio.setMuted(!radio.muted);
+    if (!radio.muted && radio.audio?.paused) await radio.audio.play();
     drawRadio();
   } catch { drawRadio('Audio is unavailable in this browser.'); }
   finally { radioBusy = false; $('radio-play').disabled = false; }
 });
-$('radio-volume').addEventListener('input', e => radio.setVolume(Number(e.target.value) / 100));
+$('radio-volume').addEventListener('input', e => {
+  radio.setVolume(Number(e.target.value) / 100);
+  if (radio.muted && Number(e.target.value) > 0) {
+    radio.setMuted(false);
+    drawRadio();
+  }
+});
 radio.setVolume(Number($('radio-volume').value) / 100);
 document.addEventListener('visibilitychange', () => {
   clearTimeout(priceTimer); clearTimeout(watchTimer);
   if (document.hidden) clearEffect();
   else {
-    if (radio.playing) drawRadio();
+    if (radio.playing) {
+      if (radio.audio?.paused) radio.audio.play().catch(() => {});
+      drawRadio();
+    }
     if (!demo) { fetchPrice(epoch); watchChain(epoch); }
   }
 });
@@ -194,3 +232,17 @@ window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); c
 let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
 window.addEventListener('pagehide', () => clearInterval(radioClock));
 drawRadio();
+startRadio().then(ok => {
+  drawRadio(ok ? undefined : 'Tap the speaker to start music.');
+  if (ok && radio.muted) {
+    const unmute = () => {
+      radio.setMuted(false);
+      if (radio.audio?.paused) radio.audio.play().catch(() => {});
+      drawRadio();
+      document.removeEventListener('pointerdown', unmute);
+      document.removeEventListener('keydown', unmute);
+    };
+    document.addEventListener('pointerdown', unmute, { once: true });
+    document.addEventListener('keydown', unmute, { once: true });
+  }
+});
