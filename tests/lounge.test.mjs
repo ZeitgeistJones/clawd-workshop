@@ -20,8 +20,8 @@ async function harness(){
  class Client{
   constructor(){this.price=null}dispose(){}quote(){marketCalls++;return new Promise(resolve=>quotes.push(q=>{this.price=q;resolve(q)}))}async watch(){marketCalls++;return{events:[],note:'Watching'}}
  }
- class Radio{constructor(){this.track=0;this.playing=false}current(){return TRACKS[this.track]||TRACKS[0]}async play(track=this.track){audioStarts++;this.track=track;this.playing=true}async stop(){this.playing=false}setVolume(v){this.volume=v}}
- vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},console});
+ class Radio{constructor(){this.track=0;this.playing=false}current(){return TRACKS[this.track]||TRACKS[0]}async play(){audioStarts++;this.playing=true}async stop(){this.playing=false}setVolume(v){this.volume=v}}
+ vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>1,clearInterval:()=>{},console});
  const fixture={demo:true,mode:'current',status:{repo:'clawdbotatg/test-wallet'},metadata:{description:'A small wallet.',language:'JavaScript'},events:[],allEvents:[],repos:[],data:{},client:{details:async()=>({metadata:{description:'A fetched wallet.'},commits:[]})}};
  const emit=async(detail={})=>{windowHandlers['workshop:render']({detail:{...fixture,...detail}});await new Promise(setImmediate)};
  return{elements,document,docHandlers,emit,marketCalls:()=>marketCalls,audioStarts:()=>audioStarts,quotes};

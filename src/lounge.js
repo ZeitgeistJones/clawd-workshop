@@ -23,7 +23,11 @@ function fillTrackSelect() {
     option.textContent = track.name;
     return option;
   }));
-  select.value = String(radio.track);
+  select.disabled = true;
+  select.title = 'Live shared radio — everyone hears the same place in the loop';
+  const live = radio.current();
+  const index = Math.max(0, TRACKS.findIndex(track => track.id === live?.id));
+  select.value = String(index < 0 ? 0 : index);
 }
 let state = null, demo = null, mode = 'current', detailsCache = new Map(), pendingDetails = new Set();
 let priceTimer, watchTimer, epoch = 0, priceBusy = null, watchBusy = null, priceFailures = 0, watchFailures = 0, effectTimer;
@@ -156,44 +160,37 @@ $('demo-burn').addEventListener('click', () => {
 });
 
 function drawRadio(message) {
+  fillTrackSelect();
   const track = radio.current();
   text('radio-title', track?.name || 'Workshop radio');
-  const live = radio.playing ? 'Looping · tap pause anytime' : 'Pick a track · tap play';
+  const live = radio.playing ? 'Live room · synced for everyone' : 'Shared loop · tap play to join live';
   text('radio-status', message || live);
   text('radio-play', radio.playing ? 'Ⅱ' : '▶');
   $('radio-play').setAttribute('aria-pressed', String(radio.playing));
   $('radio-play').setAttribute('aria-label', radio.playing ? 'Pause music' : 'Play music');
-  $('radio-station').value = String(radio.track);
   $('scene').classList.toggle('music-playing', radio.playing);
   document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing);
 }
-fillTrackSelect();
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
   try {
     if (radio.playing) await radio.stop();
-    else { radio.setVolume(Number($('radio-volume').value) / 100); await radio.play(Number($('radio-station').value)); }
+    else { radio.setVolume(Number($('radio-volume').value) / 100); await radio.play(); }
     drawRadio();
   } catch { drawRadio('Audio is unavailable in this browser.'); }
   finally { radioBusy = false; $('radio-play').disabled = false; }
 });
 $('radio-volume').addEventListener('input', e => radio.setVolume(Number(e.target.value) / 100));
 radio.setVolume(Number($('radio-volume').value) / 100);
-$('radio-station').addEventListener('change', async e => {
-  if (radioBusy) { e.target.value = String(radio.track); return; }
-  const wasPlaying = radio.playing; radioBusy = true;
-  try {
-    await radio.stop();
-    radio.track = Number(e.target.value);
-    if (wasPlaying) await radio.play(radio.track);
-    drawRadio();
-  } catch { drawRadio('Audio is unavailable in this browser.'); }
-  finally { radioBusy = false; }
-});
 document.addEventListener('visibilitychange', () => {
   clearTimeout(priceTimer); clearTimeout(watchTimer);
-  if (document.hidden) { clearEffect(); if (radio.playing || radioBusy) radio.stop().then(() => drawRadio('Paused while you were away · tap to listen')); }
-  else if (!demo) { fetchPrice(epoch); watchChain(epoch); }
+  if (document.hidden) clearEffect();
+  else {
+    if (radio.playing) drawRadio();
+    if (!demo) { fetchPrice(epoch); watchChain(epoch); }
+  }
 });
 window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); clearTimeout(watchTimer); clearEffect(); radio.stop(); });
+let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
+window.addEventListener('pagehide', () => clearInterval(radioClock));
 drawRadio();

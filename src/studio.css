@@ -60,11 +60,8 @@ h1 em { color: var(--orange); font-weight: 400; }
 .focus-button svg { width: 17px; height: 17px; }
 .focus-button:hover, .outline-button:hover, .icon-button:hover { background: #e7f0ea; border-color: #b7cbbc; text-decoration: none; }
 .focus-button[aria-pressed='true'] { background: #e2eee6; border-color: #b4cbb9; }
-.scene-wrap { min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #dfe8e2; }
-.scene { width: 100%; height: auto; }
-.scene-label { position: absolute; top: 17px; left: 21px; display: flex; flex-direction: column; gap: 5px; pointer-events: none; z-index: 1; color: #66786d; }
-.scene-label > span { font: 8px var(--mono); letter-spacing: 1.4px; }
-.scene-label small { font: 9px ui-sans-serif, system-ui, sans-serif; color: #73857a; }
+.scene-wrap { min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #e4ebe6; display: block; border: 0; box-shadow: none; }
+.scene { width: 100%; height: 100%; display: block; vertical-align: top; }
 .scene-build { position: absolute; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 5px; max-width: 36%; padding: 11px 13px; border: 1px solid #c2d2c8e0; border-radius: 9px; background: #f4faf6e8; color: #425f4d; backdrop-filter: blur(7px); }
 .scene-build-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .scene-build .eyebrow { font-size: 7px; letter-spacing: 1.2px; color: #6d8174; }
@@ -279,9 +276,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .focus-button { min-height: 34px; padding: 7px 8px; }
   .focus-button span { display: inline; font-size: 9px; }
   .focus-button svg { width: 15px; }
-  .scene-label { top: 10px; left: 12px; gap: 3px; }
-  .scene-label > span { font-size: 6px; letter-spacing: .8px; }
-  .scene-label small { font-size: 7px; }
   .scene-build { display: none; }
   .bench-prop-card { left: 8%; right: 8%; top: auto; bottom: 54px; width: auto; }
   .focus-dialog .scene-build { display: flex; bottom: 8px; right: 8px; padding: 7px 9px; gap: 2px; max-width: 47%; border-radius: 6px; }

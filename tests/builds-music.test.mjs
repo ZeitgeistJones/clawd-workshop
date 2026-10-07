@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildBrief, safeWebsite } from '../src/builds.js';
-import { TRACKS, TrackRadio } from '../src/playlist.js';
+import { TRACKS, TrackRadio, playlistLength, scheduleAt } from '../src/playlist.js';
 
 test('build briefs keep real descriptions and chapter evidence, with safe website links', () => {
   const events = [{ type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date().toISOString(), payload: { ref: 'refs/heads/main' } }, { type: 'PushEvent', repo: { name: 'clawdbotatg/other' }, created_at: new Date().toISOString(), payload: {} }];
@@ -17,6 +17,9 @@ test('radio stays silent until asked to play, and failed starts recover cleanly'
     return {
       loop: false,
       volume: 1,
+      readyState: 1,
+      duration: 10,
+      currentTime: 0,
       play: async () => { throw new Error('blocked'); },
       pause() {},
       removeAttribute() {},
@@ -33,30 +36,55 @@ test('radio stays silent until asked to play, and failed starts recover cleanly'
   radio.setVolume(-1); assert.equal(radio.volume, 0);
 });
 
-test('playlist tracks loop and switching stops the previous audio element', async () => {
+test('shared playlist schedule keeps listeners on the same live offset', async () => {
   assert.ok(TRACKS.length >= 2);
-  assert.ok(TRACKS.every(t => t.id && t.name && t.src.startsWith('./public/music/')));
-  const plays = [];
+  assert.ok(TRACKS.every(t => t.id && t.name && t.src.startsWith('./public/music/') && t.duration > 0));
+  const total = playlistLength();
+  const midFirst = scheduleAt(30_000);
+  assert.equal(midFirst.index, 0);
+  assert.ok(Math.abs(midFirst.offset - 30) < 0.001);
+  const intoSecond = scheduleAt((TRACKS[0].duration + 12) * 1000);
+  assert.equal(intoSecond.index, 1);
+  assert.ok(Math.abs(intoSecond.offset - 12) < 0.001);
+  const wrapped = scheduleAt(total * 1000 + 5_000);
+  assert.equal(wrapped.index, 0);
+  assert.ok(Math.abs(wrapped.offset - 5) < 0.001);
+
+  const seeks = [];
+  let now = (TRACKS[0].duration + 12) * 1000;
   const radio = new TrackRadio(src => {
     const node = {
       src,
-      loop: false,
+      loop: true,
       volume: 1,
-      play: async () => { plays.push(src); node.loop = true; },
-      pause() { node.paused = true; },
+      readyState: 1,
+      duration: TRACKS.find(t => t.src === src)?.duration || 1,
+      currentTime: 0,
+      play: async () => {},
+      pause() {},
       removeAttribute() {},
       load() {},
     };
+    Object.defineProperty(node, 'currentTime', {
+      get() { return this._time || 0; },
+      set(value) { this._time = value; seeks.push({ src, value }); },
+      configurable: true,
+    });
     return node;
-  });
-  await radio.play(0);
-  assert.equal(radio.playing, true);
-  assert.equal(radio.audio.loop, true);
-  assert.equal(plays.at(-1), TRACKS[0].src);
-  await radio.play(1);
-  assert.equal(plays.at(-1), TRACKS[1].src);
-  assert.equal(radio.current().id, TRACKS[1].id);
-  await radio.stop();
-  assert.equal(radio.playing, false);
-  assert.equal(radio.audio, null);
+  }, () => now);
+  const intervals = [];
+  const realSetInterval = globalThis.setInterval;
+  const realClearInterval = globalThis.clearInterval;
+  globalThis.setInterval = (fn, ms) => { intervals.push(fn); return realSetInterval(() => {}, ms); };
+  globalThis.clearInterval = id => realClearInterval(id);
+  try {
+    await radio.play();
+    assert.equal(radio.playing, true);
+    assert.equal(radio.track, 1);
+    assert.ok(seeks.some(s => s.src === TRACKS[1].src && Math.abs(s.value - 12) < 0.05));
+  } finally {
+    globalThis.setInterval = realSetInterval;
+    globalThis.clearInterval = realClearInterval;
+    await radio.stop();
+  }
 });

@@ -1,35 +1,63 @@
 // Workshop radio playlist — add new songs here (files live in public/music/).
-// Drop the mp3 in public/music/, then append one entry below.
+// Drop the mp3 in public/music/, then append one entry with its duration in seconds.
+// Everyone shares one live loop: position = wall-clock time through the playlist.
 
-/** @typedef {{ id: string, name: string, src: string }} Track */
+/** @typedef {{ id: string, name: string, src: string, duration: number }} Track */
 
 /** @type {Track[]} */
 export const TRACKS = [
-  { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3' },
-  { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3' },
+  { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624 },
+  { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752 },
 ];
 
-/** HTMLAudio playlist player. Loops the selected track. Starts only after play(). */
+/** @param {Track[]} [tracks] */
+export function playlistLength(tracks = TRACKS) {
+  return tracks.reduce((sum, track) => sum + Math.max(0, Number(track.duration) || 0), 0);
+}
+
+/**
+ * Shared live position for everyone with a working clock.
+ * @param {number} [nowMs]
+ * @param {Track[]} [tracks]
+ */
+export function scheduleAt(nowMs = Date.now(), tracks = TRACKS) {
+  const total = playlistLength(tracks);
+  if (!tracks.length || !(total > 0)) return { index: 0, offset: 0, track: tracks[0] || null, total: 0 };
+  let cursor = ((nowMs / 1000) % total + total) % total;
+  for (let index = 0; index < tracks.length; index++) {
+    const duration = Math.max(0, Number(tracks[index].duration) || 0);
+    if (cursor < duration) {
+      return { index, offset: cursor, track: tracks[index], total };
+    }
+    cursor -= duration;
+  }
+  return { index: 0, offset: 0, track: tracks[0], total };
+}
+
+/** HTMLAudio player that joins the shared looping schedule. Starts only after play(). */
 export class TrackRadio {
   /**
    * @param {(src: string) => HTMLAudioElement} [factory]
+   * @param {() => number} [now]
    */
   constructor(factory = src => {
     const audio = new Audio(src);
-    audio.preload = 'metadata';
-    audio.loop = true;
+    audio.preload = 'auto';
+    audio.loop = false;
     return audio;
-  }) {
+  }, now = () => Date.now()) {
     this.factory = factory;
+    this.now = now;
     this.audio = null;
     this.track = 0;
     this.volume = 0.55;
     this.playing = false;
     this.generation = 0;
+    this.syncTimer = 0;
   }
 
   current() {
-    return TRACKS[this.track] || TRACKS[0] || null;
+    return scheduleAt(this.now()).track || TRACKS[this.track] || TRACKS[0] || null;
   }
 
   setVolume(value) {
@@ -39,6 +67,8 @@ export class TrackRadio {
 
   release(audio) {
     if (!audio) return;
+    audio.onended = null;
+    audio.onloadedmetadata = null;
     audio.pause();
     try {
       audio.removeAttribute('src');
@@ -46,38 +76,75 @@ export class TrackRadio {
     } catch { /* Some harnesses stub Audio without full DOM methods. */ }
   }
 
-  async play(track = this.track) {
-    const index = Math.max(0, Math.min(TRACKS.length - 1, Number(track) || 0));
-    const item = TRACKS[index];
-    if (!item) throw new Error('No tracks in the playlist.');
-    const generation = ++this.generation;
+  clearSync() {
+    clearInterval(this.syncTimer);
+    this.syncTimer = 0;
+  }
+
+  seekLive(audio, offset, duration) {
+    if (!audio || !(duration > 0)) return;
+    const target = Math.min(Math.max(0, offset), Math.max(0, duration - 0.05));
+    const current = Number(audio.currentTime) || 0;
+    if (Math.abs(current - target) > 0.35) {
+      try { audio.currentTime = target; } catch { /* Ignore seek races while loading. */ }
+    }
+  }
+
+  async attachLive(generation) {
+    const live = scheduleAt(this.now());
+    if (!live.track) throw new Error('No tracks in the playlist.');
     const previous = this.audio;
     this.audio = null;
-    this.playing = false;
     this.release(previous);
-    this.track = index;
-    const audio = this.factory(item.src);
-    audio.loop = true;
+    this.track = live.index;
+    const audio = this.factory(live.track.src);
+    audio.loop = false;
     audio.volume = this.volume;
     this.audio = audio;
-    try {
-      await audio.play();
-      if (generation !== this.generation) {
-        this.release(audio);
-        if (this.audio === audio) this.audio = null;
+    audio.onended = () => {
+      if (generation !== this.generation || !this.playing) return;
+      this.attachLive(generation).catch(() => {});
+    };
+    const apply = () => {
+      if (generation !== this.generation || this.audio !== audio) return;
+      const duration = Number(live.track.duration) || Number(audio.duration) || 0;
+      this.seekLive(audio, scheduleAt(this.now()).offset, duration);
+    };
+    if (typeof audio.readyState === 'number' && audio.readyState >= 1) apply();
+    else audio.onloadedmetadata = apply;
+    await audio.play();
+    if (generation !== this.generation) {
+      this.release(audio);
+      if (this.audio === audio) this.audio = null;
+      return;
+    }
+    apply();
+    this.playing = true;
+    this.clearSync();
+    this.syncTimer = setInterval(() => {
+      if (generation !== this.generation || !this.playing || !this.audio) return;
+      const next = scheduleAt(this.now());
+      if (next.index !== this.track) {
+        this.attachLive(generation).catch(() => {});
         return;
       }
-      this.playing = true;
-    } catch (error) {
-      if (this.audio === audio) this.audio = null;
-      this.playing = false;
-      throw error;
-    }
+      const duration = Number(next.track?.duration) || Number(this.audio.duration) || 0;
+      this.seekLive(this.audio, next.offset, duration);
+    }, 4000);
+  }
+
+  async play() {
+    if (!TRACKS.length) throw new Error('No tracks in the playlist.');
+    const generation = ++this.generation;
+    this.playing = false;
+    this.clearSync();
+    await this.attachLive(generation);
   }
 
   async stop() {
     ++this.generation;
     this.playing = false;
+    this.clearSync();
     const audio = this.audio;
     this.audio = null;
     this.release(audio);
