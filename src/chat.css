@@ -1,7 +1,7 @@
 /* YouTube / Twitch: chat sits beside the workshop stream */
 .stream-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 270px;
+  grid-template-columns: minmax(0, 1fr) clamp(240px, 28%, 320px);
   gap: 14px;
   align-items: stretch;
   min-width: 0;
@@ -15,12 +15,14 @@
 .chat-panel {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
   min-height: 0;
+  max-height: none;
   padding: 0;
   overflow: hidden;
   background: #fbfcfb;
   border-color: #d2ddd6;
+  align-self: stretch;
 }
 .chat-heading {
   display: flex;
@@ -160,10 +162,6 @@
 .chat-latest { align-self: center; margin: 4px 0 8px; padding: 7px 14px; border-radius: 20px; border: 1px solid #b7cbbc; background: #e7f0ea; color: #3b5e47; font-size: 11px; }
 .chat-send input, .chat-gate input { min-height: 40px; }
 .chat-send .outline-button, .chat-gate .outline-button { min-height: 40px; }
-@media (min-width: 921px) and (max-width: 1390px) {
-  .stream-row { grid-template-columns: 1fr; }
-  .chat-panel { height: 360px; }
-}
 
 /* Color usernames like YouTube live chat */
 .chat-messages li[data-tone='0'] strong { color: #c45a3e; }
@@ -173,18 +171,11 @@
 .chat-messages li[data-tone='4'] strong { color: #6b4c9a; }
 .chat-messages li[data-tone='5'] strong { color: #b44d7a; }
 
-@media (max-width: 860px) {
+/* Stack only when the whole dashboard goes single-column */
+@media (max-width: 920px) {
   .stream-row {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  .chat-panel { height: min(55vh, 480px); min-height: 320px; }
-}
-
-@media (min-width: 1391px) and (max-width: 1799px), (min-width: 861px) and (max-width: 920px) {
-  .stream-row { grid-template-columns: 1fr; }
-  .chat-panel { height: 320px; }
-}
-@media (max-width: 1799px) {
-  .chat-panel:has(.chat-room[hidden]) { height: auto; min-height: 180px; }
+  .chat-panel { height: min(50vh, 420px); min-height: 280px; }
 }

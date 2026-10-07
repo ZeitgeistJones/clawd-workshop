@@ -42,8 +42,8 @@ h1 em { color: var(--orange); font-weight: 400; }
 .day-summary p.day-label { display: flex; align-items: center; gap: 9px; margin: 0 3px 0 0; font: 9px var(--mono); letter-spacing: .9px; color: #6b795f; }
 .summary-mark { font-size: 16px !important; color: #6d8760; }
 .day-summary p.summary-note { margin-left: auto; font-size: 10px; color: #818674; }
-.dashboard { grid-template-columns: minmax(0, 1fr) 314px; gap: 22px; align-items: start; }
-.hero-main { gap: 20px; }
+.dashboard { grid-template-columns: minmax(0, 1fr) minmax(260px, 300px); gap: 18px; align-items: start; }
+.hero-main { gap: 20px; min-width: 0; }
 .panel { border-radius: 16px; border-color: var(--line); box-shadow: 0 3px 10px #253a2703; }
 .workshop { border: 0; box-shadow: 0 7px 28px #2a433410; }
 .workshop-top { padding: 12px 18px; min-height: 60px; background: #f4f8f5; border: 0; border-bottom: 0; gap: 12px; }

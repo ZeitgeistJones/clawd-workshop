@@ -4,7 +4,7 @@ This describes the supplied fixes, and supersedes historical instructions about 
 
 - `npm test`: **57 passed**, zero failures.
 - `npm run build`: passed. Local builds without `SITE_URL` emit the expected share-preview URL reminder; Vercel's existing production environment supplies the deployment URL.
-- Real headless Chromium checked at **320, 390, 768, 860, 900, 1024, 1280, 1440, and 1920 px**. No horizontal page overflow. At 1440 px the scene is 1008 px wide, with chat below; wide monitors retain chat beside the room. Desktop and phone screenshots were visually inspected.
+- Real headless Chromium checked at **320, 390, 768, 860, 900, 1024, 1280, 1440, and 1920 px**. No horizontal page overflow. Chat sits beside the workshop from ~921 px up (YouTube/Twitch); stacks under the stream only when the dashboard goes single-column.
 - Actual bundled MP3 media loaded and advanced `currentTime`, with `paused=false`, `muted=false`, and positive volume. Checked both permissive and interaction-required autoplay policies: automatic audible startup where allowed, and Enable music followed by audible playback where blocked. Verified mute/unmute and zero-volume recovery. This verifies media playback state, not physical speaker output.
 - Chrome often blocks unmuted autoplay while Firefox allows it. On block, the shared loop may continue muted and the radio shows a clear Enable music action; unlock unmutes the existing media element inside the click gesture so Chrome keeps user activation.
 - Removed plaque, build brief, grade popup, and score shelf are absent. Focus view opens, Escape closes it, and the same workshop returns to its original position.
