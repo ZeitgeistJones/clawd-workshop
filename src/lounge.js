@@ -175,32 +175,30 @@ function drawRadio(message) {
   $('scene').classList.toggle('music-playing', radio.playing && !radio.muted);
   document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing && !radio.muted);
 }
-async function startRadio({ allowMutedFallback = true } = {}) {
+async function startRadio({ forceMuted = false } = {}) {
   radio.setVolume(Number($('radio-volume').value) / 100);
+  radio.setMuted(forceMuted);
   try {
     if (!radio.playing) await radio.play();
     else if (radio.audio?.paused) await radio.audio.play();
     return true;
   } catch {
-    if (!allowMutedFallback) return false;
-    radio.setMuted(true);
-    try {
-      if (!radio.playing) await radio.play();
-      else if (radio.audio?.paused) await radio.audio.play();
-      return true;
-    } catch {
-      return false;
-    }
+    if (forceMuted) return false;
+    return startRadio({ forceMuted: true });
   }
 }
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
   try {
     if (!radio.playing) {
+      const ok = await startRadio({ forceMuted: false });
+      if (!ok) {
+        drawRadio('Audio is unavailable in this browser.');
+        return;
+      }
       radio.setMuted(false);
-      const ok = await startRadio({ allowMutedFallback: false });
-      if (!ok) drawRadio('Audio is unavailable in this browser.');
-      else drawRadio();
+      if (radio.audio?.paused) await radio.audio.play();
+      drawRadio();
       return;
     }
     radio.setMuted(!radio.muted);
@@ -211,10 +209,6 @@ $('radio-play').addEventListener('click', async () => {
 });
 $('radio-volume').addEventListener('input', e => {
   radio.setVolume(Number(e.target.value) / 100);
-  if (radio.muted && Number(e.target.value) > 0) {
-    radio.setMuted(false);
-    drawRadio();
-  }
 });
 radio.setVolume(Number($('radio-volume').value) / 100);
 document.addEventListener('visibilitychange', () => {
@@ -232,7 +226,7 @@ window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); c
 let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
 window.addEventListener('pagehide', () => clearInterval(radioClock));
 drawRadio();
-startRadio().then(ok => {
+startRadio({ forceMuted: false }).then(ok => {
   drawRadio(ok ? undefined : 'Tap the speaker to start music.');
   if (ok && radio.muted) {
     const unmute = () => {
