@@ -39,7 +39,7 @@ http.createServer(async (req, res) => {
     const requestUrl = new URL(req.url, 'http://localhost');
     const requestPath = decodeURIComponent(requestUrl.pathname);
 
-    if (requestPath === '/api/chat') {
+    if (requestPath === '/api/chat' || requestPath === '/api/chat/') {
       const result = await handleChatRequest({
         method: req.method,
         body: req.method === 'POST' ? await readBody(req) : undefined,

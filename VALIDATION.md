@@ -16,11 +16,12 @@
 
 - Public room behind `/api/chat` on Vercel. Display name only (localStorage), no
   accounts. Messages live in Upstash Redis under `clawd-workshop:chat:*`.
+- Join form was wired to a missing `chat-join-form` id; it now listens on
+  `chat-gate`. UI is a tall YouTube-style side chat (inline colored names).
 - Rate-limited (~3s/IP), capped length, last 80 messages kept. Missing Redis env
   returns a clear 503 instead of inventing a room.
-- Node unit tests cover sanitization, posting, and rate limits. End-to-end chat
-  on production still needs the two Upstash env vars on the clawd-workshop
-  Vercel project and a live browser pass after deploy.
+- Node unit tests cover sanitization, posting, and rate limits. Production GET
+  `/api/chat` returned `{"messages":[]}` when Redis env vars were present.
 
 ## Bench hover card + cooler palette · October 6, 2026
 

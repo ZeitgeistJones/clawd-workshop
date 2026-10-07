@@ -133,6 +133,7 @@ h1 em { color: var(--orange); font-weight: 400; }
 .evidence-link { margin-top: 14px; font-size: 10px; line-height: 1.6; }
 
 /* Record sleeve styling makes the opt-in radio easy to find. */
+.signal-column { align-items: stretch; }
 .radio-panel { background: #e2eee6; border-color: #c5d7cb; padding: 20px; position: relative; }
 .radio-panel::after { content: ''; position: absolute; right: -26px; bottom: -50px; width: 130px; height: 130px; border: 1px solid #bac8a434; border-radius: 50%; pointer-events: none; }
 .radio-top { gap: 12px; position: relative; z-index: 1; }

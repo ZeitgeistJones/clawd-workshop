@@ -1,6 +1,7 @@
-// Public workshop chat — display name only, no accounts.
+// Public workshop chat — display name only, YouTube-style live side chat.
 const NAME_KEY = 'clawd-workshop-chat-name';
-const POLL_MS = 4000;
+const POLL_MS = 2500;
+const API = '/api/chat';
 const $ = id => document.getElementById(id);
 
 let joinedName = '';
@@ -13,6 +14,12 @@ function savedName() {
 }
 function saveName(name) {
   try { localStorage.setItem(NAME_KEY, name); } catch { /* Storage may be disabled. */ }
+}
+
+function nameTone(name) {
+  let hash = 0;
+  for (const ch of String(name || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return String(hash % 6);
 }
 
 function setStatus(message, isError = false) {
@@ -32,29 +39,28 @@ function showRoom(inRoom) {
 function renderMessages(messages, { replace = false } = {}) {
   const list = $('chat-messages');
   if (!list) return;
+  const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 48;
   if (replace) list.replaceChildren();
   for (const message of messages) {
     if ([...list.children].some(li => li.dataset.id === message.id)) continue;
     const li = document.createElement('li');
     li.dataset.id = message.id;
+    li.dataset.tone = nameTone(message.name);
     const who = document.createElement('strong');
     who.textContent = message.name;
     const body = document.createElement('span');
     body.textContent = message.text;
-    const when = document.createElement('time');
-    when.dateTime = message.at;
-    when.textContent = new Date(message.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    li.append(who, body, when);
+    li.append(who, body);
     list.append(li);
     lastAt = message.at || lastAt;
   }
-  if (messages.length) list.scrollTop = list.scrollHeight;
+  if (replace || nearBottom || messages.length) list.scrollTop = list.scrollHeight;
 }
 
 async function api(method, payload) {
   const url = method === 'GET'
-    ? `./api/chat${lastAt ? `?since=${encodeURIComponent(lastAt)}` : ''}`
-    : './api/chat';
+    ? `${API}${lastAt ? `?since=${encodeURIComponent(lastAt)}` : ''}`
+    : API;
   const response = await fetch(url, {
     method,
     headers: method === 'POST' ? { 'Content-Type': 'application/json' } : undefined,
@@ -72,7 +78,7 @@ async function refresh({ replace = false } = {}) {
     if (replace) lastAt = '';
     const data = await api('GET');
     renderMessages(data.messages || [], { replace });
-    setStatus(`In the room as ${joinedName}`);
+    setStatus(`Live chat · ${joinedName}`);
   } catch (error) {
     setStatus(error.message || 'Chat is unavailable right now.', true);
   } finally {
@@ -91,7 +97,7 @@ async function send(event) {
     const data = await api('POST', { name: joinedName, text });
     if (data.message) renderMessages([data.message]);
     if (input) input.value = '';
-    setStatus(`In the room as ${joinedName}`);
+    setStatus(`Live chat · ${joinedName}`);
   } catch (error) {
     setStatus(error.message || 'Could not send that.', true);
   } finally {
@@ -100,13 +106,7 @@ async function send(event) {
   }
 }
 
-function join(event) {
-  event.preventDefault();
-  const name = ($('chat-name')?.value || '').trim();
-  if (!name) {
-    setStatus('Pick a display name first.', true);
-    return;
-  }
+function enterRoom(name) {
   joinedName = name.slice(0, 20);
   saveName(joinedName);
   showRoom(true);
@@ -118,12 +118,22 @@ function join(event) {
   timer = setInterval(() => refresh(), POLL_MS);
 }
 
+function join(event) {
+  event.preventDefault();
+  const name = ($('chat-name')?.value || '').trim();
+  if (!name) {
+    setStatus('Pick a display name first.', true);
+    return;
+  }
+  enterRoom(name);
+}
+
 function leave() {
   joinedName = '';
   lastAt = '';
   clearInterval(timer);
   showRoom(false);
-  setStatus('Pick a name to join the public workshop chat.');
+  setStatus('Enter a name to join live chat.');
 }
 
 export function initChat() {
@@ -137,14 +147,18 @@ export function initChat() {
     if (input) input.value = existing;
   }
 
-  $('chat-join-form')?.addEventListener('submit', join);
+  gate.addEventListener('submit', join);
   $('chat-send-form')?.addEventListener('submit', send);
   $('chat-leave')?.addEventListener('click', leave);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && joinedName) refresh();
   });
-  showRoom(false);
-  setStatus('Pick a name to join the public workshop chat.');
+
+  if (existing) enterRoom(existing);
+  else {
+    showRoom(false);
+    setStatus('Enter a name to join live chat.');
+  }
 }
 
 initChat();

@@ -219,30 +219,30 @@
         <aside class="signal-column">
           <section class="panel status-panel" aria-label="Current activity"><p id="signal-heading" class="eyebrow">THE LATEST SIGNAL</p><h2 id="status-title" aria-live="polite">Let's take a look.</h2><p id="status-reason">Checking public activity on GitHub.</p><div class="working-on"><span class="eyebrow">PROJECT</span><a id="active-repo" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Waiting for a signal ↗</a><span id="last-activity">—</span></div><div class="object-caption"><span class="eyebrow">ON THE BENCH</span><div class="bench-prop-row"><strong id="object-name">Project blueprint</strong><button type="button" id="bench-prop-toggle-side" class="bench-prop-toggle" aria-pressed="true" aria-label="Hide the project on the bench">Hide</button></div><a id="object-repo-link" class="object-repo-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">Open on GitHub ↗</a><span id="object-basis">Waiting for a project</span></div><a id="evidence-link" class="evidence-link" hidden target="_blank" rel="noopener noreferrer">View the signal on GitHub ↗</a></section>
           <section class="panel radio-panel" aria-label="Workshop radio"><div class="radio-top"><span class="radio-disc" aria-hidden="true"><i></i></span><div><p class="eyebrow">WORKSHOP RADIO</p><strong id="radio-title">fwahh</strong><span id="radio-status" role="status">Live room · synced for everyone</span></div><button id="radio-play" class="radio-play" aria-label="Mute music" aria-pressed="false">🔊</button></div><div class="radio-controls"><label class="sr-only" for="radio-station">Now playing</label><select id="radio-station" aria-label="Now playing" disabled><option value="0">fwahh</option><option value="1">Slop Lessons</option><option value="2">clawd calendar</option><option value="3">talk to your wallet</option></select><label class="sr-only" for="radio-volume">Music volume</label><input id="radio-volume" type="range" min="0" max="100" value="55" aria-label="Music volume"></div></section>
-          <section class="panel chat-panel" aria-label="Workshop chat">
+          <section class="panel chat-panel" aria-label="Live chat">
             <div class="chat-heading">
               <div>
-                <p class="eyebrow">WORKSHOP CHAT</p>
-                <strong>Drop in. Say hi.</strong>
+                <p class="eyebrow">TOP CHAT</p>
+                <strong>Live chat</strong>
               </div>
               <span class="chat-pill">No signup</span>
             </div>
-            <p id="chat-status" class="chat-status" role="status">Pick a name to join the public workshop chat.</p>
+            <p id="chat-status" class="chat-status" role="status">Enter a name to join live chat.</p>
             <form id="chat-gate" class="chat-gate">
               <label class="sr-only" for="chat-name">Display name</label>
-              <input id="chat-name" name="name" maxlength="20" autocomplete="nickname" placeholder="Display name" required>
-              <button type="submit" class="outline-button" id="chat-join">Join chat</button>
+              <input id="chat-name" name="name" maxlength="20" autocomplete="nickname" placeholder="Chat nickname" required>
+              <button type="submit" class="outline-button" id="chat-join">Join</button>
             </form>
             <div id="chat-room" class="chat-room" hidden>
               <div class="chat-room-top">
-                <span>Chatting as <strong id="chat-you">—</strong></span>
+                <span>Signed in as <strong id="chat-you">—</strong></span>
                 <button type="button" id="chat-leave" class="text-button">Leave</button>
               </div>
               <ul id="chat-messages" class="chat-messages" aria-live="polite"></ul>
               <form id="chat-send-form" class="chat-send">
                 <label class="sr-only" for="chat-input">Message</label>
-                <input id="chat-input" maxlength="240" autocomplete="off" placeholder="Say something to the room">
-                <button type="submit" id="chat-send" class="outline-button">Send</button>
+                <input id="chat-input" maxlength="240" autocomplete="off" placeholder="Say something…">
+                <button type="submit" id="chat-send" class="outline-button">Chat</button>
               </form>
             </div>
           </section>
