@@ -10,3 +10,8 @@ export function cleanText(raw) {
   const text = raw.normalize('NFKC').replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim();
   return text && text.length <= MAX_TEXT ? text : null;
 }
+/** Case-insensitive key for client-side mute lists. */
+export function muteKey(name) {
+  const cleaned = cleanName(name);
+  return cleaned ? cleaned.toLowerCase() : null;
+}

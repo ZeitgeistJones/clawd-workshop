@@ -202,9 +202,13 @@
                 <p class="eyebrow">TOP CHAT</p>
                 <strong>Live chat</strong>
               </div>
-              <span class="chat-pill">No signup</span>
+              <div class="chat-heading-actions">
+                <button type="button" id="chat-mute" class="text-button chat-mute" aria-pressed="false" aria-label="Mute live chat messages">Mute chat</button>
+                <span class="chat-pill">No signup</span>
+              </div>
             </div>
             <p id="chat-status" class="chat-status" role="status">Enter a name to join live chat.</p>
+            <div id="chat-muted-users" class="chat-muted-users" hidden></div>
             <form id="chat-gate" class="chat-gate">
               <label class="sr-only" for="chat-name">Display name</label>
               <input id="chat-name" name="name" maxlength="20" autocomplete="nickname" placeholder="Chat nickname" required>
@@ -215,6 +219,7 @@
                 <span>Chatting as <strong id="chat-you">—</strong></span>
                 <button type="button" id="chat-leave" class="text-button">Leave</button>
               </div>
+              <button type="button" id="chat-mute-banner" class="chat-mute-banner" hidden>Chat muted · tap to show messages</button>
               <ul id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Workshop chat messages"></ul><button type="button" id="chat-latest" class="chat-latest" hidden>New messages ↓</button>
               <form id="chat-send-form" class="chat-send">
                 <label class="sr-only" for="chat-input">Message</label>

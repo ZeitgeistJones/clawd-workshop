@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cleanName, cleanText, handleChatRequest, CHAT_KEY, MAX_TEXT } from '../src/chat-api.mjs';
+import { muteKey } from '../src/chat-validation.js';
 
 test('display names and messages are sanitized without inventing content', () => {
   assert.equal(cleanName('  Tea Friend  '), 'Tea Friend');
@@ -8,6 +9,15 @@ test('display names and messages are sanitized without inventing content', () =>
   assert.equal(cleanName(''), null);
   assert.equal(cleanText(' hello workshop '), 'hello workshop');
   assert.equal(cleanText('x'.repeat(MAX_TEXT + 1)), null);
+});
+
+test('mute keys are case-insensitive and reject unclean names', () => {
+  assert.equal(muteKey('  Tea Friend  '), 'tea friend');
+  assert.equal(muteKey('TEA FRIEND'), 'tea friend');
+  assert.equal(muteKey('<script>'), null);
+  const muted = new Set([muteKey('SpamBot')]);
+  assert.ok(muted.has(muteKey('spambot')));
+  assert.equal(muted.has(muteKey('Nice Person')), false);
 });
 
 test('chat posts append, trim, and rate-limit through the redis command layer', async () => {

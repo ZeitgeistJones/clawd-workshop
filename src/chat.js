@@ -1,25 +1,133 @@
 // Public chat: display names, bounded history, and a cursor independent of sends.
-import {cleanName, cleanText} from './chat-validation.js';
-const NAME_KEY = 'clawd-workshop-chat-name', POLL_MS = 2500, API = '/api/chat';
+import {cleanName, cleanText, muteKey} from './chat-validation.js';
+const NAME_KEY = 'clawd-workshop-chat-name';
+const FEED_MUTE_KEY = 'clawd-workshop-chat-feed-muted';
+const USER_MUTE_KEY = 'clawd-workshop-chat-muted-users';
+const POLL_MS = 2500, API = '/api/chat';
 const $ = id => document.getElementById(id);
 let joinedName = '', cursor = '', timer = 0, session = 0, fetching = null, sending = null;
+let feedMuted = false;
+/** @type {Set<string>} lowercase cleaned names */
+let mutedUsers = new Set();
 const requests = new Set();
+
+function isUserMuted(name) {
+  const key = muteKey(name);
+  return Boolean(key && mutedUsers.has(key));
+}
+
 function savedName() { try { return cleanName(localStorage.getItem(NAME_KEY)); } catch { return null; } }
 function saveName(name) { try { localStorage.setItem(NAME_KEY, name); } catch {} }
+function loadMutes() {
+  try { feedMuted = localStorage.getItem(FEED_MUTE_KEY) === '1'; } catch { feedMuted = false; }
+  try {
+    const raw = JSON.parse(localStorage.getItem(USER_MUTE_KEY) || '[]');
+    mutedUsers = new Set(Array.isArray(raw) ? raw.map(muteKey).filter(Boolean) : []);
+  } catch { mutedUsers = new Set(); }
+}
+function saveMutes() {
+  try {
+    localStorage.setItem(FEED_MUTE_KEY, feedMuted ? '1' : '0');
+    localStorage.setItem(USER_MUTE_KEY, JSON.stringify([...mutedUsers]));
+  } catch { /* Storage is optional. */ }
+}
 function nameTone(name) { let hash = 0; for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0; return String(hash % 6); }
 function setStatus(message, error = false) { $('chat-status').textContent = message; $('chat-status').dataset.state = error ? 'error' : 'ok'; }
 function showRoom(joined) { $('chat-gate').hidden = joined; $('chat-room').hidden = !joined; }
 function validMessage(m) { return m && typeof m.id === 'string' && m.id.length <= 100 && cleanName(m.name) && cleanText(m.text) && Number.isFinite(Date.parse(m.at)); }
 function atBottom(list) { return list.scrollHeight - list.scrollTop - list.clientHeight < 48; }
+
+function drawMutedUsers() {
+  const row = $('chat-muted-users');
+  if (!row) return;
+  row.replaceChildren();
+  if (!mutedUsers.size) { row.hidden = true; return; }
+  row.hidden = false;
+  const label = document.createElement('span');
+  label.textContent = 'Muted';
+  row.append(label);
+  for (const key of [...mutedUsers].sort()) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'chat-unmute-user';
+    button.dataset.muteKey = key;
+    button.textContent = `${key} ×`;
+    button.setAttribute('aria-label', `Unmute ${key}`);
+    row.append(button);
+  }
+}
+
+function applyMuteUi() {
+  const panel = document.querySelector('.chat-panel');
+  panel?.classList.toggle('chat-feed-muted', feedMuted);
+  const mute = $('chat-mute');
+  if (mute) {
+    mute.textContent = feedMuted ? 'Show chat' : 'Mute chat';
+    mute.setAttribute('aria-pressed', String(feedMuted));
+    mute.setAttribute('aria-label', feedMuted ? 'Show live chat messages' : 'Mute live chat messages');
+  }
+  const banner = $('chat-mute-banner');
+  if (banner) banner.hidden = !feedMuted;
+  const list = $('chat-messages');
+  if (list) list.setAttribute('aria-live', feedMuted ? 'off' : 'polite');
+  drawMutedUsers();
+}
+
+function setFeedMuted(on) {
+  feedMuted = Boolean(on);
+  saveMutes();
+  if (feedMuted) {
+    $('chat-messages')?.replaceChildren();
+    if ($('chat-latest')) $('chat-latest').hidden = true;
+  } else if (joinedName) refresh({replace: true});
+  applyMuteUi();
+}
+
+function muteUser(name) {
+  const key = muteKey(name);
+  if (!key) return;
+  if (muteKey(joinedName) === key) { setStatus('You cannot mute yourself.', true); return; }
+  mutedUsers.add(key);
+  saveMutes();
+  for (const li of [...($('chat-messages')?.children || [])]) {
+    if (muteKey(li.dataset.name) === key) li.remove();
+  }
+  applyMuteUi();
+  setStatus(`Muted ${key}. Click their chip to unmute.`);
+}
+
+function unmuteUser(key) {
+  const normalized = muteKey(key) || String(key || '').toLowerCase();
+  if (!normalized) return;
+  mutedUsers.delete(normalized);
+  saveMutes();
+  applyMuteUi();
+  if (joinedName && !feedMuted) refresh({replace: true});
+  else setStatus(mutedUsers.size ? 'Updated muted list.' : 'No muted users.');
+}
+
 function renderMessages(messages, {replace = false, forceScroll = false} = {}) {
   const list = $('chat-messages'), following = atBottom(list);
   if (replace) list.replaceChildren();
+  if (feedMuted) return;
   let added = 0;
   for (const message of messages.filter(validMessage)) {
+    if (isUserMuted(message.name)) continue;
     if ([...list.children].some(li => li.dataset.id === message.id)) continue;
-    const li = document.createElement('li'); li.dataset.id = message.id; li.dataset.at = message.at; li.dataset.tone = nameTone(message.name);
-    const who = document.createElement('strong'), body = document.createElement('span');
-    who.textContent = message.name; body.textContent = message.text; li.append(who, body);
+    const li = document.createElement('li');
+    li.dataset.id = message.id;
+    li.dataset.at = message.at;
+    li.dataset.name = message.name;
+    li.dataset.tone = nameTone(message.name);
+    const who = document.createElement('button');
+    who.type = 'button';
+    who.className = 'chat-name';
+    who.textContent = message.name;
+    who.title = `Mute ${message.name}`;
+    who.setAttribute('aria-label', `Mute ${message.name}`);
+    const body = document.createElement('span');
+    body.textContent = message.text;
+    li.append(who, body);
     const later = [...list.children].find(n => Date.parse(n.dataset.at) > Date.parse(message.at));
     list.insertBefore(li, later || null); added++;
   }
@@ -52,7 +160,8 @@ async function refresh({replace = false} = {}) {
     const messages = data.messages.filter(validMessage);
     renderMessages(messages, {replace});
     if (messages.length) cursor = messages.at(-1).id;
-    setStatus(`Live chat · ${joinedName}`);
+    if (!feedMuted) setStatus(`Live chat · ${joinedName}`);
+    else setStatus(`Chat muted · still joined as ${joinedName}`);
   } catch (error) { if (generation === session && joinedName) setStatus(error.name === 'AbortError' ? 'Chat timed out. Reconnecting…' : error.message, true); }
   finally { if (fetching === generation) fetching = null; }
 }
@@ -60,6 +169,7 @@ async function send(event) {
   event.preventDefault();
   const generation = session, input = $('chat-input'), draft = input.value, text = cleanText(draft);
   if (!joinedName || sending === generation) return;
+  if (feedMuted) { setStatus('Unmute chat to send a message.', true); return; }
   if (!text) { setStatus('Write a message of 1–240 characters.', true); return; }
   sending = generation; $('chat-send').disabled = true;
   try {
@@ -79,7 +189,7 @@ function resetSession() {
 }
 function enterRoom(name, focus = true) {
   resetSession(); joinedName = name; saveName(name); showRoom(true); $('chat-you').textContent = name;
-  setStatus(`Joining as ${name}…`); refresh({replace: true}); timer = setInterval(() => refresh(), POLL_MS);
+  setStatus(`Joining as ${name}…`); applyMuteUi(); refresh({replace: true}); timer = setInterval(() => refresh(), POLL_MS);
   if (focus) $('chat-input').focus({preventScroll: true});
 }
 function join(event) {
@@ -89,16 +199,29 @@ function join(event) {
 }
 function leave() {
   resetSession(); joinedName = ''; saveName(''); showRoom(false); setStatus('Enter a name to join live chat.');
+  applyMuteUi();
   $('chat-name').focus({preventScroll: true});
 }
 export function initChat() {
   if (!$('chat-gate') || !$('chat-room')) return;
+  loadMutes();
   $('chat-gate').addEventListener('submit', join); $('chat-send-form').addEventListener('submit', send); $('chat-leave').addEventListener('click', leave);
+  $('chat-mute')?.addEventListener('click', () => setFeedMuted(!feedMuted));
+  $('chat-mute-banner')?.addEventListener('click', () => setFeedMuted(false));
+  $('chat-muted-users')?.addEventListener('click', e => {
+    const button = e.target.closest('.chat-unmute-user');
+    if (button?.dataset.muteKey) unmuteUser(button.dataset.muteKey);
+  });
+  $('chat-messages').addEventListener('click', e => {
+    const button = e.target.closest('.chat-name');
+    if (button) muteUser(button.textContent);
+  });
   $('chat-latest').addEventListener('click', () => { const list = $('chat-messages'); list.scrollTop = list.scrollHeight; $('chat-latest').hidden = true; });
   $('chat-messages').addEventListener('scroll', () => { if (atBottom($('chat-messages'))) $('chat-latest').hidden = true; });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && joinedName) refresh(); });
   window.addEventListener('pagehide', () => { clearInterval(timer); for (const controller of requests) controller.abort(); });
   window.addEventListener('pageshow', e => { if (e.persisted && joinedName) { clearInterval(timer); timer = setInterval(() => refresh(), POLL_MS); refresh(); } });
+  applyMuteUi();
   const existing = savedName();
   if (existing) { $('chat-name').value = existing; enterRoom(existing, false); }
   else { showRoom(false); setStatus('Enter a name to join live chat.'); }
