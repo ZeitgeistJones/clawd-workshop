@@ -1,9 +1,5 @@
 // What a touch on the picture can reveal. Public signals only.
 
-import { describeEvent, safeGithubUrl, timeAgo } from './activity.js';
-
-export const WINDOW_NOTE_LIMIT = 6;
-const DAY_MS = 24 * 60 * 60 * 1000;
 const RETURN_GAP_MS = 30 * 60 * 1000;
 
 const STATUS_LINES = {
@@ -18,32 +14,6 @@ const STATUS_LINES = {
 function repoShort(name) {
   if (!name || typeof name !== 'string') return '';
   return name.split('/').slice(1).join('/') || name;
-}
-
-export function selectWindowNotes(events, now = Date.now(), limit = WINDOW_NOTE_LIMIT) {
-  const picked = [];
-  const cap = Math.max(0, limit);
-  for (const event of events || []) {
-    if (picked.length >= cap) break;
-    const at = Date.parse(event?.created_at);
-    if (!event?.id || !Number.isFinite(at) || at > now + 60_000 || now - at > DAY_MS) continue;
-    let described;
-    try { described = describeEvent(event); } catch { continue; }
-    if (!described?.title || !described.repo) continue;
-    const repo = repoShort(described.repo);
-    const url = safeGithubUrl(described.url, 'https://github.com');
-    picked.push({
-      id: String(event.id),
-      title: described.title,
-      repo,
-      detail: described.detail || '',
-      url,
-      time: described.time,
-      when: timeAgo(described.time, now),
-      label: `${described.title}. ${repo}. ${timeAgo(described.time, now)}.`,
-    });
-  }
-  return picked;
 }
 
 export function momentLine(status, { demo = false, replay = false } = {}) {

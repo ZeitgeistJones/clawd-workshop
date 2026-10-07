@@ -4,7 +4,7 @@
 
 The illustrated studio stays. The next pass makes the room answer in the first screen, instead of reading like a brochure above the picture.
 
-The picture is what you touch. No marks on the glass, and no Knock or Postcard buttons. Touch the window and the fetched day appears. Touch Clawd and he glances over. Nothing on the scene tells you to click.
+Touch Clawd and he glances over. The window is just the window. No list opens from the glass, and nothing on the scene tells you to click.
 
 This is a draft direction. Later notes here should say what actually shipped.
 

@@ -1,5 +1,5 @@
-// Focus view, plus touches you find in the picture: the window, and Clawd.
-import { knockLine, returnNote, selectWindowNotes, visitSnapshot } from './moment.js';
+// Focus view, plus a touch on Clawd that makes him glance over.
+import { knockLine, returnNote, visitSnapshot } from './moment.js';
 
 const $ = id => document.getElementById(id);
 const VISIT_KEY = 'clawd-workshop-last-look';
@@ -57,44 +57,6 @@ function say(text) {
   bubble.textContent = text || '';
   bubble.hidden = !text;
 }
-function setWindowOpen(open) {
-  const panel = $('window-day');
-  const control = $('window-button');
-  if (!panel) return;
-  panel.hidden = !open;
-  control?.setAttribute('aria-expanded', String(open));
-}
-function paintDay(notes, demo) {
-  const list = $('window-day-list');
-  const empty = $('window-day-empty');
-  const note = $('window-day-note');
-  if (!list || !empty) return;
-  list.replaceChildren();
-  empty.hidden = notes.length > 0;
-  list.hidden = notes.length === 0;
-  if (note) note.textContent = notes.length
-    ? (demo ? 'Sample updates. Not a real day.' : 'Public updates from the fetched day.')
-    : '';
-  for (const item of notes) {
-    const li = document.createElement('li');
-    const link = document.createElement('a');
-    link.href = item.url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    const title = document.createElement('strong');
-    title.textContent = item.title;
-    const meta = document.createElement('span');
-    meta.textContent = [item.repo, item.detail, item.when].filter(Boolean).join(' · ');
-    link.append(title, meta);
-    if (demo) {
-      const tag = document.createElement('em');
-      tag.textContent = 'Sample';
-      link.append(tag);
-    }
-    li.append(link);
-    list.append(li);
-  }
-}
 function showVisitNote(text) {
   const note = $('visit-note');
   const copy = $('visit-note-text');
@@ -113,7 +75,6 @@ function maybeVisitNote(detail) {
 window.addEventListener('workshop:render', event => {
   lastDetail = event.detail;
   if (!lastDetail) return;
-  paintDay(selectWindowNotes(lastDetail.allEvents || []), !!lastDetail.demo);
   maybeVisitNote(lastDetail);
 });
 
@@ -128,9 +89,6 @@ $('clawd-tap')?.addEventListener('click', () => {
   }, 2600);
 });
 
-$('window-button')?.addEventListener('click', () => {
-  setWindowOpen($('window-day')?.hidden !== false);
-});
 $('visit-note-dismiss')?.addEventListener('click', () => {
   $('visit-note').hidden = true;
 });
@@ -138,9 +96,4 @@ $('visit-note-dismiss')?.addEventListener('click', () => {
 window.addEventListener('pagehide', () => {
   if (!lastDetail || lastDetail.demo || lastDetail.mode === 'replay') return;
   writeJson(VISIT_KEY, visitSnapshot(lastDetail));
-});
-document.addEventListener('keydown', event => {
-  if (event.key !== 'Escape' || $('window-day')?.hidden) return;
-  if (dialog.open || $('about-dialog')?.open) return;
-  setWindowOpen(false);
 });
