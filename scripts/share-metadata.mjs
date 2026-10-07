@@ -13,7 +13,9 @@ export function siteBase(env = process.env) {
 }
 
 export function shareMetadata(base, video = false) {
-  const image = base ? new URL('public/share-preview.png', base).href : (video ? '../share-preview.png' : './public/share-preview.png');
+  // Versioned filename so social caches cannot keep an old baked-in preview forever.
+  const imagePath = 'public/share-preview-v2.png';
+  const image = base ? new URL(imagePath, base).href : (video ? '../share-preview-v2.png' : `./${imagePath}`);
   const description = 'little guy, big ideas.';
   const tags = [
     ['property', 'og:type', video ? 'video.other' : 'website'],
@@ -24,12 +26,12 @@ export function shareMetadata(base, video = false) {
     ['property', 'og:image:type', 'image/png'],
     ['property', 'og:image:width', '1200'],
     ['property', 'og:image:height', '630'],
-    ['property', 'og:image:alt', 'Clawd working at a bench in his little workshop.'],
+    ['property', 'og:image:alt', 'Clawd at his workshop bench — little guy, big ideas.'],
     ['name', 'twitter:card', video && base ? 'player' : 'summary_large_image'],
     ['name', 'twitter:title', 'What is Clawdbotatg Building?'],
     ['name', 'twitter:description', description],
     ['name', 'twitter:image', image],
-    ['name', 'twitter:image:alt', 'Clawd working at a bench in his little workshop.'],
+    ['name', 'twitter:image:alt', 'Clawd at his workshop bench — little guy, big ideas.'],
   ];
   if (base) tags.push(['property', 'og:url', new URL(video ? 'public/share/index.html' : './', base).href]);
   if (video && base) {

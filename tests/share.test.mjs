@@ -6,7 +6,7 @@ test('share URLs use the stable Vercel production domain and respect custom base
   assert.equal(siteBase({ VERCEL_PROJECT_PRODUCTION_URL: 'workshop.vercel.app', VERCEL_URL: 'temporary.vercel.app' }), 'https://workshop.vercel.app/');
   const base = siteBase({ SITE_URL: 'https://example.com/workshop', VERCEL_PROJECT_PRODUCTION_URL: 'other.vercel.app' });
   assert.match(shareMetadata(base, true), /https:\/\/example.com\/workshop\/public\/share\/player.html/);
-  assert.match(shareMetadata(base), /https:\/\/example.com\/workshop\/public\/share-preview.png/);
+  assert.match(shareMetadata(base), /https:\/\/example.com\/workshop\/public\/share-preview-v2.png/);
 });
 test('invalid sharing URLs fail clearly instead of producing broken or unsafe metadata', () => {
   for (const value of ['http://example.com', 'https://user:pass@example.com', 'https://example.com/?q=1', 'https://example.com/#fragment', 'not a URL']) assert.throws(() => siteBase({ SITE_URL: value }));
