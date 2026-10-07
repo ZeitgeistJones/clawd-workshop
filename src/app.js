@@ -118,7 +118,7 @@ function render() {
     const time = node('time', 'event-time', isReplay ? clock(Date.parse(d.time)) : timeAgo(d.time, now)); time.dateTime = d.time; time.title = new Date(d.time).toLocaleString();
     li.append(node('span', 'event-icon', d.icon), copy, time); $('timeline').append(li);
   });
-  if (!shown.length) $('timeline').append(node('li', 'empty', isReplay ? 'No fetched events in this chapter. Skip to the next project with ›.' : unavailable ? 'Activity could not be loaded. Try refreshing later, or take a look at demo mode.' : 'No public building activity in the fetched window. The tea is still warm.'));
+  if (!shown.length) $('timeline').append(node('li', 'empty', isReplay ? 'No fetched events in this chapter. Skip to the next project with ›.' : unavailable ? 'Activity could not be loaded. Try refreshing later.' : 'No public building activity in the fetched window. The tea is still warm.'));
   $('shelf-title').textContent = isReplay ? 'Worked on so far' : 'A few recent projects';
   $('projects').replaceChildren();
   const shelf = isReplay ? [...new Set(events.map(e => e.repo.name))].slice(0, 6).map(full_name => (data.repos || []).find(r => r.full_name === full_name) || { full_name, name: full_name.split('/').slice(1).join('/') }) : (data?.repos || []).slice(0, 6);
@@ -194,7 +194,7 @@ async function openReplay() {
     historyBusy = false; setPlan(); replay.playing = !!replay.plan.chapters.length;
   } catch (error) {
     if (generation !== loadGeneration) return;
-    historyBusy = false; notice(`Replay could not be loaded: ${error.message}. You can preview a sample day with Try demo.`); setPlan();
+    historyBusy = false; notice(`Replay could not be loaded: ${error.message}.`); setPlan();
   } finally { if (generation === loadGeneration) { historyBusy = false; render(); } }
 }
 function currentMode() { loadGeneration++; historyBusy = false; mode = 'current'; replay.playing = false; replay.lastTick = 0; render(); schedule(); if (!demo && (unavailable || !snapshot || Date.now() - Date.parse(snapshot.checkedAt) >= client.pollMs)) refresh(); }
@@ -212,7 +212,7 @@ async function refresh() {
     if (!demo && mode === 'current') notice(next.workflowWarning || next.repoWarning || '');
   } catch (error) {
     unavailable = true;
-    if (!demo && mode === 'current') notice(`${error.message || 'Could not reach GitHub.'} ${snapshot ? 'Showing a saved snapshot until the next successful check.' : 'Try demo mode to preview the workshop.'}`);
+    if (!demo && mode === 'current') notice(`${error.message || 'Could not reach GitHub.'} ${snapshot ? 'Showing a saved snapshot until the next successful check.' : 'The workshop will retry when GitHub is reachable.'}`);
   } finally { busy = false; $('refresh-button').textContent = '↻ Refresh'; render(); schedule(); }
 }
 function tick(t) {

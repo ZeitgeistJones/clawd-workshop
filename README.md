@@ -74,7 +74,7 @@ The sharing app controls image rendering, video playback, autoplay, approval, an
 
 ## See every animation
 
-Click **Try demo**, then choose Building, Planning, Testing, Shipping, or Quiet. The entire dashboard is labeled **DEMO · SAMPLE ACTIVITY**. Alternatively open `http://localhost:3000/?demo=1`. Demo does not fetch GitHub data. Returning to GitHub fetches real activity; failed requests never silently switch to demo.
+Demo controls are admin-only. Open `/?admin=1`, then **Try demo**, and choose Building, Planning, Testing, Shipping, or Quiet. Or open `/?demo=1` (add `&admin=1` to change moods). The dashboard is labeled **DEMO · SAMPLE ACTIVITY** and does not fetch GitHub. Returning to GitHub fetches real activity; failed requests never silently switch to demo.
 
 Clawd is drawn in SVG and animated with CSS. He retains the reference character's red triangular face, sly eyes, mischievous smile, bow tie, and claws, with a little workshop apron. Social sharing assets are included as a PNG poster and MP4 demo; the app itself uses SVG. The pause button stops motion; reduced-motion preferences are respected.
 

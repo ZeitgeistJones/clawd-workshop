@@ -170,9 +170,6 @@ h1 em { color: var(--orange); font-weight: 400; }
 .project-arrow { align-self: center; }
 .release-summary { font-size: 10px; padding: 14px 26px 20px; }
 .data-footnote { font-size: 10px; padding: 15px 26px 20px; color: #8b917d; }
-.demo-bar { padding: 20px 24px; margin: 24px 0; border-radius: 13px; border-color: #d7dbc7; background: #eef0e340; }
-.demo-bar strong { font: 400 19px var(--serif); }
-.demo-bar p { font-size: 11px; line-height: 1.6; }
 footer { padding: 24px 0 30px; font-size: 10px; color: #8c9381; }
 dialog { box-shadow: 0 24px 90px #172d2730; }
 dialog::backdrop { background: #1c302be0; backdrop-filter: blur(8px); }
@@ -271,8 +268,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .event-time { font-size: 8px; }
   .event-title { font-size: 11px; }
   .release-summary, .data-footnote { padding-left: 20px; padding-right: 20px; }
-  .demo-bar { padding: 18px 20px; flex-wrap: wrap; gap: 15px; }
-  .demo-bar strong { font-size: 18px; }
   footer { flex-direction: column; gap: 8px; font-size: 9px; }
   .focus-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 20px); border-radius: 13px; }
   .focus-dialog .scene-wrap { height: calc((100vw - 16px) * .5875); }
