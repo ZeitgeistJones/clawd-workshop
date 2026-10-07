@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildBrief, safeWebsite } from '../src/builds.js';
-import { TRACKS, TrackRadio, playlistLength, scheduleAt } from '../src/playlist.js';
+import { TRACKS, TrackRadio, playlistLength, scheduleAt, trackGithubUrl } from '../src/playlist.js';
 
 test('build briefs keep real descriptions and chapter evidence, with safe website links', () => {
   const events = [{ type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date().toISOString(), payload: { ref: 'refs/heads/main' } }, { type: 'PushEvent', repo: { name: 'clawdbotatg/other' }, created_at: new Date().toISOString(), payload: {} }];
@@ -39,6 +39,10 @@ test('radio stays silent until asked to play, and failed starts recover cleanly'
 test('shared playlist schedule keeps listeners on the same live offset', async () => {
   assert.ok(TRACKS.length >= 2);
   assert.ok(TRACKS.every(t => t.id && t.name && t.src.startsWith('./public/music/') && t.duration > 0));
+  assert.ok(TRACKS.every(t => t.repo && trackGithubUrl(t)?.startsWith('https://github.com/')));
+  assert.equal(trackGithubUrl({ repo: 'wedgie-frog' }), 'https://github.com/clawdbotatg/wedgie-frog');
+  assert.equal(trackGithubUrl({ repo: 'clawdbotatg/fwaah' }), 'https://github.com/clawdbotatg/fwaah');
+  assert.equal(trackGithubUrl({}), null);
   const total = playlistLength();
   const midFirst = scheduleAt(30_000);
   assert.equal(midFirst.index, 0);

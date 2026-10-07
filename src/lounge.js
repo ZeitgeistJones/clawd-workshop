@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { TrackRadio } from './playlist.js';
+import { TrackRadio, trackGithubUrl } from './playlist.js';
 import { MarketClient } from './market.js';
 
 const $ = id => document.getElementById(id);
@@ -145,7 +145,21 @@ function drawRadio() {
   const volume = Math.round(radio.volume * 100);
   const waiting = awaitingSound || radio.blocked || !radio.playing;
   const audible = radio.playing && !radio.muted && volume > 0 && !radio.blocked && !awaitingSound;
-  text('radio-title', radio.current()?.name || 'Workshop radio');
+  const track = radio.current();
+  const title = $('radio-title');
+  const href = trackGithubUrl(track);
+  title.textContent = track?.name || 'Workshop radio';
+  if (href) {
+    title.href = href;
+    title.removeAttribute('aria-disabled');
+    title.classList.remove('is-plain');
+    title.setAttribute('aria-label', `Open ${track.name} on GitHub`);
+  } else {
+    title.removeAttribute('href');
+    title.setAttribute('aria-disabled', 'true');
+    title.classList.add('is-plain');
+    title.removeAttribute('aria-label');
+  }
   const label = radio.loading ? 'Joining the room radio…'
     : radio.error ? 'Track unavailable · press Retry.'
     : radio.blocked || awaitingSound ? 'Browser blocked autoplay with sound · press Enable music.'

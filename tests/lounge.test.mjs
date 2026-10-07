@@ -5,10 +5,10 @@ import {readFile} from 'node:fs/promises';
 import {CONFIG} from '../src/config.js';
 import {buildBrief} from '../src/builds.js';
 import {safeGithubUrl,timeAgo} from '../src/activity.js';
-import {TRACKS} from '../src/playlist.js';
+import {TRACKS,trackGithubUrl} from '../src/playlist.js';
 class Element{
  constructor(){this.textContent='';this.children=[];this.dataset={};this.attributes={};this.handlers={};this.classes=new Set();this.classList={contains:k=>this.classes.has(k),add:k=>this.classes.add(k),remove:k=>this.classes.delete(k),toggle:(k,v)=>{const enabled=v??!this.classes.has(k);enabled?this.classes.add(k):this.classes.delete(k);return enabled;}};}
- setAttribute(k,v){this.attributes[k]=v}append(...n){this.children.push(...n)}replaceChildren(...n){this.children=n}addEventListener(k,v){this.handlers[k]=v}
+ setAttribute(k,v){this.attributes[k]=v}removeAttribute(k){delete this.attributes[k]}append(...n){this.children.push(...n)}replaceChildren(...n){this.children=n}addEventListener(k,v){this.handlers[k]=v}
 }
 async function harness({blocked=false,failed=false}={}){
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
@@ -21,7 +21,7 @@ async function harness({blocked=false,failed=false}={}){
   constructor(){this.price=null}dispose(){}quote(){marketCalls++;return new Promise(resolve=>quotes.push(q=>{this.price=q;resolve(q)}))}async watch(){marketCalls++;return{events:[],note:'Watching'}}
  }
  class Radio{constructor(){this.track=0;this.playing=false;this.muted=false;this.audio={paused:false,play:async()=>{}}}current(){return TRACKS[this.track]||TRACKS[0]}async play(){audioStarts++; if ((blocked && !this.muted) || failed) {const err=new Error('Track missing');err.name=blocked?'NotAllowedError':'NotSupportedError';this.playing=false;this.blocked=blocked;this.error=blocked?null:err;throw err;}this.playing=true;this.blocked=false;this.error=null;}async stop(){this.playing=false}setVolume(v){this.volume=v}setMuted(m){this.muted=m}}
- vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>1,clearInterval:()=>{},console,Promise});
+ vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,trackGithubUrl,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>1,clearInterval:()=>{},console,Promise});
  const fixture={demo:true,mode:'current',status:{repo:'clawdbotatg/test-wallet'},metadata:{description:'A small wallet.',language:'JavaScript'},events:[],allEvents:[],repos:[],data:{},client:{details:async()=>({metadata:{description:'A fetched wallet.'},commits:[]})}};
  const emit=async(detail={})=>{windowHandlers['workshop:render']({detail:{...fixture,...detail}});await new Promise(setImmediate)};
  return{elements,document,docHandlers,emit,marketCalls:()=>marketCalls,audioStarts:()=>audioStarts,quotes};

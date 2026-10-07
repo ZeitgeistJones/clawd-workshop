@@ -6,7 +6,7 @@ const activeTypes = new Set(Object.keys(WEIGHTS));
 const ms = value => Date.parse(value);
 export const repoUrl = name => /^[-\w.]+\/[-\w.]+$/.test(name || '') ? `https://github.com/${name}` : 'https://github.com';
 export function safeGithubUrl(value, fallback = 'https://github.com') {
-  try { const u = new URL(value); return u.protocol === 'https:' && u.hostname === 'github.com' ? u.href : fallback; }
+  try { const u = new URL(value); return u.protocol === 'https:' && u.hostname === 'github.com' && !u.username && !u.password ? u.href : fallback; }
   catch { return fallback; }
 }
 export function normalizeEvents(input) {

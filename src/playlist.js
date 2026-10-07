@@ -1,17 +1,31 @@
 // Workshop radio playlist — add new songs here (files live in public/music/).
-// Drop the mp3 in public/music/, then append one entry with its duration in seconds.
+// Drop the mp3 in public/music/, then append one entry with duration (seconds) and
+// optional `repo` (short name or owner/name) so the title can link to GitHub.
 // Everyone shares one live loop: position = wall-clock time through the playlist.
 
-/** @typedef {{ id: string, name: string, src: string, duration: number }} Track */
+import { CONFIG } from './config.js';
+import { repoUrl, safeGithubUrl } from './activity.js';
+
+/** @typedef {{ id: string, name: string, src: string, duration: number, repo?: string }} Track */
 
 /** @type {Track[]} */
 export const TRACKS = [
-  { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624 },
-  { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752 },
-  { id: 'clawd-calendar', name: 'clawd calendar', src: './public/music/clawd-calendar.mp3', duration: 168.024 },
-  { id: 'clawd-talk-to-your-wallet', name: 'talk to your wallet', src: './public/music/clawd-talk-to-your-wallet.mp3', duration: 158.64 },
-  { id: 'wedgie-frog', name: 'wedgie frog', src: './public/music/wedgie-frog.mp3', duration: 141.792 },
+  { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624, repo: 'fwaah' },
+  { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752, repo: 'slop-lessons' },
+  { id: 'clawd-calendar', name: 'clawd calendar', src: './public/music/clawd-calendar.mp3', duration: 168.024, repo: 'clawd-calendar' },
+  { id: 'clawd-talk-to-your-wallet', name: 'talk to your wallet', src: './public/music/clawd-talk-to-your-wallet.mp3', duration: 158.64, repo: 'clawd-talk-to-your-wallet' },
+  { id: 'wedgie-frog', name: 'wedgie frog', src: './public/music/wedgie-frog.mp3', duration: 141.792, repo: 'wedgie-frog' },
 ];
+
+/** Resolve a track's GitHub URL, or null when no safe repo is configured. */
+export function trackGithubUrl(track, username = CONFIG.username) {
+  const repo = typeof track?.repo === 'string' ? track.repo.trim() : '';
+  if (!repo) return null;
+  if (/^https:\/\//i.test(repo)) return safeGithubUrl(repo, null);
+  if (/^[-\w.]+\/[-\w.]+$/.test(repo)) return repoUrl(repo);
+  if (/^[-\w.]+$/.test(repo) && username) return repoUrl(`${username}/${repo}`);
+  return null;
+}
 
 /** @param {Track[]} [tracks] */
 export function playlistLength(tracks = TRACKS) {
