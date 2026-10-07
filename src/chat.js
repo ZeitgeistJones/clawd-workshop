@@ -3,7 +3,7 @@ import {cleanName, cleanText, muteKey} from './chat-validation.js';
 const NAME_KEY = 'clawd-workshop-chat-name';
 const FEED_MUTE_KEY = 'clawd-workshop-chat-feed-muted';
 const USER_MUTE_KEY = 'clawd-workshop-chat-muted-users';
-const POLL_MS = 2500, API = '/api/chat';
+const POLL_MS = 2500, API = '/api/chat', MESSAGE_TTL_MS = 24 * 60 * 60 * 1000;
 const $ = id => document.getElementById(id);
 let joinedName = '', cursor = '', timer = 0, session = 0, fetching = null, sending = null;
 let feedMuted = false;
@@ -106,12 +106,22 @@ function unmuteUser(key) {
   else setStatus(mutedUsers.size ? 'Updated muted list.' : 'No muted users.');
 }
 
+function pruneLocalMessages() {
+  const list = $('chat-messages');
+  if (!list) return;
+  const cutoff = Date.now() - MESSAGE_TTL_MS;
+  for (const li of [...list.children]) {
+    if (Date.parse(li.dataset.at) < cutoff) li.remove();
+  }
+}
 function renderMessages(messages, {replace = false, forceScroll = false} = {}) {
   const list = $('chat-messages'), following = atBottom(list);
   if (replace) list.replaceChildren();
+  else pruneLocalMessages();
   if (feedMuted) return;
   let added = 0;
   for (const message of messages.filter(validMessage)) {
+    if (Date.parse(message.at) < Date.now() - MESSAGE_TTL_MS) continue;
     if (isUserMuted(message.name)) continue;
     if ([...list.children].some(li => li.dataset.id === message.id)) continue;
     const li = document.createElement('li');

@@ -3,9 +3,24 @@
 
 export const CHAT_KEY = 'clawd-workshop:chat:messages';
 export const MAX_MESSAGES = 80;
+export const MESSAGE_TTL_MS = 24 * 60 * 60 * 1000;
 import { cleanName, cleanText, MAX_NAME, MAX_TEXT } from './chat-validation.js';
 export { cleanName, cleanText, MAX_NAME, MAX_TEXT };
 export const RATE_SECONDS = 3;
+
+function messageTime(message) {
+  return Date.parse(message?.at);
+}
+export function isFreshMessage(message, now = Date.now()) {
+  const at = messageTime(message);
+  return Number.isFinite(at) && at >= now - MESSAGE_TTL_MS;
+}
+function parseRow(row) {
+  try { return JSON.parse(row); } catch { return null; }
+}
+function validStoredMessage(m) {
+  return m && typeof m.id === 'string' && m.id.length <= 100 && cleanName(m.name) && cleanText(m.text) && Number.isFinite(messageTime(m));
+}
 
 /** @param {string} raw */
 export function redisConfigured(env = process.env) {
@@ -38,18 +53,36 @@ function rateKey(ip) {
 }
 
 /**
- * @param {{ redis?: typeof redisCommand, env?: Record<string, string|undefined>, since?: string|null, after?: string|null }} [opts]
+ * Newest-first fresh messages. Rewrites Redis when anything older than 24h remains.
+ * @param {{ redis?: typeof redisCommand, env?: Record<string, string|undefined>, now?: number }} [opts]
+ */
+export async function loadFreshMessages(opts = {}) {
+  const redis = opts.redis || redisCommand;
+  const env = opts.env || process.env;
+  const now = Number.isFinite(opts.now) ? opts.now : Date.now();
+  const rows = await redis(['LRANGE', CHAT_KEY, '0', String(MAX_MESSAGES - 1)], env);
+  const parsed = (Array.isArray(rows) ? rows : []).map(parseRow).filter(validStoredMessage);
+  const fresh = parsed.filter(m => isFreshMessage(m, now)).slice(0, MAX_MESSAGES);
+  if (fresh.length !== parsed.length) {
+    await redis(['DEL', CHAT_KEY], env);
+    // LPUSH oldest→newest so index 0 stays the newest message.
+    for (const message of [...fresh].reverse()) {
+      await redis(['LPUSH', CHAT_KEY, JSON.stringify(message)], env);
+    }
+  }
+  return fresh;
+}
+
+/**
+ * @param {{ redis?: typeof redisCommand, env?: Record<string, string|undefined>, since?: string|null, after?: string|null, now?: number }} [opts]
  */
 export async function listMessages(opts = {}) {
   const redis = opts.redis || redisCommand;
   const env = opts.env || process.env;
   if (!redisConfigured(env)) return { ok: false, status: 503, error: 'Chat is not configured on this deployment.' };
-  const rows = await redis(['LRANGE', CHAT_KEY, '0', String(MAX_MESSAGES - 1)], env);
   const sinceMs = opts.since ? Date.parse(opts.since) : NaN;
-  const messages = (Array.isArray(rows) ? rows : [])
-    .map(row => { try { return JSON.parse(row); } catch { return null; } })
-    .filter(m => m && typeof m.id === 'string' && m.id.length <= 100 && cleanName(m.name) && cleanText(m.text) && Number.isFinite(Date.parse(m.at)))
-    .reverse();
+  const newestFirst = await loadFreshMessages({ redis, env, now: opts.now });
+  const messages = [...newestFirst].reverse();
   // A message ID also distinguishes posts in the same millisecond. If a cursor
   // has aged out of the retained window, return that window for client deduping.
   const cursor = typeof opts.after === 'string' ? messages.findIndex(m => m.id === opts.after) : -1;
@@ -81,6 +114,8 @@ export async function postMessage(input) {
   };
   await redis(['LPUSH', CHAT_KEY, JSON.stringify(message)], env);
   await redis(['LTRIM', CHAT_KEY, '0', String(MAX_MESSAGES - 1)], env);
+  // Drop anything older than 24 hours so the room never keeps stale posts.
+  await loadFreshMessages({ redis, env });
   return { ok: true, status: 201, message };
 }
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanName, cleanText, handleChatRequest, CHAT_KEY, MAX_TEXT } from '../src/chat-api.mjs';
+import { cleanName, cleanText, handleChatRequest, CHAT_KEY, MAX_TEXT, MESSAGE_TTL_MS, listMessages } from '../src/chat-api.mjs';
 import { muteKey } from '../src/chat-validation.js';
 
 test('display names and messages are sanitized without inventing content', () => {
@@ -20,17 +20,22 @@ test('mute keys are case-insensitive and reject unclean names', () => {
   assert.equal(muted.has(muteKey('Nice Person')), false);
 });
 
-test('chat posts append, trim, and rate-limit through the redis command layer', async () => {
-  const store = { [CHAT_KEY]: [] };
-  const rates = new Map();
-  const redis = async (args) => {
+function memoryRedis(store, rates = new Map()) {
+  return async (args) => {
     const [cmd, key, value, end] = args;
     if (cmd === 'LRANGE') return [...store[key] || []];
     if (cmd === 'LPUSH') { store[key] = store[key] || []; store[key].unshift(value); return store[key].length; }
     if (cmd === 'LTRIM') { store[key] = (store[key] || []).slice(Number(value), Number(end) + 1); return 'OK'; }
+    if (cmd === 'DEL') { const had = store[key] ? 1 : 0; delete store[key]; return had; }
     if (cmd === 'SET') { assert.deepEqual(args.slice(2), ['1', 'NX', 'EX', '3']); if (rates.has(key)) return null; rates.set(key, 1); return 'OK'; }
     throw new Error(`unexpected ${cmd}`);
   };
+}
+
+test('chat posts append, trim, and rate-limit through the redis command layer', async () => {
+  const store = { [CHAT_KEY]: [] };
+  const rates = new Map();
+  const redis = memoryRedis(store, rates);
   const env = { UPSTASH_REDIS_REST_URL: 'https://example.upstash.io', UPSTASH_REDIS_REST_TOKEN: 'test' };
 
   const empty = await handleChatRequest({ method: 'GET', redis, env });
@@ -78,4 +83,19 @@ test('malformed chat bodies and non-string values are rejected before storage', 
     const result = await handleChatRequest({method:'POST',body,env,redis});
     assert.equal(result.status,400);
   }
+});
+
+test('chat messages older than 24 hours are hidden and pruned from storage', async () => {
+  const env = { UPSTASH_REDIS_REST_URL: 'https://example.upstash.io', UPSTASH_REDIS_REST_TOKEN: 'test' };
+  const now = Date.parse('2026-10-07T12:00:00.000Z');
+  const store = {
+    [CHAT_KEY]: [
+      JSON.stringify({ id: 'new', name: 'Friend', text: 'still here', at: new Date(now - 60_000).toISOString() }),
+      JSON.stringify({ id: 'old', name: 'Friend', text: 'gone', at: new Date(now - MESSAGE_TTL_MS - 1).toISOString() }),
+    ],
+  };
+  const listed = await listMessages({ redis: memoryRedis(store), env, now });
+  assert.deepEqual(listed.messages.map(m => m.id), ['new']);
+  assert.equal(store[CHAT_KEY].length, 1);
+  assert.match(store[CHAT_KEY][0], /"id":"new"/);
 });
