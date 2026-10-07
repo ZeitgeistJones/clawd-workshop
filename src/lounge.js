@@ -175,63 +175,36 @@ function drawRadio(message) {
   $('scene').classList.toggle('music-playing', radio.playing && !radio.muted);
   document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing && !radio.muted);
 }
-async function startRadioLoud() {
+async function startRadio({ withSound = true } = {}) {
   radio.setVolume(Number($('radio-volume').value) / 100);
-  radio.setMuted(false);
+  radio.setMuted(!withSound);
   if (!radio.playing) await radio.play();
   else if (radio.audio?.paused) await radio.audio.play();
-  else if (radio.audio) {
+  if (withSound && radio.audio) {
     radio.audio.muted = false;
-    await radio.audio.play();
+    radio.setMuted(false);
   }
-}
-function armSoundUnlock() {
-  const unlock = async () => {
-    if (radioBusy) return;
-    radioBusy = true;
-    try {
-      await startRadioLoud();
-      drawRadio();
-      document.removeEventListener('pointerdown', unlock, true);
-      document.removeEventListener('keydown', unlock, true);
-      document.removeEventListener('touchstart', unlock, true);
-    } catch {
-      drawRadio('Tap anywhere for sound');
-    } finally {
-      radioBusy = false;
-    }
-  };
-  document.addEventListener('pointerdown', unlock, true);
-  document.addEventListener('keydown', unlock, true);
-  document.addEventListener('touchstart', unlock, true);
 }
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
   try {
     if (!radio.playing) {
-      await startRadioLoud();
+      await startRadio({ withSound: true });
       drawRadio();
       return;
     }
-    // Mute only after sound is already running — never a pause.
     radio.setMuted(!radio.muted);
-    if (!radio.muted) {
-      radio.audio && (radio.audio.muted = false);
-      if (radio.audio?.paused) await radio.audio.play();
+    if (!radio.muted && radio.audio) {
+      radio.audio.muted = false;
+      if (radio.audio.paused) await radio.audio.play();
     }
     drawRadio();
   } catch {
-    drawRadio('Tap anywhere for sound');
-    armSoundUnlock();
+    drawRadio('Audio is unavailable in this browser.');
   } finally { radioBusy = false; $('radio-play').disabled = false; }
 });
 $('radio-volume').addEventListener('input', e => {
   radio.setVolume(Number(e.target.value) / 100);
-  if (radio.muted && Number(e.target.value) > 0) {
-    radio.setMuted(false);
-    if (radio.audio) radio.audio.muted = false;
-    drawRadio();
-  }
 });
 radio.setVolume(Number($('radio-volume').value) / 100);
 document.addEventListener('visibilitychange', () => {
@@ -250,9 +223,15 @@ window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); c
 let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
 window.addEventListener('pagehide', () => clearInterval(radioClock));
 drawRadio();
-startRadioLoud().then(() => {
+// Always aim for sound on. If the browser blocks it, keep the live loop running
+// muted until the speaker control is used — never a page-wide "tap anywhere" gate.
+startRadio({ withSound: true }).then(() => {
   drawRadio();
-}).catch(() => {
-  drawRadio('Tap anywhere for sound');
-  armSoundUnlock();
+}).catch(async () => {
+  try {
+    await startRadio({ withSound: false });
+    drawRadio();
+  } catch {
+    drawRadio('Audio is unavailable in this browser.');
+  }
 });

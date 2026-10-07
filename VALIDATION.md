@@ -5,8 +5,8 @@
 - Removed generative Web Audio stations. Radio plays local MP3s from
   `public/music/` via `src/playlist.js` (`fwahh`, `Slop Lessons`).
 - Shared live loop: wall-clock schedule so listeners join mid-track together.
-  Auto-starts with sound on load (mute-only control). If autoplay is blocked, waits
-  for a tap and starts unmuted instead of staying muted-while-playing.
+  Auto-starts with sound on load (mute-only control). No “tap anywhere” unlock;
+  if unmuted autoplay is blocked, the speaker control unmutes.
   Keeps playing when the tab is hidden; stops on pagehide.
 - Studio / 01 overlay removed; scene fill tightened to reduce fringe borders.
 - Node tests cover schedule math and blocked play recovery. Speaker sync still

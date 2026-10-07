@@ -8,7 +8,7 @@ A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub a
 
 The workshop now leads a wider dashboard, with larger text, warmer cards, an illustrated radio, and a full build brief below the scene. Briefs show the repository description, language, license, topics, project website when provided, and linked recent commit messages. The shelf includes six repositories with descriptions. Extra active-repository context is cached for ten minutes. During replay, the changes stay tied to chapter events; current commits are not shown as historical work.
 
-**Music:** Workshop Radio auto-starts with sound on a shared live loop from `public/music/` (listed in `src/playlist.js`). Mute/unmute only—no pause. Volume is adjustable. Music keeps going when the tab is hidden. If the browser blocks autoplay, tap anywhere once to start with sound.
+**Music:** Workshop Radio auto-starts with sound on a shared live loop from `public/music/` (listed in `src/playlist.js`). Mute/unmute only—no pause. Volume is adjustable. Music keeps going when the tab is hidden.
 
 **Market:** the panel tracks $CLAWD on Base (`0x9f86dB9fc6f7c9408e8Fda3Ff8ce4e78ac7a6b07`), verified from the builder's [token-hub repository](https://github.com/clawdbotatg/clawd-token-hub). DEX Screener quotes refresh every 30 seconds while visible; the selected pair is the most liquid correctly matched Base pair unless pinned in `src/config.js`. Its mini chart shows samples collected since this page opened, not fabricated historical candles. Failed quotes retain a clearly labeled saved value.
 
