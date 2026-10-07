@@ -3,25 +3,11 @@
 
 export const CHAT_KEY = 'clawd-workshop:chat:messages';
 export const MAX_MESSAGES = 80;
-export const MAX_NAME = 20;
-export const MAX_TEXT = 240;
+import { cleanName, cleanText, MAX_NAME, MAX_TEXT } from './chat-validation.js';
+export { cleanName, cleanText, MAX_NAME, MAX_TEXT };
 export const RATE_SECONDS = 3;
 
 /** @param {string} raw */
-export function cleanName(raw) {
-  const name = String(raw || '').normalize('NFKC').replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim();
-  if (!name || name.length > MAX_NAME) return null;
-  if (!/^[\p{L}\p{N} _.'-]+$/u.test(name)) return null;
-  return name;
-}
-
-/** @param {string} raw */
-export function cleanText(raw) {
-  const text = String(raw || '').normalize('NFKC').replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim();
-  if (!text || text.length > MAX_TEXT) return null;
-  return text;
-}
-
 export function redisConfigured(env = process.env) {
   return Boolean(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN);
 }
@@ -39,9 +25,10 @@ export async function redisCommand(args, env = process.env) {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(args),
+    signal: AbortSignal.timeout(8000),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || `Redis error ${response.status}`);
+  if (!response.ok || payload.error) throw new Error(payload.error || `Redis error ${response.status}`);
   return payload.result;
 }
 
@@ -51,7 +38,7 @@ function rateKey(ip) {
 }
 
 /**
- * @param {{ redis?: typeof redisCommand, env?: Record<string, string|undefined>, since?: string|null }} [opts]
+ * @param {{ redis?: typeof redisCommand, env?: Record<string, string|undefined>, since?: string|null, after?: string|null }} [opts]
  */
 export async function listMessages(opts = {}) {
   const redis = opts.redis || redisCommand;
@@ -61,10 +48,13 @@ export async function listMessages(opts = {}) {
   const sinceMs = opts.since ? Date.parse(opts.since) : NaN;
   const messages = (Array.isArray(rows) ? rows : [])
     .map(row => { try { return JSON.parse(row); } catch { return null; } })
-    .filter(Boolean)
-    .filter(m => !Number.isFinite(sinceMs) || Date.parse(m.at) > sinceMs)
+    .filter(m => m && typeof m.id === 'string' && m.id.length <= 100 && cleanName(m.name) && cleanText(m.text) && Number.isFinite(Date.parse(m.at)))
     .reverse();
-  return { ok: true, status: 200, messages };
+  // A message ID also distinguishes posts in the same millisecond. If a cursor
+  // has aged out of the retained window, return that window for client deduping.
+  const cursor = typeof opts.after === 'string' ? messages.findIndex(m => m.id === opts.after) : -1;
+  return { ok: true, status: 200, messages: opts.after ? cursor >= 0 ? messages.slice(cursor + 1) : messages
+    : messages.filter(m => !Number.isFinite(sinceMs) || Date.parse(m.at) >= sinceMs) };
 }
 
 /**
@@ -79,9 +69,9 @@ export async function postMessage(input) {
   if (!name) return { ok: false, status: 400, error: 'Pick a short display name (letters, numbers, spaces).' };
   if (!text) return { ok: false, status: 400, error: `Say something under ${MAX_TEXT} characters.` };
 
-  const hits = await redis(['INCR', rateKey(input.ip)], env);
-  if (Number(hits) === 1) await redis(['EXPIRE', rateKey(input.ip), String(RATE_SECONDS)], env);
-  if (Number(hits) > 1) return { ok: false, status: 429, error: 'Slow down a second — the workshop is listening.' };
+  // Atomic expiry avoids leaving an IP blocked forever if a second call fails.
+  const allowed = await redis(['SET', rateKey(input.ip), '1', 'NX', 'EX', String(RATE_SECONDS)], env);
+  if (allowed !== 'OK') return { ok: false, status: 429, error: 'Slow down a second — the workshop is listening.' };
 
   const message = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
@@ -95,13 +85,16 @@ export async function postMessage(input) {
 }
 
 /**
- * @param {{ method: string, body?: any, ip?: string, since?: string|null, redis?: typeof redisCommand, env?: Record<string, string|undefined> }} req
+ * @param {{ method: string, body?: any, ip?: string, since?: string|null, after?: string|null, redis?: typeof redisCommand, env?: Record<string, string|undefined> }} req
  */
 export async function handleChatRequest(req) {
   const method = String(req.method || 'GET').toUpperCase();
   try {
-    if (method === 'GET') return await listMessages({ since: req.since, redis: req.redis, env: req.env });
-    if (method === 'POST') return await postMessage({ name: req.body?.name, text: req.body?.text, ip: req.ip, redis: req.redis, env: req.env });
+    if (method === 'GET') return await listMessages({ since: req.since, after: req.after, redis: req.redis, env: req.env });
+    if (method === 'POST') {
+      if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) return { ok: false, status: 400, error: 'Send a display name and a message.' };
+      return await postMessage({ name: req.body.name, text: req.body.text, ip: req.ip, redis: req.redis, env: req.env });
+    }
     return { ok: false, status: 405, error: 'Use GET or POST.' };
   } catch (error) {
     console.error('workshop chat failed', error);

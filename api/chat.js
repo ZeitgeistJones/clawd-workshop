@@ -20,7 +20,8 @@ export default async function handler(req, res) {
     try { body = JSON.parse(body || '{}'); } catch { body = {}; }
   }
   const since = typeof req.query?.since === 'string' ? req.query.since : null;
-  const result = await handleChatRequest({ method: req.method, body, ip: clientIp(req), since });
+  const after = typeof req.query?.after === 'string' ? req.query.after : null;
+  const result = await handleChatRequest({ method: req.method, body, ip: clientIp(req), since, after });
   if (result.ok) {
     res.status(result.status).json(result.message ? { message: result.message } : { messages: result.messages });
     return;

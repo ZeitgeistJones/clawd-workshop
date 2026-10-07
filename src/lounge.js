@@ -1,7 +1,5 @@
 import { CONFIG } from './config.js';
-import { buildBrief } from './builds.js';
-import { safeGithubUrl, timeAgo } from './activity.js';
-import { TRACKS, TrackRadio } from './playlist.js';
+import { TrackRadio } from './playlist.js';
 import { MarketClient } from './market.js';
 
 const $ = id => document.getElementById(id);
@@ -14,50 +12,16 @@ const priceText = value => `$${Number(value).toLocaleString(undefined, { maximum
 const marketConfig = { ...CONFIG.market };
 let market = new MarketClient(marketConfig);
 const radio = new TrackRadio();
-function fillTrackSelect() {
-  const select = $('radio-station');
-  if (!select) return;
-  select.replaceChildren(...TRACKS.map((track, index) => {
-    const option = document.createElement('option');
-    option.value = String(index);
-    option.textContent = track.name;
-    return option;
-  }));
-  select.disabled = true;
-  select.title = 'Live shared radio — everyone hears the same place in the loop';
-  const live = radio.current();
-  const index = Math.max(0, TRACKS.findIndex(track => track.id === live?.id));
-  select.value = String(index < 0 ? 0 : index);
-}
-let state = null, demo = null, mode = 'current', detailsCache = new Map(), pendingDetails = new Set();
+let state = null, demo = null, mode = 'current';
 let priceTimer, watchTimer, epoch = 0, priceBusy = null, watchBusy = null, priceFailures = 0, watchFailures = 0, effectTimer;
-let samples = [], marketEvents = [], currentPrice = null, effectsEnabled = true, radioBusy = false;
+let samples = [], marketEvents = [], currentPrice = null, effectsEnabled = true, radioBusy = false, awaitingSound = false;
 
-function drawBrief(s) {
-  const { status, metadata, events } = s, saved = s.mode === 'current' ? detailsCache.get(status.repo) : null;
-  const info = saved?.metadata || metadata, brief = buildBrief(status.repo, info, events, s.mode === 'replay');
-  text('brief-name', brief.name); text('brief-description', brief.description); $('brief-source').href = brief.source;
-  $('brief-tags').replaceChildren(...[brief.language, brief.license, ...brief.topics].filter(Boolean).map(t => element('span', '', t)));
-  const updateTime = brief.update ? s.mode === 'replay' ? `Recorded ${new Date(brief.update.time).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}` : timeAgo(brief.update.time) : '';
-  text('brief-update', brief.update ? `${brief.update.title}${brief.update.detail ? ` · ${brief.update.detail}` : ''}. ${updateTime}.` : 'No fetched public changes for this project.');
-  $('brief-website').hidden = !brief.website; if (brief.website) $('brief-website').href = brief.website;
-  $('brief-commits').replaceChildren();
-  if (s.mode !== 'replay') for (const c of saved?.commits || []) {
-    const title = c.commit?.message?.split('\n')[0]; if (!title) continue;
-    const li = element('li'); li.append(link(safeGithubUrl(c.html_url, brief.source), title), element('small', '', timeAgo(c.commit?.committer?.date))); $('brief-commits').append(li);
-  }
-  text('brief-note', [brief.context, saved?.warning, s.demo ? 'Sample projects and changes.' : ''].filter(Boolean).join(' '));
+function drawDaySummary(s) {
   const cutoff = (s.data?.end || Date.now()) - 86400000;
   const day = s.allEvents.filter(e => Date.parse(e.created_at) >= cutoff);
-  text('day-projects', new Set(day.map(e => e.repo.name)).size); text('day-updates', day.length);
+  text('day-projects', new Set(day.map(e => e.repo.name)).size);
+  text('day-updates', day.length);
   text('day-releases', day.filter(e => e.type === 'ReleaseEvent' && e.payload?.action === 'published').length);
-  if (!s.demo && s.mode === 'current' && status.repo && (!saved || Date.now() - saved.at > 600000) && !pendingDetails.has(status.repo)) {
-    const repo = status.repo; pendingDetails.add(repo);
-    s.client.details(repo).then(details => {
-      detailsCache.set(repo, { ...details, at: Date.now() });
-      if (state?.status.repo === repo && state.mode === 'current' && !state.demo) drawBrief(state);
-    }).catch(() => { detailsCache.set(repo, { at: Date.now(), commits: [], warning: 'Extra repository details are unavailable.' }); }).finally(() => pendingDetails.delete(repo));
-  }
 }
 function drawPrice(quote, sample = false) {
   currentPrice = quote; text('market-price', priceText(quote.price));
@@ -143,7 +107,7 @@ function setMarketMode(sample) {
 }
 window.addEventListener('workshop:render', e => {
   state = e.detail; const previousMode = mode; mode = state.mode;
-  drawBrief(state);
+  drawDaySummary(state);
   if (demo !== state.demo) { demo = state.demo; setMarketMode(demo); }
   if (mode === 'replay') { clearEffect(); if (!demo) text('chain-status', 'Current market · scene reactions paused during historical replay.'); }
   else if (previousMode === 'replay' && !demo) text('chain-status', 'Current market · watching new transaction logs.');
@@ -159,99 +123,105 @@ $('demo-burn').addEventListener('click', () => {
   showEvent({ kind: 'burn', label: 'Token burn', amount, sample: true });
 });
 
-function isAutoplayBlock(error) {
-  const name = error?.name || '';
-  return name === 'NotAllowedError' || name === 'AbortError';
+const VOLUME_KEY = 'clawd-workshop-radio-volume';
+let lastAudibleVolume = 55;
+function rememberVolume() {
+  try { localStorage.setItem(VOLUME_KEY, $('radio-volume').value); } catch { /* Storage is optional. */ }
 }
-function drawRadio(message) {
-  fillTrackSelect();
-  const track = radio.current();
-  text('radio-title', track?.name || 'Workshop radio');
-  const live = !radio.playing
-    ? 'Starting the shared loop…'
-    : radio.muted
-      ? 'Muted · still live for the room'
-      : 'Live room · synced for everyone';
-  text('radio-status', message || live);
-  text('radio-play', radio.muted ? '🔇' : '🔊');
-  $('radio-play').setAttribute('aria-pressed', String(radio.muted));
-  $('radio-play').setAttribute('aria-label', radio.muted ? 'Unmute music' : 'Mute music');
-  $('scene').classList.toggle('music-playing', radio.playing && !radio.muted);
-  document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing && !radio.muted);
+function drawRadio() {
+  const volume = Math.round(radio.volume * 100);
+  const waiting = awaitingSound || radio.blocked || !radio.playing;
+  const audible = radio.playing && !radio.muted && volume > 0 && !radio.blocked && !awaitingSound;
+  text('radio-title', radio.current()?.name || 'Workshop radio');
+  const label = radio.loading ? 'Joining the room radio…'
+    : radio.error ? 'Track unavailable · press Retry.'
+    : radio.blocked || awaitingSound ? 'Your browser needs a click to allow sound.'
+    : !radio.playing ? 'Press Enable music to join the room.'
+    : !audible ? 'Muted · the shared playlist keeps going.'
+    : 'Playing · shared room playlist';
+  text('radio-status', label);
+  $('radio-status').dataset.state = radio.error ? 'error' : radio.blocked || awaitingSound ? 'blocked' : audible ? 'playing' : 'quiet';
+  text('radio-play', radio.error ? 'Retry' : waiting && !radio.loading ? 'Enable music' : radio.muted || !volume ? 'Unmute' : 'Mute');
+  $('radio-play').classList.toggle('requires-action', true);
+  $('radio-play').setAttribute('aria-pressed', String(radio.muted || !volume));
+  $('radio-play').setAttribute('aria-label', radio.error ? 'Retry workshop music' : waiting ? 'Enable workshop music' : radio.muted || !volume ? 'Unmute music' : 'Mute music');
+  $('radio-play').disabled = radioBusy;
+  $('radio-volume').setAttribute('aria-valuetext', `${volume}%`);
+  text('radio-volume-value', `${volume}%`);
+  $('scene').classList.toggle('music-playing', audible);
+  document.querySelector('.radio-panel')?.classList.toggle('playing', audible);
 }
 async function startRadio({ withSound = true } = {}) {
-  radio.setVolume(Number($('radio-volume').value) / 100);
+  let volume = Number($('radio-volume').value);
+  if (withSound && !(volume > 0)) { volume = lastAudibleVolume; $('radio-volume').value = String(volume); }
+  radio.setVolume(volume / 100);
   radio.setMuted(!withSound);
-  if (!radio.playing) await radio.play();
-  else if (radio.audio?.paused) await radio.audio.play();
-  if (withSound && radio.audio) {
-    radio.audio.muted = false;
-    radio.setMuted(false);
-  }
+  // Always call play after unmuting: browsers can pause media asynchronously.
+  await radio.play();
+  if (withSound) awaitingSound = false;
 }
 async function bootRadio() {
-  // Start muted so autoplay policies let the shared loop join, then try sound.
+  if (radioBusy) return;
+  radioBusy = true; drawRadio();
   try {
-    await startRadio({ withSound: false });
+    // Audible playback is the first attempt, never the muted-first path.
+    await startRadio({ withSound: true });
   } catch (error) {
-    console.error('Workshop radio failed to start', error);
-    drawRadio(isAutoplayBlock(error)
-      ? 'Press the speaker to start the room radio.'
-      : 'Audio could not load. Press the speaker to retry.');
-    return;
-  }
-  try {
-    if (radio.audio) {
-      radio.audio.muted = false;
-      radio.setMuted(false);
-      if (radio.audio.paused) await radio.audio.play();
+    if (error?.name === 'NotAllowedError') {
+      awaitingSound = true;
+      try { await startRadio({ withSound: false }); } catch { /* State is set by the player. */ }
+      // Muted playback may run, but it is still waiting for permission for sound.
+      if (!radio.error) radio.blocked = true;
     }
-    drawRadio();
-  } catch (error) {
-    radio.setMuted(true);
-    if (radio.audio) radio.audio.muted = true;
-    drawRadio('Muted · press the speaker for sound');
-  }
+  } finally { radioBusy = false; drawRadio(); }
 }
+radio.onchange = drawRadio;
 $('radio-play').addEventListener('click', async () => {
-  if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
+  if (radioBusy) return;
+  radioBusy = true;
   try {
-    if (!radio.playing) {
-      await startRadio({ withSound: true });
-      drawRadio();
-      return;
-    }
-    radio.setMuted(!radio.muted);
-    if (!radio.muted && radio.audio) {
-      radio.audio.muted = false;
-      if (radio.audio.paused) await radio.audio.play();
-    }
-    drawRadio();
-  } catch (error) {
-    console.error('Workshop radio control failed', error);
-    drawRadio(isAutoplayBlock(error)
-      ? 'Press the speaker again to unlock sound.'
-      : 'Audio could not load right now.');
-  } finally { radioBusy = false; $('radio-play').disabled = false; }
+    if (!radio.playing || awaitingSound || radio.blocked || radio.error || radio.muted || radio.volume === 0) await startRadio({ withSound: true });
+    else radio.setMuted(true);
+  } catch { /* Playback state, including errors, is kept by the player. */ }
+  finally { radioBusy = false; drawRadio(); }
 });
-$('radio-volume').addEventListener('input', e => {
-  radio.setVolume(Number(e.target.value) / 100);
+$('radio-volume').addEventListener('input', async e => {
+  const volume = Number(e.target.value);
+  radio.setVolume(volume / 100);
+  if (volume > 0) lastAudibleVolume = volume;
+  radio.setMuted(volume === 0);
+  rememberVolume(); drawRadio();
+  if (volume > 0 && !radioBusy && (awaitingSound || radio.blocked || !radio.playing)) {
+    radioBusy = true;
+    try { await radio.play(); awaitingSound = false; } catch { /* The Enable music control remains available. */ }
+    finally { radioBusy = false; drawRadio(); }
+  }
 });
-radio.setVolume(Number($('radio-volume').value) / 100);
+try {
+  const saved = Number(localStorage.getItem(VOLUME_KEY));
+  if (saved > 0 && saved <= 100) $('radio-volume').value = String(saved);
+} catch { /* Default volume works without storage. */ }
+lastAudibleVolume = Number($('radio-volume').value) || 55;
+radio.setVolume(lastAudibleVolume / 100);
 document.addEventListener('visibilitychange', () => {
   clearTimeout(priceTimer); clearTimeout(watchTimer);
   if (document.hidden) clearEffect();
   else {
-    if (radio.playing && !radio.muted) {
-      if (radio.audio) radio.audio.muted = false;
-      if (radio.audio?.paused) radio.audio.play().catch(() => {});
-      drawRadio();
-    }
+    // Keep audio running in the background; resync if the OS paused it.
+    if (radio.audio?.paused && !radio.blocked && !radio.error) radio.play().catch(() => {});
+    drawRadio();
     if (!demo) { fetchPrice(epoch); watchChain(epoch); }
   }
 });
-window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); clearTimeout(watchTimer); clearEffect(); radio.stop(); });
-let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
-window.addEventListener('pagehide', () => clearInterval(radioClock));
-drawRadio();
-bootRadio();
+let radioClock;
+function runRadioClock() { clearInterval(radioClock); radioClock = setInterval(drawRadio, 4000); }
+window.addEventListener('pagehide', () => {
+  ++epoch; clearTimeout(priceTimer); clearTimeout(watchTimer); clearEffect();
+  clearInterval(radioClock); radio.stop();
+});
+window.addEventListener('pageshow', e => {
+  if (!e.persisted) return;
+  runRadioClock(); bootRadio();
+  if (!demo && !document.hidden) { fetchPrice(epoch); watchChain(epoch); }
+});
+runRadioClock(); drawRadio(); bootRadio();

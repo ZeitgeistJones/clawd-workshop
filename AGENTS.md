@@ -38,7 +38,7 @@ Keep sharing metadata in delivered HTML, not client-side JavaScript. `scripts/sh
 
 ## Lounge, audio, market, and chat behavior
 
-Keep the workshop large and readable, with meaningful repository context and linked evidence. Render API descriptions and commit titles using textContent. Do not show present-day commits as historical replay evidence.
+Keep the workshop large, calm, and readable. Build Report and GitHub are the destinations for detailed reports. Do not reintroduce the removed bench plaque, grade popups, build brief, or score shelf. Recent activity and build pulse are collapsed on entry. Use textContent for API content and preserve linked evidence.
 
 Public workshop chat is display-name only (no accounts). It uses Vercel `/api/chat` and Upstash Redis keys namespaced `clawd-workshop:chat:*`. Sanitize with textContent on the client, rate-limit posts, keep a short rolling history, and fail honestly when Redis env vars are missing. Never put Redis secrets in the static client.
 

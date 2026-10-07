@@ -6,9 +6,9 @@ A complete, dependency-free web app for watching `clawdbotatg`'s public GitHub a
 
 ## Workshop lounge update
 
-The workshop now leads a wider dashboard, with larger text, warmer cards, an illustrated radio, and a full build brief below the scene. Briefs show the repository description, language, license, topics, project website when provided, and linked recent commit messages. The shelf includes six repositories with descriptions. Extra active-repository context is cached for ten minutes. During replay, the changes stay tied to chapter events; current commits are not shown as historical work.
+The workshop is the focus: a larger illustrated room, live chat, and a shared radio. Detailed commit reports and grade popups are removed; Build Report and GitHub links lead to deeper reading. Recent activity and the build pulse are collapsed on entry. See [FIXES.md](FIXES.md) for the latest changes and [VALIDATION.md](VALIDATION.md) for verification.
 
-**Music:** Workshop Radio auto-starts with sound on a shared live loop from `public/music/` (listed in `src/playlist.js`). Mute/unmute only—no pause. Volume is adjustable. Music keeps going when the tab is hidden.
+**Music:** Workshop Radio first attempts audible playback with positive volume, joining the shared live MP3 loop from `public/music/` (`src/playlist.js`). A fresh browser may require the **Enable music** control. Mute/unmute preserves the schedule; volume is adjustable and saved when storage is available. Music keeps going when the tab is hidden.
 
 **Market:** the panel tracks $CLAWD on Base (`0x9f86dB9fc6f7c9408e8Fda3Ff8ce4e78ac7a6b07`), verified from the builder's [token-hub repository](https://github.com/clawdbotatg/clawd-token-hub). DEX Screener quotes refresh every 30 seconds while visible; the selected pair is the most liquid correctly matched Base pair unless pinned in `src/config.js`. Its mini chart shows samples collected since this page opened, not fabricated historical candles. Failed quotes retain a clearly labeled saved value.
 
@@ -20,7 +20,7 @@ Public RPC and price endpoints can have rate limits, downtime, or browser CORS r
 
 ## Update your existing Vercel project
 
-Unzip the new archive and upload its contents into the same GitHub repo, replacing matching files and preserving the folder structure. New lounge files include `src/lounge.js`, `src/lounge.css`, `src/builds.js`, `src/music.js`, `src/market.js`, and their tests. Earlier replay and sharing files are also included. Existing `index.html`, the JavaScript/CSS files, `package.json`, and docs have also changed; upload the whole project rather than just one file. Keep `vercel.json`. If the old root `server.mjs` still exists, delete it.
+Open your existing checkout in Cursor and follow [CURSOR.md](CURSOR.md) to merge this archive. Preserve newer unrelated edits and the existing songs. Keep `vercel.json`, your connected Vercel project, and its environment variables. If an obsolete root `server.mjs` exists, delete it; development uses `scripts/dev-server.mjs`.
 
 Commit the upload; your connected Vercel project can deploy the new commit. Once that deployment is ready, reload the site. Replay lives under the admin tools: open `/?admin=1`, then use **Replay 24 hours**.
 
@@ -32,7 +32,7 @@ Commit the upload; your connected Vercel project can deploy the new commit. Once
 4. Under **Build and deployment**, choose **Deploy from a branch**. Select your branch (usually `main`) and **/(root)**, then save.
 5. GitHub will show the published URL when the deployment finishes: `https://YOUR-USERNAME.github.io/YOUR-REPO/`.
 
-No GitHub token, image generation, database, account system, paid API, or npm install is needed. All URLs are relative, so repository subpaths work. Include `.nojekyll` when using git; the app also works with GitHub's default Pages processing if the upload screen skips that empty dotfile.
+The workshop view needs no GitHub token or npm install. Live chat uses Vercel and Upstash Redis; GitHub Pages serves the static workshop but does not host its chat endpoint. All URLs are relative, so repository subpaths work. Include `.nojekyll` when using git; the app also works with GitHub's default Pages processing if the upload screen skips that empty dotfile.
 
 **This download is source code. No repository or public site has been created for you.**
 

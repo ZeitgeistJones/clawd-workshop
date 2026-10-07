@@ -1,7 +1,5 @@
 // Keep the same live workshop and its listeners when entering focus view.
 // Native dialog provides focus containment, an inert page, and Escape dismissal.
-import { projectObject } from './objects.js';
-import { repoUrl } from './activity.js';
 
 const workshop = document.getElementById('workshop');
 const button = document.getElementById('focus-button');
@@ -9,19 +7,6 @@ const dialog = document.getElementById('focus-dialog');
 const home = document.createComment('workshop home');
 workshop.before(home);
 let scrollPosition = 0;
-
-// The scene keeps its project context in focus view, too. This is a metaphor
-// chosen from the same source metadata as the main workbench illustration.
-window.addEventListener('workshop:render', ({detail}) => {
-  const {status, metadata, demo, mode} = detail;
-  const card = document.getElementById('scene-build');
-  card.hidden = !status.repo;
-  if (!status.repo) return;
-  const link = document.getElementById('scene-build-link');
-  link.textContent = status.repo.split('/').slice(1).join('/') + ' ↗';
-  link.href = repoUrl(status.repo);
-  document.getElementById('scene-build-object').textContent = `${demo ? 'Sample · ' : mode === 'replay' ? 'Recorded · ' : ''}${projectObject(status.repo, metadata).label} illustration`;
-});
 
 button.addEventListener('click', () => {
   if (dialog.open) { dialog.close(); return; }

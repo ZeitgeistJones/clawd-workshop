@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { handleChatRequest } from '../src/chat-api.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.mp4': 'video/mp4', '.mp3': 'audio/mpeg', '.json': 'application/json; charset=utf-8', '.woff2': 'font/woff2' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.mp4': 'video/mp4', '.mp3': 'audio/mpeg', '.json': 'application/json; charset=utf-8', '.woff': 'font/woff', '.woff2': 'font/woff2' };
 const port = Number(process.env.PORT || 3000);
 
 async function loadEnvFile() {
@@ -26,7 +26,8 @@ async function loadEnvFile() {
 
 async function readBody(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+  let bytes = 0;
+  for await (const chunk of req) { bytes += chunk.length; if (bytes > 8192) { const error = new Error('Message body is too large.'); error.status = 413; throw error; } chunks.push(chunk); }
   const raw = Buffer.concat(chunks).toString('utf8');
   if (!raw) return {};
   try { return JSON.parse(raw); } catch { return {}; }
@@ -45,6 +46,7 @@ http.createServer(async (req, res) => {
         body: req.method === 'POST' ? await readBody(req) : undefined,
         ip: req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.socket.remoteAddress || 'local',
         since: requestUrl.searchParams.get('since'),
+        after: requestUrl.searchParams.get('after'),
       });
       const payload = result.ok
         ? (result.message ? { message: result.message } : { messages: result.messages })
@@ -64,5 +66,5 @@ http.createServer(async (req, res) => {
     const body = await readFile(absolute);
     res.writeHead(200, { 'Content-Type': types[path.extname(absolute)] || 'application/octet-stream', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
     res.end(req.method === 'HEAD' ? undefined : body);
-  } catch { res.writeHead(404); res.end('Not found'); }
+  } catch (error) { res.writeHead(error.status || 404); res.end(error.status === 413 ? 'Message body is too large.' : 'Not found'); }
 }).listen(port, '0.0.0.0', () => console.log(`Clawd's workshop: http://localhost:${port}`));

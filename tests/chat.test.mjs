@@ -18,8 +18,7 @@ test('chat posts append, trim, and rate-limit through the redis command layer', 
     if (cmd === 'LRANGE') return [...store[key] || []];
     if (cmd === 'LPUSH') { store[key] = store[key] || []; store[key].unshift(value); return store[key].length; }
     if (cmd === 'LTRIM') { store[key] = (store[key] || []).slice(Number(value), Number(end) + 1); return 'OK'; }
-    if (cmd === 'INCR') { const next = (rates.get(key) || 0) + 1; rates.set(key, next); return next; }
-    if (cmd === 'EXPIRE') return 1;
+    if (cmd === 'SET') { assert.deepEqual(args.slice(2), ['1', 'NX', 'EX', '3']); if (rates.has(key)) return null; rates.set(key, 1); return 'OK'; }
     throw new Error(`unexpected ${cmd}`);
   };
   const env = { UPSTASH_REDIS_REST_URL: 'https://example.upstash.io', UPSTASH_REDIS_REST_TOKEN: 'test' };
@@ -49,4 +48,24 @@ test('missing redis config fails honestly instead of inventing a room', async ()
   const result = await handleChatRequest({ method: 'GET', env: {} });
   assert.equal(result.ok, false);
   assert.equal(result.status, 503);
+});
+
+test('message ID cursors preserve same-millisecond posts and recover after history trimming', async () => {
+  const env = { UPSTASH_REDIS_REST_URL: 'https://example.upstash.io', UPSTASH_REDIS_REST_TOKEN: 'test' };
+  const at = new Date().toISOString();
+  const rows = ['c','b','a'].map(id => JSON.stringify({id, name:'Friend', text:id, at}));
+  const redis = async () => rows;
+  const result = await handleChatRequest({method:'GET', after:'a', env, redis});
+  assert.deepEqual(result.messages.map(m=>m.id), ['b','c']);
+  const missing = await handleChatRequest({method:'GET', after:'expired', env, redis});
+  assert.deepEqual(missing.messages.map(m=>m.id), ['a','b','c']);
+});
+
+test('malformed chat bodies and non-string values are rejected before storage', async () => {
+  const env = { UPSTASH_REDIS_REST_URL: 'https://example.upstash.io', UPSTASH_REDIS_REST_TOKEN: 'test' };
+  const redis = async () => { throw new Error('Unexpected storage call'); };
+  for (const body of [null, [], 4, {name:42,text:'hello'}, {name:'Friend',text:{text:'hello'}}]) {
+    const result = await handleChatRequest({method:'POST',body,env,redis});
+    assert.equal(result.status,400);
+  }
 });

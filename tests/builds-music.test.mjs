@@ -88,3 +88,43 @@ test('shared playlist schedule keeps listeners on the same live offset', async (
     await radio.stop();
   }
 });
+
+test('audible radio starts unmuted and reuses one media element across track changes', async () => {
+  let now = 10000, count = 0;
+  const played = [];
+  const radio = new TrackRadio(src => {
+    count++;
+    return { src, readyState: 1, duration: TRACKS[0].duration, currentTime: 0,
+      play() { played.push({src: this.src, muted: this.muted}); return Promise.resolve(); },
+      pause() {}, load() { this.duration = TRACKS.find(t => t.src === this.src)?.duration; }, removeAttribute() {} };
+  }, () => now);
+  try {
+    await radio.play();
+    assert.equal(played[0].muted, false);
+    const element = radio.audio;
+    now = (TRACKS[0].duration + 4) * 1000;
+    await radio.play();
+    assert.equal(count, 1); assert.equal(radio.audio, element);
+    assert.equal(element.src, TRACKS[1].src); assert.ok(Math.abs(element.currentTime - 4) < 0.01);
+  } finally { await radio.stop(); }
+});
+
+test('pending playback cannot revive a stopped player and media errors remain visible', async () => {
+  let resolve;
+  const radio = new TrackRadio(() => ({readyState: 1, duration: 300, currentTime: 0,
+    play: () => new Promise(r => resolve = r), pause() {}, load() {}, removeAttribute() {}}), () => 10000);
+  const pending = radio.play();
+  await radio.stop(); resolve(); await pending;
+  assert.equal(radio.playing, false); assert.equal(radio.audio, null);
+  radio.factory = () => ({readyState: 1, duration: 300, currentTime: 0, play: async () => {}, pause() {}, load() {}, removeAttribute() {}});
+  await radio.play(); radio.audio.onerror();
+  assert.equal(radio.playing, false); assert.match(radio.error.message, /could not load/); assert.equal(radio.syncTimer, 0);
+  await radio.play(); assert.equal(radio.error, null); assert.equal(radio.playing, true);
+  await radio.stop();
+});
+
+test('browser sound denial is distinct from a missing track', async () => {
+  const radio = new TrackRadio(() => ({play: async () => { const e = new Error('Sound blocked'); e.name = 'NotAllowedError'; throw e; },pause() {},load() {},removeAttribute() {}}));
+  await assert.rejects(radio.play(), {name: 'NotAllowedError'});
+  assert.equal(radio.blocked, true); assert.equal(radio.error, null); assert.equal(radio.loading, false);
+});

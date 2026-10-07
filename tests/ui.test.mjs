@@ -73,17 +73,10 @@ test('all current demo states, artwork updates, motion controls and dialog work'
   e['motion-button'].events.click(); assert.equal(e['motion-button'].attributes['aria-pressed'], 'true');
   e['about-button'].events.click(); assert.equal(e['about-dialog'].open, true);
   e['close-dialog'].events.click(); assert.equal(e['about-dialog'].open, false);
-  assert.equal(e['score-holder'].children.length, 4);
-  assert.equal(e['score-shipping'].children.length, 2);
-  e['score-holder'].children[0].events.click();
-  assert.equal(e['score-dialog'].open, true);
-  assert.equal(e['score-card-name'].textContent, 'clawd-incinerator');
-  e['close-score-dialog'].events.click();
-  assert.equal(e['score-dialog'].open, false);
-  e['project-object-link'].events.mouseenter?.();
-  assert.equal(e['bench-prop-card'].hidden, false);
-  assert.match(e['bench-prop-card-github'].href || e['bench-prop-card-github'].attributes?.href || '', /github\.com/);
-  assert.match(e['bench-prop-card-report'].href || e['bench-prop-card-report'].attributes?.href || '', /the-build-report/);
+  assert.equal(e['bench-prop-card'], undefined);
+  assert.equal(e['brief-commits'], undefined);
+  assert.equal(e['score-dialog'], undefined);
+  assert.match(e['project-object-link'].attributes.href, /github\.com/);
 });
 test('public site hides admin replay controls', async () => {
   const h = await harness({ demo: true, admin: false }), e = h.elements;
@@ -115,8 +108,8 @@ test('replay objects follow the selected chapter and hidden tabs pause time', as
   const harnessChapter = chapters.find(b => b.children[1].children[0].textContent === 'clawd-harness');
   harnessChapter.events.click(); assert.equal(e.scene.dataset.projectKind, 'harness'); assert.match(e['object-name'].textContent, /harness/i);
   assert.match(e['project-object-link'].attributes.href || e['project-object-link'].href || '', /clawd-harness/);
-  e['bench-prop-toggle'].events.click(); assert.equal(e.scene.classes.has('bench-prop-hidden'), true);
-  e['bench-prop-toggle'].events.click(); assert.equal(e.scene.classes.has('bench-prop-hidden'), false);
+  e['bench-prop-toggle-side'].events.click(); assert.equal(e.scene.classes.has('bench-prop-hidden'), true);
+  e['bench-prop-toggle-side'].events.click(); assert.equal(e.scene.classes.has('bench-prop-hidden'), false);
   assert.equal(e['project-object-link'].attributes.visibility, 'visible');
   e['replay-play'].events.click(); h.step(100); h.step(1100);
   const at = e['replay-progress'].value;
