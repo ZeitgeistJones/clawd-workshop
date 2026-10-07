@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import './theme.js';
 import './lounge.js';
 import './studio.js';
 import { GithubClient } from './github.js';

@@ -239,3 +239,59 @@
   }
   .chat-panel { height: min(50vh, 420px); min-height: 280px; }
 }
+
+html[data-theme='dark'] .chat-panel {
+  background: #1a221e;
+  border-color: #2f3b35;
+}
+html[data-theme='dark'] .chat-heading {
+  background: #1c2420;
+  border-color: #2f3b35;
+}
+html[data-theme='dark'] .chat-mute { color: #8fbc9a; }
+html[data-theme='dark'] .chat-mute[aria-pressed='true'] { color: #d4a574; }
+html[data-theme='dark'] .chat-pill {
+  background: #24352c;
+  color: #9fc4a8;
+}
+html[data-theme='dark'] .chat-muted-users,
+html[data-theme='dark'] .chat-mute-banner {
+  background: #2a241a;
+  border-color: #4a3f2e;
+  color: #d4b07a;
+}
+html[data-theme='dark'] .chat-unmute-user {
+  background: #1c2420;
+  border-color: #4a3f2e;
+  color: #d4b07a;
+}
+html[data-theme='dark'] .chat-unmute-user:hover { background: #24352c; }
+html[data-theme='dark'] .chat-status,
+html[data-theme='dark'] .chat-gate,
+html[data-theme='dark'] .chat-room-top { border-color: #2f3b35; }
+html[data-theme='dark'] .chat-status[data-state='error'] {
+  color: #e08a6f;
+  background: #2c211c;
+}
+html[data-theme='dark'] .chat-gate input,
+html[data-theme='dark'] .chat-send input {
+  background: #141a17;
+  border-color: #3a4d42;
+  color: var(--ink);
+}
+html[data-theme='dark'] .chat-messages li:hover { background: #24352c; }
+html[data-theme='dark'] .chat-send {
+  background: #1c2420;
+  border-color: #2f3b35;
+}
+html[data-theme='dark'] .chat-latest {
+  background: #24352c;
+  border-color: #3a4d42;
+  color: #9fc4a8;
+}
+html[data-theme='dark'] .chat-messages li[data-tone='0'] .chat-name { color: #e08a6f; }
+html[data-theme='dark'] .chat-messages li[data-tone='1'] .chat-name { color: #8fbc9a; }
+html[data-theme='dark'] .chat-messages li[data-tone='2'] .chat-name { color: #7eb8d4; }
+html[data-theme='dark'] .chat-messages li[data-tone='3'] .chat-name { color: #d4a574; }
+html[data-theme='dark'] .chat-messages li[data-tone='4'] .chat-name { color: #b49ad4; }
+html[data-theme='dark'] .chat-messages li[data-tone='5'] .chat-name { color: #d48aaa; }

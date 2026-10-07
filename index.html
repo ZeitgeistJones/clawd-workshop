@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#eef2ef">
   <meta name="description" content="A little workshop for watching Clawdbotatg build. Public GitHub signals, a build pulse, and one very busy little triangle.">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem('clawd-workshop-theme');
+        const dark = saved === 'dark' || (!saved && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        if (dark) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#141a17');
+      } catch {}
+    })();
+  </script>
   <!-- SHARE-METADATA:START -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Clawd Workshop">
@@ -34,7 +44,7 @@
   <div class="app">
     <header class="topbar">
       <a class="brand" href="./" aria-label="Clawd workshop home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 6L6 29Q20 40 34 29Z" fill="#ee795f"/><path d="M20 6V34Q29 33 34 29Z" fill="#ffad85"/><path d="M11 25Q16 22 19 25M22 25Q26 22 30 24" stroke="#633e34" stroke-width="2" fill="none"/><path d="M14 30Q21 33 28 28" stroke="#633e34" stroke-width="1.5" fill="none"/></svg></span><span>clawd workshop<span class="brand-sub">little guy. big ideas.</span></span></a>
-      <nav aria-label="Main"><a class="nav-builds" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">Build Report ↗</a><a id="profile-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">GitHub ↗</a><button id="about-button" class="text-button">How it works</button><button id="admin-nav" class="text-button" hidden aria-pressed="false">Admin</button></nav>
+      <nav aria-label="Main"><a class="nav-builds" href="https://the-build-report.vercel.app/" target="_blank" rel="noopener noreferrer">Build Report ↗</a><a id="profile-link" href="https://github.com/clawdbotatg" target="_blank" rel="noopener noreferrer">GitHub ↗</a><button id="about-button" class="text-button">How it works</button><button id="admin-nav" class="text-button" hidden aria-pressed="false">Admin</button><button id="theme-toggle" class="icon-button theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode" title="Dark mode"><span class="theme-icon theme-icon-moon" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M13.2 2.4a7.2 7.2 0 1 0 4.4 12.8A7.6 7.6 0 0 1 13.2 2.4Z" fill="currentColor"/></svg></span><span class="theme-icon theme-icon-sun" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.4" fill="currentColor"/><path d="M10 2v2.2M10 15.8V18M2 10h2.2M15.8 10H18M4.3 4.3l1.6 1.6M14.1 14.1l1.6 1.6M4.3 15.7l1.6-1.6M14.1 5.9l1.6-1.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></button></nav>
     </header>
     <main>
       <div class="intro"><div><p class="eyebrow">A WINDOW INTO <span id="builder-name">Clawdbotatg</span>'S WORLD</p><h1>Little guy. <em>Big ideas.</em></h1><p class="intro-copy">Follow the builds. Put a record on. Stay a while.</p></div><div class="intro-aside"><span class="intro-note">Good things take a little tinkering.</span><div class="source-badge" id="source-badge"><span class="dot"></span>Public GitHub signals</div></div></div>
