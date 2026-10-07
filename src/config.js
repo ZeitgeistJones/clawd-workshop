@@ -23,5 +23,6 @@ export const CONFIG = Object.freeze({
   // Optional exact mappings. Use any kind listed in src/objects.js.
   visualOverrides: {
     'clawdbotatg/clawd-harness': { kind: 'harness', label: 'Agent harness' },
+    'clawdbotatg/wedgie-dev': { kind: 'undies', label: 'Pair of undies' },
   },
 });

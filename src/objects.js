@@ -5,7 +5,7 @@ export const OBJECT_TYPES = Object.freeze({
   simulator: 'Transaction simulator', vault: 'Safe', keypad: 'Keypad', grove: 'Tiny grove', frog: 'Frog',
   bunker: 'Bunker', book: 'Lesson book', newspaper: 'Daily dispatch', microscope: 'Research kit',
   liquidity: 'Liquidity time lock', token: 'Token', web: 'Web crawler', incinerator: 'Workshop fireplace',
-  blueprint: 'Project blueprint',
+  undies: 'Pair of undies', blueprint: 'Project blueprint',
 });
 const rules = [
   ['wallet', /\b(wallet|wallets|payments?|checkout)\b/],
@@ -26,6 +26,8 @@ const rules = [
   ['dashboard', /\b(dashboard|console|control panel|tracker|monitor)\b/],
   ['bot', /\b(robot|robots|bot|bots|agent|agents|automation)\b/],
   ['token', /\b(token|tokens|coin|coins)\b/],
+  // After more specific wedgie-* props (safe, frog…). A bare wedgie gets underwear.
+  ['undies', /\b(wedgie|undies|underwear|briefs|panties)\b/],
 ];
 function words(value) { return String(value || '').toLowerCase().replace(/[-_./]/g, ' '); }
 export function projectObject(repoName, metadata = {}) {
