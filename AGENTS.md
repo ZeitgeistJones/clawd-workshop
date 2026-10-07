@@ -22,7 +22,7 @@ Local development server: `scripts/dev-server.mjs`. Vercel config: `framework: n
 
 ## Visuals
 
-Keep Clawd's cute red triangular face, sly eyes, claws, bow tie, and apron. Preserve the warm, clean workshop palette and consistent SVG line style. Work on the project's actual visual metaphor: wallet, robot, dashboard, harness, safe, keypad, grove, frog, bunker, book, newspaper, microscope, liquidity time lock, coin stack, web crawler, undies (for wedgie), or a blueprint. Prefer a literal prop when the name asks for one (a harness is a harness; a wedgie is underwear).
+Keep Clawd's cute red triangular face, sly eyes, claws, bow tie, and apron. Preserve the warm, clean workshop palette and consistent SVG line style. Work on the project's actual visual metaphor: wallet, robot, dashboard, harness, safe, keypad, grove, frog, bunker, book, newspaper, microscope, liquidity time lock, coin stack, web crawler, undies, computer, calendar, buttons, checklist, quill, mic, chess, crops, gamepad, or a blueprint. Prefer a literal prop when the name asks for one (a harness is a harness; a wedgie is underwear; slop-computer is a computer).
 
 Matching lives in `src/objects.js`, artwork in `public/objects.svg`, and precise per-repo overrides in `src/config.js`. Infer from repo name/description/topics or use an explicit mapping. Label inferred illustrations; unknown types use a blueprint. Do not call these metaphors actual screenshots of software.
 

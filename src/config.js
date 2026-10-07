@@ -24,5 +24,8 @@ export const CONFIG = Object.freeze({
   visualOverrides: {
     'clawdbotatg/clawd-harness': { kind: 'harness', label: 'Agent harness' },
     'clawdbotatg/wedgie-dev': { kind: 'undies', label: 'Pair of undies' },
+    'clawdbotatg/clawd-cal': { kind: 'calendar', label: 'Wall calendar' },
+    'clawdbotatg/clear-signing-skill': { kind: 'quill', label: 'Quill and ink' },
+    'clawdbotatg/onchain-clear-signing-erc7730-registry': { kind: 'quill', label: 'Quill and ink' },
   },
 });

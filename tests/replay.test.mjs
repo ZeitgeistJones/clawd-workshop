@@ -59,8 +59,17 @@ test('empty history has no fabricated chapters or duration', () => {
   assert.equal(plan.durationMs, 0); assert.equal(replayFrame(plan, 0), null);
 });
 test('project names map to recognizable objects without matching incidental substrings', () => {
-  for (const [name, kind] of Object.entries({ 'instant-wallet': 'wallet', 'wedgie-safe': 'vault', 'wedgie-grove': 'grove', 'wedgie-frog': 'frog', 'wedgie-keypad': 'keypad', 'wedgie-dev': 'undies', 'slop-lessons': 'book', 'clawd-daily': 'newspaper', 'clawd-research': 'microscope', 'clawd-txn-simulator': 'simulator', 'liquidity-vesting': 'liquidity', 'agent-bot': 'bot', 'clawd-incinerator': 'incinerator', 'clawd-fomo3d-v2': 'frog', 'clawd-containers': 'bunker' })) {
-    assert.equal(projectObject(`clawdbotatg/${name}`).kind, kind);
+  for (const [name, kind] of Object.entries({
+    'instant-wallet': 'wallet', 'wedgie-safe': 'vault', 'wedgie-grove': 'grove', 'wedgie-frog': 'frog',
+    'wedgie-keypad': 'keypad', 'wedgie-dev': 'undies', 'wedgie-buttons': 'buttons', 'wedgie-starter': 'undies',
+    'slop-lessons': 'book', 'slop-computer-frontpage': 'computer', 'slop-computer-live': 'computer',
+    'clawd-daily': 'newspaper', 'clawd-research': 'microscope', 'clawd-txn-simulator': 'simulator',
+    'liquidity-vesting': 'liquidity', 'agent-bot': 'bot', 'clawd-incinerator': 'incinerator',
+    'clawd-fomo3d-v2': 'frog', 'clawd-containers': 'bunker', 'clawd-calendar': 'calendar',
+    'clawd-todo': 'checklist', 'clawd-scribe': 'quill', 'clawd-voice': 'mic', 'clawd-crops': 'crops',
+    'clawd-local-ai-chess': 'chess', 'clawdgames': 'gamepad', 'clear-signing-skill': 'quill',
+  })) {
+    assert.equal(projectObject(`clawdbotatg/${name}`).kind, kind, name);
   }
   assert.equal(projectObject('clawdbotatg/wedgie-dev').label, 'Pair of undies');
   assert.equal(projectObject('clawdbotatg/wedgie').kind, 'undies');
