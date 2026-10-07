@@ -1,7 +1,7 @@
 import { CONFIG } from './config.js';
 import { buildBrief } from './builds.js';
 import { safeGithubUrl, timeAgo } from './activity.js';
-import { LofiRadio, STATIONS } from './music.js';
+import { TRACKS, TrackRadio } from './playlist.js';
 import { MarketClient } from './market.js';
 
 const $ = id => document.getElementById(id);
@@ -13,7 +13,18 @@ const usd = value => Number.isFinite(Number(value)) && value !== null ? `$${shor
 const priceText = value => `$${Number(value).toLocaleString(undefined, { maximumSignificantDigits: 5 })}`;
 const marketConfig = { ...CONFIG.market };
 let market = new MarketClient(marketConfig);
-const radio = new LofiRadio();
+const radio = new TrackRadio();
+function fillTrackSelect() {
+  const select = $('radio-station');
+  if (!select) return;
+  select.replaceChildren(...TRACKS.map((track, index) => {
+    const option = document.createElement('option');
+    option.value = String(index);
+    option.textContent = track.name;
+    return option;
+  }));
+  select.value = String(radio.track);
+}
 let state = null, demo = null, mode = 'current', detailsCache = new Map(), pendingDetails = new Set();
 let priceTimer, watchTimer, epoch = 0, priceBusy = null, watchBusy = null, priceFailures = 0, watchFailures = 0, effectTimer;
 let samples = [], marketEvents = [], currentPrice = null, effectsEnabled = true, radioBusy = false;
@@ -145,25 +156,38 @@ $('demo-burn').addEventListener('click', () => {
 });
 
 function drawRadio(message) {
-  text('radio-title', STATIONS[radio.station].name);
-  const live = radio.playing && radio.session ? `Live set · ${radio.session.bpm} BPM · new mix each play` : 'Original lo-fi · tap play for a fresh mix';
+  const track = radio.current();
+  text('radio-title', track?.name || 'Workshop radio');
+  const live = radio.playing ? 'Looping · tap pause anytime' : 'Pick a track · tap play';
   text('radio-status', message || live);
-  text('radio-play', radio.playing ? 'Ⅱ' : '▶'); $('radio-play').setAttribute('aria-pressed', String(radio.playing)); $('radio-play').setAttribute('aria-label', radio.playing ? 'Pause lo-fi music' : 'Play lo-fi music');
-  $('scene').classList.toggle('music-playing', radio.playing); document.querySelector('.radio-panel').classList.toggle('playing', radio.playing);
+  text('radio-play', radio.playing ? 'Ⅱ' : '▶');
+  $('radio-play').setAttribute('aria-pressed', String(radio.playing));
+  $('radio-play').setAttribute('aria-label', radio.playing ? 'Pause music' : 'Play music');
+  $('radio-station').value = String(radio.track);
+  $('scene').classList.toggle('music-playing', radio.playing);
+  document.querySelector('.radio-panel')?.classList.toggle('playing', radio.playing);
 }
+fillTrackSelect();
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
-  try { if (radio.playing) await radio.stop(); else { radio.setVolume(Number($('radio-volume').value) / 100); await radio.play(Number($('radio-station').value)); } drawRadio(); }
-  catch { drawRadio('Audio is unavailable in this browser.'); }
+  try {
+    if (radio.playing) await radio.stop();
+    else { radio.setVolume(Number($('radio-volume').value) / 100); await radio.play(Number($('radio-station').value)); }
+    drawRadio();
+  } catch { drawRadio('Audio is unavailable in this browser.'); }
   finally { radioBusy = false; $('radio-play').disabled = false; }
 });
 $('radio-volume').addEventListener('input', e => radio.setVolume(Number(e.target.value) / 100));
 radio.setVolume(Number($('radio-volume').value) / 100);
 $('radio-station').addEventListener('change', async e => {
-  if (radioBusy) { e.target.value = String(radio.station); return; }
+  if (radioBusy) { e.target.value = String(radio.track); return; }
   const wasPlaying = radio.playing; radioBusy = true;
-  try { await radio.stop(); radio.station = Number(e.target.value); if (wasPlaying) await radio.play(); drawRadio(); }
-  catch { drawRadio('Audio is unavailable in this browser.'); }
+  try {
+    await radio.stop();
+    radio.track = Number(e.target.value);
+    if (wasPlaying) await radio.play(radio.track);
+    drawRadio();
+  } catch { drawRadio('Audio is unavailable in this browser.'); }
   finally { radioBusy = false; }
 });
 document.addEventListener('visibilitychange', () => {
@@ -172,3 +196,4 @@ document.addEventListener('visibilitychange', () => {
   else if (!demo) { fetchPrice(epoch); watchChain(epoch); }
 });
 window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); clearTimeout(watchTimer); clearEffect(); radio.stop(); });
+drawRadio();

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildBrief, safeWebsite } from '../src/builds.js';
-import { LofiRadio, barScore, createSession, makeRng, STATIONS } from '../src/music.js';
+import { TRACKS, TrackRadio } from '../src/playlist.js';
 
 test('build briefs keep real descriptions and chapter evidence, with safe website links', () => {
   const events = [{ type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date().toISOString(), payload: { ref: 'refs/heads/main' } }, { type: 'PushEvent', repo: { name: 'clawdbotatg/other' }, created_at: new Date().toISOString(), payload: {} }];
@@ -11,31 +11,52 @@ test('build briefs keep real descriptions and chapter evidence, with safe websit
 });
 
 test('radio stays silent until asked to play, and failed starts recover cleanly', async () => {
-  let constructed = 0, closed = 0;
-  const radio = new LofiRadio(() => { constructed++; return { state: 'suspended', resume: async () => { throw new Error('blocked'); }, close: async () => { closed++; } }; });
-  assert.equal(constructed, 0); await radio.stop(); assert.equal(constructed, 0);
-  await assert.rejects(radio.play()); assert.equal(constructed, 1); assert.equal(closed, 1); assert.equal(radio.playing, false);
-  radio.setVolume(2); assert.equal(radio.volume, 1); radio.setVolume(-1); assert.equal(radio.volume, 0);
+  let constructed = 0;
+  const radio = new TrackRadio(() => {
+    constructed++;
+    return {
+      loop: false,
+      volume: 1,
+      play: async () => { throw new Error('blocked'); },
+      pause() {},
+      removeAttribute() {},
+      load() {},
+    };
+  });
+  assert.equal(constructed, 0);
+  await radio.stop();
+  assert.equal(constructed, 0);
+  await assert.rejects(radio.play());
+  assert.equal(constructed, 1);
+  assert.equal(radio.playing, false);
+  radio.setVolume(2); assert.equal(radio.volume, 1);
+  radio.setVolume(-1); assert.equal(radio.volume, 0);
 });
 
-test('each play rolls a live session and bars stay musical but not identical', () => {
-  const a = createSession(STATIONS[0], makeRng(11));
-  const b = createSession(STATIONS[0], makeRng(99));
-  assert.notEqual(a.key, b.key); assert.ok(a.bpm >= STATIONS[0].bpm[0] && a.bpm <= STATIONS[0].bpm[1]);
-  const sameA = barScore(0, a, makeRng(7));
-  const sameB = barScore(0, a, makeRng(7));
-  assert.deepEqual(sameA.notes.map(n => `${n.kind}:${n.note}:${n.at.toFixed(3)}`), sameB.notes.map(n => `${n.kind}:${n.note}:${n.at.toFixed(3)}`));
-  const other = barScore(0, a, makeRng(8));
-  assert.notDeepEqual(sameA.notes.map(n => `${n.kind}:${n.at.toFixed(3)}`), other.notes.map(n => `${n.kind}:${n.at.toFixed(3)}`));
-  for (const station of STATIONS) {
-    const session = createSession(station, makeRng(3));
-    for (let i = 0; i < 8; i++) {
-      const score = barScore(i, session, makeRng(100 + i));
-      assert.ok(score.duration > 1.5 && score.duration < 5);
-      assert.ok(score.notes.every(n => n.at >= 0 && n.at < score.duration && n.length > 0));
-      assert.ok(score.notes.some(n => n.kind === 'keys'));
-      assert.ok(score.notes.some(n => n.kind === 'bass'));
-      assert.ok(score.notes.some(n => n.kind === 'kick'));
-    }
-  }
+test('playlist tracks loop and switching stops the previous audio element', async () => {
+  assert.ok(TRACKS.length >= 2);
+  assert.ok(TRACKS.every(t => t.id && t.name && t.src.startsWith('./public/music/')));
+  const plays = [];
+  const radio = new TrackRadio(src => {
+    const node = {
+      src,
+      loop: false,
+      volume: 1,
+      play: async () => { plays.push(src); node.loop = true; },
+      pause() { node.paused = true; },
+      removeAttribute() {},
+      load() {},
+    };
+    return node;
+  });
+  await radio.play(0);
+  assert.equal(radio.playing, true);
+  assert.equal(radio.audio.loop, true);
+  assert.equal(plays.at(-1), TRACKS[0].src);
+  await radio.play(1);
+  assert.equal(plays.at(-1), TRACKS[1].src);
+  assert.equal(radio.current().id, TRACKS[1].id);
+  await radio.stop();
+  assert.equal(radio.playing, false);
+  assert.equal(radio.audio, null);
 });

@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {CONFIG} from '../src/config.js';
 import {buildBrief} from '../src/builds.js';
 import {safeGithubUrl,timeAgo} from '../src/activity.js';
-import {STATIONS} from '../src/music.js';
+import {TRACKS} from '../src/playlist.js';
 class Element{
  constructor(){this.textContent='';this.children=[];this.dataset={};this.attributes={};this.handlers={};this.classes=new Set();this.classList={contains:k=>this.classes.has(k),add:k=>this.classes.add(k),remove:k=>this.classes.delete(k),toggle:(k,v)=>{const enabled=v??!this.classes.has(k);enabled?this.classes.add(k):this.classes.delete(k);return enabled;}};}
  setAttribute(k,v){this.attributes[k]=v}append(...n){this.children.push(...n)}replaceChildren(...n){this.children=n}addEventListener(k,v){this.handlers[k]=v}
@@ -20,8 +20,8 @@ async function harness(){
  class Client{
   constructor(){this.price=null}dispose(){}quote(){marketCalls++;return new Promise(resolve=>quotes.push(q=>{this.price=q;resolve(q)}))}async watch(){marketCalls++;return{events:[],note:'Watching'}}
  }
- class Radio{constructor(){this.station=0;this.playing=false}async play(station=this.station){audioStarts++;this.station=station;this.playing=true}async stop(){this.playing=false}setVolume(v){this.volume=v}}
- vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,STATIONS,MarketClient:Client,LofiRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},console});
+ class Radio{constructor(){this.track=0;this.playing=false}current(){return TRACKS[this.track]||TRACKS[0]}async play(track=this.track){audioStarts++;this.track=track;this.playing=true}async stop(){this.playing=false}setVolume(v){this.volume=v}}
+ vm.runInNewContext(source,{CONFIG,buildBrief,safeGithubUrl,timeAgo,TRACKS,MarketClient:Client,TrackRadio:Radio,document,window:{addEventListener:(k,v)=>windowHandlers[k]=v},Date,Intl,Number,Map,Set,encodeURIComponent,setTimeout:()=>1,clearTimeout:()=>{},console});
  const fixture={demo:true,mode:'current',status:{repo:'clawdbotatg/test-wallet'},metadata:{description:'A small wallet.',language:'JavaScript'},events:[],allEvents:[],repos:[],data:{},client:{details:async()=>({metadata:{description:'A fetched wallet.'},commits:[]})}};
  const emit=async(detail={})=>{windowHandlers['workshop:render']({detail:{...fixture,...detail}});await new Promise(setImmediate)};
  return{elements,document,docHandlers,emit,marketCalls:()=>marketCalls,audioStarts:()=>audioStarts,quotes};

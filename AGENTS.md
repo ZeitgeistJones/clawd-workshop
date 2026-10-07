@@ -42,6 +42,6 @@ Keep the workshop large and readable, with meaningful repository context and lin
 
 Public workshop chat is display-name only (no accounts). It uses Vercel `/api/chat` and Upstash Redis keys namespaced `clawd-workshop:chat:*`. Sanitize with textContent on the client, rate-limit posts, keep a short rolling history, and fail honestly when Redis env vars are missing. Never put Redis secrets in the static client.
 
-Lo-fi music is original local Web Audio synthesis. Start only after an explicit user action; retain volume, stop when hidden, and recover from unsupported or blocked audio. Do not add unlicensed tracks.
+Workshop radio plays local MP3 tracks from `public/music/` listed in `src/playlist.js`. Start only after an explicit user action; loop the selected track; retain volume; stop when hidden; recover from unsupported or blocked audio. To add a song: drop the file in `public/music/` and append one entry to `TRACKS`.
 
 Price and transaction feeds are distinct. Validate token/chain, require pool Swap logs for buy reactions, distinguish zero-address burns from sink transfers, estimate USD only from a fresh quote, deduplicate logs, and establish a baseline without historical celebrations. Suppress current market effects in replay. Show stale/unavailable/partial states. Never expose RPC secrets in the static client, invent live activity, or claim end-to-end feed validation without testing.

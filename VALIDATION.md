@@ -1,5 +1,13 @@
 # Validation
 
+## Playlist radio · October 6, 2026
+
+- Removed generative Web Audio stations. Radio now loops local MP3s from
+  `public/music/` via `src/playlist.js` (`fwahh`, `Slop Lessons`).
+- Still opt-in on Play, pauses when the tab is hidden, volume retained.
+- Node tests cover blocked play recovery and playlist switching. Speaker output
+  still needs a real browser listen after deploy.
+
 ## Workshop chat · October 6, 2026
 
 - Public room behind `/api/chat` on Vercel. Display name only (localStorage), no
