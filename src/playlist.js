@@ -8,6 +8,8 @@
 export const TRACKS = [
   { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624 },
   { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752 },
+  { id: 'clawd-calendar', name: 'clawd calendar', src: './public/music/clawd-calendar.mp3', duration: 168.024 },
+  { id: 'clawd-talk-to-your-wallet', name: 'talk to your wallet', src: './public/music/clawd-talk-to-your-wallet.mp3', duration: 158.64 },
 ];
 
 /** @param {Track[]} [tracks] */
