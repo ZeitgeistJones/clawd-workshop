@@ -121,7 +121,13 @@ export class TrackRadio {
     };
     if (typeof audio.readyState === 'number' && audio.readyState >= 1) apply();
     else audio.onloadedmetadata = apply;
-    await audio.play();
+    try {
+      await audio.play();
+    } catch (error) {
+      this.release(audio);
+      if (this.audio === audio) this.audio = null;
+      throw error;
+    }
     if (generation !== this.generation) {
       this.release(audio);
       if (this.audio === audio) this.audio = null;

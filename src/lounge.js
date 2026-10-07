@@ -159,6 +159,10 @@ $('demo-burn').addEventListener('click', () => {
   showEvent({ kind: 'burn', label: 'Token burn', amount, sample: true });
 });
 
+function isAutoplayBlock(error) {
+  const name = error?.name || '';
+  return name === 'NotAllowedError' || name === 'AbortError';
+}
 function drawRadio(message) {
   fillTrackSelect();
   const track = radio.current();
@@ -185,6 +189,30 @@ async function startRadio({ withSound = true } = {}) {
     radio.setMuted(false);
   }
 }
+async function bootRadio() {
+  // Start muted so autoplay policies let the shared loop join, then try sound.
+  try {
+    await startRadio({ withSound: false });
+  } catch (error) {
+    console.error('Workshop radio failed to start', error);
+    drawRadio(isAutoplayBlock(error)
+      ? 'Press the speaker to start the room radio.'
+      : 'Audio could not load. Press the speaker to retry.');
+    return;
+  }
+  try {
+    if (radio.audio) {
+      radio.audio.muted = false;
+      radio.setMuted(false);
+      if (radio.audio.paused) await radio.audio.play();
+    }
+    drawRadio();
+  } catch (error) {
+    radio.setMuted(true);
+    if (radio.audio) radio.audio.muted = true;
+    drawRadio('Muted · press the speaker for sound');
+  }
+}
 $('radio-play').addEventListener('click', async () => {
   if (radioBusy) return; radioBusy = true; $('radio-play').disabled = true;
   try {
@@ -199,8 +227,11 @@ $('radio-play').addEventListener('click', async () => {
       if (radio.audio.paused) await radio.audio.play();
     }
     drawRadio();
-  } catch {
-    drawRadio('Audio is unavailable in this browser.');
+  } catch (error) {
+    console.error('Workshop radio control failed', error);
+    drawRadio(isAutoplayBlock(error)
+      ? 'Press the speaker again to unlock sound.'
+      : 'Audio could not load right now.');
   } finally { radioBusy = false; $('radio-play').disabled = false; }
 });
 $('radio-volume').addEventListener('input', e => {
@@ -223,15 +254,4 @@ window.addEventListener('pagehide', () => { ++epoch; clearTimeout(priceTimer); c
 let radioClock = setInterval(() => { if (radio.playing) drawRadio(); }, 4000);
 window.addEventListener('pagehide', () => clearInterval(radioClock));
 drawRadio();
-// Always aim for sound on. If the browser blocks it, keep the live loop running
-// muted until the speaker control is used — never a page-wide "tap anywhere" gate.
-startRadio({ withSound: true }).then(() => {
-  drawRadio();
-}).catch(async () => {
-  try {
-    await startRadio({ withSound: false });
-    drawRadio();
-  } catch {
-    drawRadio('Audio is unavailable in this browser.');
-  }
-});
+bootRadio();

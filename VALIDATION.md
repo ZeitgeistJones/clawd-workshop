@@ -5,9 +5,10 @@
 - Removed generative Web Audio stations. Radio plays local MP3s from
   `public/music/` via `src/playlist.js` (`fwahh`, `Slop Lessons`).
 - Shared live loop: wall-clock schedule so listeners join mid-track together.
-  Auto-starts with sound on load (mute-only control). No “tap anywhere” unlock;
-  if unmuted autoplay is blocked, the speaker control unmutes.
-  Keeps playing when the tab is hidden; stops on pagehide.
+  Boot joins muted first (autoplay-safe), then tries sound; mute-only control.
+  Autoplay blocks no longer flash “Audio is unavailable”. Dev server must serve
+  `.mp3` as `audio/mpeg` (restart after that MIME was added). Keeps playing when
+  the tab is hidden; stops on pagehide.
 - Studio / 01 overlay removed; scene fill tightened to reduce fringe borders.
 - Node tests cover schedule math and blocked play recovery. Speaker sync still
   needs a real two-browser listen after deploy.
@@ -17,7 +18,8 @@
 - Public room behind `/api/chat` on Vercel. Display name only (localStorage), no
   accounts. Messages live in Upstash Redis under `clawd-workshop:chat:*`.
 - Join form was wired to a missing `chat-join-form` id; it now listens on
-  `chat-gate`. UI is a tall YouTube-style side chat (inline colored names).
+  `chat-gate`. Chat sits in `.stream-row` beside the workshop (YouTube/Twitch),
+  stacks under the stream below 860px.
 - Rate-limited (~3s/IP), capped length, last 80 messages kept. Missing Redis env
   returns a clear 503 instead of inventing a room.
 - Node unit tests cover sanitization, posting, and rate limits. Production GET
