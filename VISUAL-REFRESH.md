@@ -4,7 +4,7 @@
 
 The illustrated studio stays. The next pass makes the room answer in the first screen, instead of reading like a brochure above the picture.
 
-Signature idea: the day outside the window. The latest public updates are small marks on the glass. Open the window to read them, knock and Clawd glances over, and a postcard saves or shares that moment. It uses the same public GitHub signals. It does not claim live keystrokes.
+The picture is what you touch. No marks on the glass, and no Knock or Postcard buttons. Touch the window and the fetched day appears. Touch Clawd and he glances over. Nothing on the scene tells you to click.
 
 This is a draft direction. Later notes here should say what actually shipped.
 

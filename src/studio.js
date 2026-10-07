@@ -1,10 +1,8 @@
-// Focus view, plus the day outside the window, a knock, and a postcard.
-import { knockLine, momentLine, paintPostcard, postcardModel, returnNote, selectWindowBirds, visitSnapshot } from './moment.js';
+// Focus view, plus touches you find in the picture: the window, and Clawd.
+import { knockLine, returnNote, selectWindowNotes, visitSnapshot } from './moment.js';
 
 const $ = id => document.getElementById(id);
 const VISIT_KEY = 'clawd-workshop-last-look';
-const HINT_KEY = 'clawd-workshop-hint-seen';
-const HINT = 'The little marks in the window are today\'s public updates. Open the window to read them, or knock.';
 
 const workshop = document.getElementById('workshop');
 const button = document.getElementById('focus-button');
@@ -44,8 +42,7 @@ dialog.addEventListener('click', event => {
 });
 
 let lastDetail = null;
-let knockTimer = 0;
-let knockActive = false;
+let glanceTimer = 0;
 let visitNoted = false;
 
 function readJson(key) {
@@ -56,59 +53,38 @@ function writeJson(key, value) {
 }
 function say(text) {
   const bubble = $('speech-bubble');
-  if (bubble && bubble.textContent !== text) bubble.textContent = text;
+  if (!bubble) return;
+  bubble.textContent = text || '';
+  bubble.hidden = !text;
 }
 function setWindowOpen(open) {
   const panel = $('window-day');
+  const control = $('window-button');
   if (!panel) return;
   panel.hidden = !open;
-  for (const id of ['window-button', 'window-open']) {
-    const control = $(id);
-    if (!control) continue;
-    control.setAttribute('aria-expanded', String(open));
-  }
-  if (open) $('window-day-close')?.focus();
+  control?.setAttribute('aria-expanded', String(open));
 }
-function paintFlock(birds) {
-  const flock = $('window-flock');
-  if (!flock) return;
-  const existing = new Map([...flock.children].map(node => [node.dataset.id, node]));
-  const next = new Set();
-  for (const bird of birds) {
-    next.add(bird.id);
-    let node = existing.get(bird.id);
-    if (!node) {
-      node = document.createElement('i');
-      node.className = 'window-bird';
-      node.dataset.id = bird.id;
-      flock.append(node);
-    }
-    node.style.left = `${bird.x}%`;
-    node.style.top = `${bird.y}%`;
-  }
-  for (const [id, node] of existing) if (!next.has(id)) node.remove();
-}
-function paintDay(birds, demo) {
+function paintDay(notes, demo) {
   const list = $('window-day-list');
   const empty = $('window-day-empty');
   const note = $('window-day-note');
   if (!list || !empty) return;
   list.replaceChildren();
-  empty.hidden = birds.length > 0;
-  list.hidden = birds.length === 0;
-  if (note) note.textContent = demo
-    ? 'Sample birds from the demo day. They are not Clawd\'s real activity.'
-    : 'The latest public updates in the fetched day. Private work stays invisible.';
-  for (const bird of birds) {
+  empty.hidden = notes.length > 0;
+  list.hidden = notes.length === 0;
+  if (note) note.textContent = notes.length
+    ? (demo ? 'Sample updates. Not a real day.' : 'Public updates from the fetched day.')
+    : '';
+  for (const item of notes) {
     const li = document.createElement('li');
     const link = document.createElement('a');
-    link.href = bird.url;
+    link.href = item.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     const title = document.createElement('strong');
-    title.textContent = bird.title;
+    title.textContent = item.title;
     const meta = document.createElement('span');
-    meta.textContent = [bird.repo, bird.detail, bird.when].filter(Boolean).join(' · ');
+    meta.textContent = [item.repo, item.detail, item.when].filter(Boolean).join(' · ');
     link.append(title, meta);
     if (demo) {
       const tag = document.createElement('em');
@@ -118,11 +94,6 @@ function paintDay(birds, demo) {
     li.append(link);
     list.append(li);
   }
-  const count = birds.length;
-  const label = count
-    ? `Open the window. ${count} public update${count === 1 ? '' : 's'} outside.`
-    : 'Open the window. No public updates in this view yet.';
-  $('window-button')?.setAttribute('aria-label', label);
 }
 function showVisitNote(text) {
   const note = $('visit-note');
@@ -132,123 +103,37 @@ function showVisitNote(text) {
   note.hidden = false;
 }
 function maybeVisitNote(detail) {
-  if (visitNoted || detail.mode === 'replay') return;
+  if (visitNoted || detail.demo || detail.mode === 'replay') return;
   if (!detail.data?.checkedAt && !(detail.allEvents || []).length) return;
   visitNoted = true;
-  if (!detail.demo) {
-    const welcome = returnNote(readJson(VISIT_KEY), visitSnapshot(detail));
-    if (welcome) { showVisitNote(welcome); writeJson(HINT_KEY, true); return; }
-  }
-  if (!readJson(HINT_KEY)) { showVisitNote(HINT); writeJson(HINT_KEY, true); }
-}
-function shareHref() {
-  return `${location.origin}${location.pathname}`;
-}
-function fillPostcard() {
-  const model = postcardModel(lastDetail || { status: { state: 'unknown' } }, shareHref());
-  $('postcard-line').textContent = model.line;
-  $('postcard-project').textContent = model.project;
-  $('postcard-stamp').textContent = model.stamp;
-  $('postcard-foot').textContent = [model.when, model.href].filter(Boolean).join(' · ');
-  $('postcard-status').textContent = '';
-  return model;
-}
-async function copyMoment(model) {
-  const status = $('postcard-status');
-  try {
-    await navigator.clipboard.writeText(model.caption);
-    status.textContent = 'Copied. Paste it anywhere.';
-  } catch {
-    status.textContent = 'Copy was blocked. Select the card text instead.';
-  }
-}
-async function savePostcard(model) {
-  const status = $('postcard-status');
-  try {
-    if (document.fonts?.load) {
-      await document.fonts.load('16px "DM Sans"');
-      await document.fonts.load('52px Georgia');
-    }
-    const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 630;
-    const ctx = canvas.getContext('2d');
-    paintPostcard(ctx, model);
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-    if (!blob) throw new Error('empty image');
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'clawd-workshop-moment.png';
-    link.click();
-    URL.revokeObjectURL(url);
-    status.textContent = 'Saved a picture of this moment.';
-  } catch {
-    status.textContent = 'Couldn\'t save the image. Copy the moment instead.';
-  }
+  const welcome = returnNote(readJson(VISIT_KEY), visitSnapshot(detail));
+  if (welcome) showVisitNote(welcome);
 }
 
 window.addEventListener('workshop:render', event => {
   lastDetail = event.detail;
-  const detail = lastDetail;
-  if (!detail) return;
-  const demo = !!detail.demo;
-  const replay = detail.mode === 'replay';
-  const birds = selectWindowBirds(detail.allEvents || []);
-  paintFlock(birds);
-  paintDay(birds, demo);
-  if (!knockActive) say(momentLine(detail.status, { demo, replay }));
-  maybeVisitNote(detail);
+  if (!lastDetail) return;
+  paintDay(selectWindowNotes(lastDetail.allEvents || []), !!lastDetail.demo);
+  maybeVisitNote(lastDetail);
 });
 
-$('knock-button')?.addEventListener('click', () => {
+$('clawd-tap')?.addEventListener('click', () => {
   const scene = $('scene');
-  scene?.classList.add('noticed', 'knocking');
-  knockActive = true;
+  scene?.classList.add('noticed');
   say(knockLine(lastDetail?.status?.state));
-  clearTimeout(knockTimer);
-  knockTimer = setTimeout(() => {
-    scene?.classList.remove('noticed', 'knocking');
-    knockActive = false;
-    if (lastDetail) say(momentLine(lastDetail.status, { demo: !!lastDetail.demo, replay: lastDetail.mode === 'replay' }));
+  clearTimeout(glanceTimer);
+  glanceTimer = setTimeout(() => {
+    scene?.classList.remove('noticed');
+    say('');
   }, 2600);
-  setTimeout(() => scene?.classList.remove('knocking'), 700);
 });
 
-function openWindow() {
+$('window-button')?.addEventListener('click', () => {
   setWindowOpen($('window-day')?.hidden !== false);
-}
-$('window-button')?.addEventListener('click', openWindow);
-$('window-open')?.addEventListener('click', openWindow);
-$('window-day-close')?.addEventListener('click', () => {
-  setWindowOpen(false);
-  $('window-open')?.focus();
 });
 $('visit-note-dismiss')?.addEventListener('click', () => {
   $('visit-note').hidden = true;
-  writeJson(HINT_KEY, true);
 });
-
-const postcard = $('postcard-dialog');
-$('postcard-button')?.addEventListener('click', () => {
-  fillPostcard();
-  postcard?.showModal();
-});
-$('postcard-close')?.addEventListener('click', () => postcard?.close());
-postcard?.addEventListener('click', event => {
-  if (event.target !== postcard) return;
-  const rect = postcard.getBoundingClientRect();
-  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) postcard.close();
-});
-$('postcard-copy')?.addEventListener('click', () => copyMoment(fillPostcard()));
-$('postcard-save')?.addEventListener('click', () => savePostcard(fillPostcard()));
-$('postcard-share')?.addEventListener('click', async () => {
-  const model = fillPostcard();
-  if (typeof navigator.share !== 'function') { await copyMoment(model); return; }
-  try { await navigator.share({ title: 'Clawd workshop', text: model.caption, url: model.href }); }
-  catch (error) { if (error?.name !== 'AbortError') await copyMoment(model); }
-});
-if (typeof navigator.share !== 'function' && $('postcard-share')) $('postcard-share').hidden = true;
 
 window.addEventListener('pagehide', () => {
   if (!lastDetail || lastDetail.demo || lastDetail.mode === 'replay') return;
@@ -256,6 +141,6 @@ window.addEventListener('pagehide', () => {
 });
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape' || $('window-day')?.hidden) return;
-  if (dialog.open || postcard?.open || $('about-dialog')?.open) return;
+  if (dialog.open || $('about-dialog')?.open) return;
   setWindowOpen(false);
 });

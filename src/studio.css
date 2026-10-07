@@ -62,9 +62,6 @@ h1 em { color: var(--orange); font-weight: 400; }
 .focus-button[aria-pressed='true'] { background: #e2eee6; border-color: #b4cbb9; }
 .scene-wrap { position: relative; min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #e4ebe6; display: block; border: 0; outline: 0; box-shadow: none; }
 .workshop-tools { flex-wrap: wrap; justify-content: flex-end; }
-.text-tool { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 10px; border: 1px solid #d0dbd4; border-radius: 9px; background: #f7faf8; color: #4f6558; font-size: 11px; }
-.text-tool:hover { background: #e7f0ea; border-color: #b7cbbc; text-decoration: none; }
-.text-tool[aria-expanded='true'] { background: #e2eee6; border-color: #b4cbb9; color: #2f5340; }
 .scene { width: 100%; height: 100%; display: block; vertical-align: top; border: 0; outline: 0; }
 .bench-prop-toggle { border: 1px solid #c5d5cb; border-radius: 999px; background: #f7faf8; color: #4f6858; font: 9px/1 var(--mono); padding: 4px 8px; cursor: pointer; }
 .bench-prop-toggle:hover { background: #e7f0ea; }
@@ -246,7 +243,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .icon-button { width: 34px; height: 34px; }
   .focus-button { min-height: 34px; padding: 7px 8px; }
   .focus-button span { display: none; }
-  .text-tool { min-height: 34px; padding: 6px 8px; font-size: 10px; }
   .focus-button svg { width: 15px; }
   .workshop-bottom { padding: 12px 14px; min-height: 57px; gap: 8px; align-items: flex-start; flex-direction: column; }
   .scene-caption { font-size: 10px; }
@@ -453,59 +449,32 @@ html[data-theme='dark'] .score-grades > div {
 }
 html[data-theme='dark'] .score-chip:hover { background: #24352c; border-color: #3a4d42; }
 
-/* The day outside the window, a knock, and a postcard of this moment. */
+/* Found by touching the picture. No labels on the glass. */
 .visit-note { display: flex; align-items: flex-start; gap: 12px; margin: 0 0 14px; padding: 10px 12px 10px 16px; border-radius: 12px; background: #f8f1e4; border: 1px solid #e4d3b4; color: #3d4a42; }
 .visit-note p { margin: 0; font: italic 15px/1.45 var(--serif); }
 .visit-note .icon-button { width: 32px; height: 32px; flex-shrink: 0; }
 .window-hit { position: absolute; z-index: 2; left: 5.6%; top: 14.9%; width: 20.3%; height: 28.5%; }
-.window-button { position: absolute; inset: 0; border: 0; padding: 0; background: transparent; border-radius: 6px; cursor: pointer; }
-.window-button:hover, .window-button:focus-visible { background: #fff8dc2e; box-shadow: inset 0 0 0 2px #c45a3e88; }
-.window-flock { position: absolute; left: 10.5%; top: 11%; width: 79%; height: 73%; pointer-events: none; }
-.window-bird { position: absolute; width: 0; height: 0; margin: -10px 0 0 -8px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 13px solid #e07858; filter: drop-shadow(0 0 1px #fff8e8) drop-shadow(0 1px 0 #6a302088); animation: bird-drift 5.6s ease-in-out infinite; }
-.window-bird:nth-child(2n) { animation-duration: 7s; border-bottom-color: #c45a3e; }
-.window-bird:nth-child(3n) { animation-duration: 4.8s; }
-@keyframes bird-drift { 0%, 100% { transform: translate(0, 0) rotate(-10deg); } 50% { transform: translate(4px, -3px) rotate(8deg); } }
-.scene-wrap.paused .window-bird { animation-play-state: paused; }
-.speech-bubble { position: absolute; z-index: 3; left: 54%; top: 3.5%; max-width: 38%; margin: 0; padding: 8px 12px; background: #fffdf8; color: #24312c; border: 1px solid #e4d3b4; border-radius: 14px 14px 14px 4px; box-shadow: 0 8px 18px #2a433414; font: 600 13px/1.35 'DM Sans', ui-sans-serif, system-ui, sans-serif; pointer-events: none; }
-.scene-event { z-index: 4; }
+.window-button { position: absolute; inset: 0; border: 0; padding: 0; background: transparent; border-radius: 4px; cursor: pointer; }
+.window-button:hover { background: #fff8dc22; }
+.clawd-tap { position: absolute; z-index: 3; left: 36%; top: 27%; width: 16%; height: 32%; border: 0; padding: 0; background: transparent; cursor: pointer; border-radius: 46% 46% 20% 20%; }
+.speech-bubble { position: absolute; z-index: 4; left: 52%; top: 8%; max-width: 34%; margin: 0; padding: 8px 12px; background: #fffdf8; color: #24312c; border: 1px solid #e4d3b4; border-radius: 14px 14px 14px 4px; box-shadow: 0 8px 18px #2a433414; font: 600 13px/1.35 'DM Sans', ui-sans-serif, system-ui, sans-serif; pointer-events: none; }
+.scene-event { z-index: 5; }
 .scene-wrap.noticed .head { animation: glance 2.4s ease; }
 @keyframes glance { 0%, 100% { transform: rotate(0deg); } 30%, 70% { transform: rotate(-8deg); } }
-.scene-wrap.knocking .workshop-window { animation: window-knock .55s ease; }
-@keyframes window-knock { 0%, 100% { transform: translate(52px, 75px); } 35% { transform: translate(57px, 75px); } 70% { transform: translate(49px, 75px); } }
-.scene-wrap.knocking .window-button { background: #fff6d666; }
-.window-day { padding: 12px 16px 14px; background: #f7faf8; border-top: 1px solid #d5e2da; }
-.window-day-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.window-day-head .eyebrow { margin: 0; }
-.window-day-note, .window-day-empty { margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: #5d6a63; }
+.window-day { padding: 4px 16px 14px; background: #f7faf8; border-top: 1px solid #d5e2da; }
+.window-day-note, .window-day-empty { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: #5d6a63; }
 .window-day ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
 .window-day a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-height: 44px; padding: 8px 10px; border: 1px solid #d5e2da; border-radius: 10px; background: #fff; color: #24312c; }
 .window-day a:hover { text-decoration: none; border-color: #b7cbbc; background: #f3faf5; }
 .window-day a strong { font-size: 13px; font-weight: 650; }
 .window-day a span { font-size: 12px; color: #5d6a63; }
 .window-day a em { margin-left: auto; font-style: normal; font-size: 10px; letter-spacing: .4px; color: #9a6448; }
-.postcard-dialog { max-width: 560px; }
-.postcard-card { display: grid; grid-template-columns: 92px 1fr; gap: 8px 16px; align-items: center; margin: 16px 0 18px; padding: 16px; border-radius: 16px; background: linear-gradient(90deg, #d5e3da 0 108px, #f7faf8 108px); border: 1px solid #d5e2da; }
-.postcard-brand { grid-column: 2; margin: 0; font: 600 10px/1.4 'DM Sans', sans-serif; letter-spacing: 1.4px; color: #5d6a63; }
-.postcard-mark { grid-row: 1 / span 5; width: 84px; height: 74px; }
-.postcard-line { grid-column: 2; margin: 0; font: 400 26px/1.2 var(--serif); letter-spacing: -.4px; color: #24312c; }
-.postcard-project { grid-column: 2; margin: 0; font-size: 14px; font-weight: 650; color: #3f6a51; }
-.postcard-stamp, .postcard-foot { grid-column: 2; margin: 0; font-size: 11px; line-height: 1.45; color: #5d6a63; }
-.postcard-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.postcard-status { min-height: 1.2em; margin: 12px 0 0; font-size: 12px; color: #3f6a51; }
 html[data-theme='dark'] .visit-note { background: #2a241c; border-color: #6a5335; color: #e6d7c4; }
-html[data-theme='dark'] .text-tool { background: #1c2420; border-color: #3a4d42; color: #b4c2b8; }
-html[data-theme='dark'] .text-tool[aria-expanded='true'] { background: #24352c; color: #cfe3d4; }
 html[data-theme='dark'] .speech-bubble { background: #1c2420; color: #e8efe9; border-color: #6a5335; }
 html[data-theme='dark'] .window-day { background: #1a221e; border-top-color: #2f3b35; }
 html[data-theme='dark'] .window-day a { background: #141a17; border-color: #3a4d42; color: #e8efe9; }
 html[data-theme='dark'] .window-day a span, html[data-theme='dark'] .window-day-note, html[data-theme='dark'] .window-day-empty { color: #9aaaa0; }
-html[data-theme='dark'] .postcard-card { background: linear-gradient(90deg, #24352c 0 108px, #1c2420 108px); border-color: #3a4d42; }
-html[data-theme='dark'] .postcard-line { color: #e8efe9; }
-html[data-theme='dark'] .postcard-brand, html[data-theme='dark'] .postcard-stamp, html[data-theme='dark'] .postcard-foot { color: #9aaaa0; }
 @media (max-width: 600px) {
-  .postcard-line { font-size: 22px; }
-  .postcard-actions .outline-button { flex: 1; }
   .visit-note p { font-size: 14px; }
   .speech-bubble { left: auto; right: 8px; top: 6px; max-width: 46%; font-size: 11px; line-height: 1.25; padding: 5px 7px; }
-  .window-bird { border-left-width: 5px; border-right-width: 5px; border-bottom-width: 8px; margin: -6px 0 0 -5px; }
 }
