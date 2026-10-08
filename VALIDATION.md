@@ -1,3 +1,7 @@
+# Validation · warmer dim room · October 8, 2026
+
+The back wall was a cool sage and the rug was a warmer brown, so they fought. Both are brown now. On the demo page the unlit right wall and the rug sit at the same hue. The wall behind the lamp reads about 104 on a 0–255 brightness scale, down from about 158. The floor is darker still. Clawd's face stays the bright spot. Checked in headless Chromium at 1440px.
+
 # Validation · rug · October 8, 2026
 
 The mat under the bench was a graph-paper grid. It is now a plain brown rug with a border and a short fringe. Headless Chromium on the demo page shows a solid center and a darker edge, with no grid pattern in the markup.
