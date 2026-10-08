@@ -1,5 +1,5 @@
 // Focus view, a touch on Clawd, and @clawd.
-import { parseMention } from './ask.js';
+import { chooseAskRepo, parseMention } from './ask.js';
 import { knockLine, returnNote, visitSnapshot } from './moment.js';
 
 const $ = id => document.getElementById(id);
@@ -107,12 +107,15 @@ async function askClawd(text) {
   };
   if (lastDetail?.demo) { refuse('This is a sample workshop. Ask me on the live page.'); return; }
   if (lastDetail?.mode === 'replay') { refuse('This is a replay. Ask me on the live workshop.'); return; }
-  const repo = lastDetail?.status?.repo;
-  if (!question) { refuse('Ask me something about the repo on the bench.'); return; }
-  if (!repo) { refuse('Nothing is on the bench yet.'); return; }
+  const bench = lastDetail?.status?.repo || '';
+  const known = [...(lastDetail?.data?.repos || []), ...(lastDetail?.repos || [])];
+  const repo = chooseAskRepo(question, known, bench);
+  if (!question) { refuse('Ask me something about a public repo.'); return; }
+  if (!repo) { refuse('Nothing is on the bench yet. Name one of his public repos.'); return; }
   asking = true;
   scene?.classList.add('noticed');
-  say('Looking at the public repo…');
+  const short = repo.split('/').slice(1).join('/');
+  say(repo === bench ? 'Looking at the public repo…' : `Looking at ${short}…`);
   try {
     const response = await globalThis.fetch('/api/ask', {
       method: 'POST',

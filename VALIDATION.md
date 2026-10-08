@@ -1,3 +1,7 @@
+# Validation · ask about another repo · October 8, 2026
+
+@clawd still answers from the public repo on the bench unless the question names another of clawdbotatg's public repos. "what does the incinerator do" selects clawd-incinerator while wedgie-dev is on the bench. "do you like anime?" and "why do clawd holders care" stay on the bench. A typed `clawdbotatg/name` is used even when that repo is not in the loaded list. Other people's repos are ignored. Checked with the unit tests, not a live Gemini call.
+
 # Validation · speech bubble and room links · October 8, 2026
 
 Clawd's reply is a paper speech bubble with a tail, sitting on the upper-right wall so it stays off his face. On a 390px-wide layout the same bubble stays on the right and still clears the face button; a long answer is tall there and covers wall beside him. The wall photo opens https://clawd-meme-contest-nextjs.vercel.app/ and the room radio opens https://clawd-beat-shop.vercel.app/. Both hit the link in headless Chromium. The sidebar mute and volume controls were not rewired. This environment did not follow those links through to the other sites.

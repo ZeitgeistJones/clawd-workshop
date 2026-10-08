@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { buildAskPrompt, cleanAnswer, parseMention, readModelAnswer } from '../src/ask.js';
+import { buildAskPrompt, chooseAskRepo, cleanAnswer, parseMention, readModelAnswer } from '../src/ask.js';
 import { handleAskRequest } from '../src/ask-api.mjs';
 
 test('@clawd pulls the question out and ignores ordinary chat', () => {
@@ -11,6 +11,26 @@ test('@clawd pulls the question out and ignores ordinary chat', () => {
   assert.equal(parseMention('@clawd'), '');
   assert.equal(cleanAnswer('**Shipped** `v1`\n\ntoday'), 'Shipped v1 today');
   assert.equal(readModelAnswer({ candidates: [{ content: { parts: [{ thought: true, text: 'hidden reasoning' }, { text: 'It burns tokens.' }] } }] }), 'It burns tokens.');
+});
+
+test('naming another public repo asks about that one, not the bench', async () => {
+  const repos = [
+    { full_name: 'clawdbotatg/wedgie-dev' },
+    { full_name: 'clawdbotatg/clawd-incinerator' },
+    { full_name: 'clawdbotatg/receiver-buy-and-burn' },
+    'clawdbotatg/clawd-calendar',
+  ];
+  const bench = 'clawdbotatg/wedgie-dev';
+  assert.equal(chooseAskRepo('what does the incinerator do', repos, bench), 'clawdbotatg/clawd-incinerator');
+  assert.equal(chooseAskRepo('do you like anime?', repos, bench), bench);
+  assert.equal(chooseAskRepo('why do clawd holders care about the thing ur working on', repos, bench), bench);
+  assert.equal(chooseAskRepo('what about clawdbotatg/clawd-cal', repos, bench), 'clawdbotatg/clawd-cal');
+  assert.equal(chooseAskRepo('tell me about someone/else-repo', repos, bench), bench);
+  assert.equal(chooseAskRepo('what is on the calendar', repos, bench), 'clawdbotatg/clawd-calendar');
+  assert.equal(chooseAskRepo('what does the incinerator do', [], ''), '');
+  const studio = await readFile(new URL('../src/studio.js', import.meta.url), 'utf8');
+  assert.match(studio, /chooseAskRepo\(question, known, bench\)/);
+  assert.match(buildAskPrompt({ repo: 'clawdbotatg/clawd-incinerator', question: 'what does it do?', events: [] }), /not the project on the bench/);
 });
 
 test('casual questions can be answered without inventing repo facts', () => {
