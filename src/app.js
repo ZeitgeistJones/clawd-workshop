@@ -5,7 +5,7 @@ import './studio.js';
 import { GithubClient } from './github.js';
 import { deriveStatus, describeEvent, normalizeEvents, pulse, pulseSeries, repoUrl, timeAgo } from './activity.js';
 import { demoSnapshot, demoHistory } from './demo.js';
-import { projectObject } from './objects.js';
+import { projectObject, repoIsNew } from './objects.js';
 import { makeReplay, replayFrame, formatDuration, mergeEvents, DAY_MS } from './replay.js';
 import './chat.js';
 
@@ -38,13 +38,15 @@ function setBenchPropVisible(show) {
     button.setAttribute('aria-label', show ? 'Hide the project on the bench' : 'Show the project on the bench');
   }
 }
-function bindBenchProp(repo) {
+function bindBenchProp(repo, debut = false) {
   const href = repo ? repoUrl(repo) : `https://github.com/${CONFIG.username}`;
+  const short = repo ? repo.split('/').slice(1).join('/') : '';
   const link = $('project-object-link');
   if (link) {
     link.setAttribute('href', href);
-    link.setAttribute('aria-label', repo ? `Open ${repo.split('/').slice(1).join('/')} on GitHub` : 'Open GitHub profile');
+    link.setAttribute('aria-label', repo ? `Open ${short} on GitHub${debut ? '. New in the last day' : ''}` : 'Open GitHub profile');
     link.classList.toggle('is-inactive', !repo);
+    link.classList.toggle('is-new', Boolean(repo) && debut);
   }
   const title = $('project-object-title');
   if (title) title.textContent = repo ? `Open ${repo.split('/').slice(1).join('/')} on GitHub` : 'No project on the bench';
@@ -80,7 +82,9 @@ function render() {
   const status = isReplay ? frameStatus(frame) : deriveStatus(events, data?.runs || [], now, !demo && (unavailable || old), data?.repos || []);
   const metadata = (data?.repos || []).find(r => r.full_name === status.repo) || {};
   const object = projectObject(status.repo, metadata);
+  const debut = Boolean(status.repo) && repoIsNew(metadata.created_at, now);
   $('scene').dataset.state = status.state; $('scene').dataset.projectKind = object.kind;
+  $('scene').dataset.newRepo = debut ? 'true' : 'false';
   $('state-tag').dataset.state = status.state;
   $('state-tag').textContent = isReplay ? `REPLAY · ${stateLabels[status.state]}` : stateLabels[status.state];
   $('signal-heading').textContent = isReplay && frame ? `CHAPTER ${frame.index + 1} / ${replay.plan.chapters.length}` : isReplay ? '24-HOUR REPLAY' : 'THE LATEST SIGNAL';
@@ -92,7 +96,7 @@ function render() {
   $('project-object-link')?.setAttribute('visibility', status.repo && benchPropVisible ? 'visible' : 'hidden');
   $('object-name').textContent = status.repo ? object.label : 'No project on the bench';
   $('object-basis').textContent = status.repo ? object.basis : 'Waiting for the next project';
-  bindBenchProp(status.repo);
+  bindBenchProp(status.repo, debut);
   setBenchPropVisible(benchPropVisible);
   $('last-activity').textContent = isReplay && frame ? `Recorded: ${chapterClock(frame.chapter)}` : `${status.signalSource === 'repo-push' ? 'Last push' : 'Last event'}: ${timeAgo(status.lastActivity, now)}`;
   $('active-repo').textContent = status.repo ? `${status.repo.split('/').slice(1).join('/')} ↗` : 'No project detected';
@@ -125,6 +129,7 @@ function render() {
   const shelf = isReplay ? [...new Set(events.map(e => e.repo.name))].slice(0, 6).map(full_name => (data.repos || []).find(r => r.full_name === full_name) || { full_name, name: full_name.split('/').slice(1).join('/') }) : (data?.repos || []).slice(0, 6);
   shelf.forEach(r => {
     const illustration = projectObject(r.full_name, r), a = externalLink(repoUrl(r.full_name), 'project-link'), info = node('span', 'project-info');
+    if (repoIsNew(r.created_at, now)) a.classList.add('is-new');
     info.append(node('span', 'project-name', r.name), node('span', 'project-meta', isReplay ? illustration.label : `${r.language || 'A work in progress'} · ${r.stargazers_count || 0} stars`));
     if (r.description) info.append(node('span', 'project-description', r.description));
     const icon = node('span', 'project-icon'); icon.append(objectIcon(illustration.kind));

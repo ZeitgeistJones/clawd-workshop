@@ -67,6 +67,15 @@ h1 em { color: var(--orange); font-weight: 400; }
 .bench-prop-toggle:hover { background: #e7f0ea; }
 .bench-prop-toggle[aria-pressed="false"] { color: #9a6448; border-color: #e0bda8; background: #fff4ec; }
 .project-object-link { cursor: pointer; outline: none; }
+.repo-debut { display: none; pointer-events: none; }
+.project-object-link.is-new .repo-debut { display: block; }
+.project-object-link.is-new .repo-debut-ring { animation: repo-debut-dash 7s linear infinite; }
+.project-object-link.is-new .repo-debut-glow { transform-box: fill-box; transform-origin: center; animation: repo-debut-pulse 2.4s ease-in-out infinite; }
+.project-object-link.is-new .repo-debut-sparks { animation: repo-debut-twinkle 1.6s ease-in-out infinite; }
+.project-link.is-new .project-icon { box-shadow: 0 0 0 2px #e39a3a, 0 0 12px #f6c56a88; animation: repo-debut-pulse 2.4s ease-in-out infinite; }
+@keyframes repo-debut-dash { to { stroke-dashoffset: -56; } }
+@keyframes repo-debut-pulse { 50% { opacity: .42; } }
+@keyframes repo-debut-twinkle { 50% { opacity: .2; } }
 .project-object-link.is-inactive { pointer-events: none; }
 .project-object-link:hover .project-hit { opacity: .04; }
 .project-object-link:focus-visible { filter: drop-shadow(0 0 5px #6a9a78); }

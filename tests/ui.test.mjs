@@ -8,7 +8,7 @@ import * as replayHelpers from '../src/replay.js';
 import { CONFIG } from '../src/config.js';
 import { GithubClient } from '../src/github.js';
 import { demoSnapshot, demoHistory } from '../src/demo.js';
-import { projectObject } from '../src/objects.js';
+import { projectObject, repoIsNew } from '../src/objects.js';
 import { SCORE_BUILDS, REPORT_URL, scoreBuild, scoreBuildForRepo } from '../src/showcase.js';
 class Element {
   constructor(tag = 'div') {
@@ -57,7 +57,7 @@ async function harness({ demo = true, admin = false, fail = false, saved = null 
     addEventListener: (name, fn) => { handlers[name] = fn; },
   };
   vm.runInNewContext(source, {
-    ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, SCORE_BUILDS, REPORT_URL, scoreBuild, scoreBuildForRepo, URL, URLSearchParams, Date, CustomEvent,
+    ...activity, ...replayHelpers, CONFIG, GithubClient: Client, demoSnapshot, demoHistory, projectObject, repoIsNew, SCORE_BUILDS, REPORT_URL, scoreBuild, scoreBuildForRepo, URL, URLSearchParams, Date, CustomEvent,
     location: { search: query.toString() ? `?${query}` : '' }, localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) }, document,
     window: { addEventListener() {}, dispatchEvent() { return true; } }, setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 1; }, requestAnimationFrame(fn) { raf = fn; }
   });
@@ -77,6 +77,8 @@ test('all current demo states, artwork updates, motion controls and dialog work'
   assert.equal(e['brief-commits'], undefined);
   assert.equal(e['score-dialog'], undefined);
   assert.match(e['project-object-link'].attributes.href, /github\.com/);
+  assert.equal(e['project-object-link'].classList.contains('is-new'), true);
+  assert.equal(e.scene.dataset.newRepo, 'true');
 });
 test('public site hides admin replay controls', async () => {
   const h = await harness({ demo: true, admin: false }), e = h.elements;

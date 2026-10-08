@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeReplay, replayFrame, mergeEvents, DAY_MS } from '../src/replay.js';
-import { projectObject } from '../src/objects.js';
+import { projectObject, repoIsNew, REPO_DEBUT_MS } from '../src/objects.js';
 import { scoreBuildForRepo } from '../src/showcase.js';
 import { demoHistory } from '../src/demo.js';
 import { CONFIG } from '../src/config.js';
@@ -75,6 +75,16 @@ test('project names map to recognizable objects without matching incidental subs
   assert.equal(projectObject('clawdbotatg/wedgie').kind, 'undies');
   assert.equal(projectObject('clawdbotatg/botanical').kind, 'blueprint');
   assert.equal(projectObject('clawdbotatg/safety-net').kind, 'blueprint');
+});
+test('a new repo keeps its glow for a day and then the picture is plain', () => {
+  const now = Date.parse('2026-10-08T12:00:00Z');
+  assert.equal(repoIsNew(new Date(now - 2 * 3600000).toISOString(), now), true);
+  assert.equal(repoIsNew(now - REPO_DEBUT_MS + 1000, now), true);
+  assert.equal(repoIsNew(now - REPO_DEBUT_MS, now), false);
+  assert.equal(repoIsNew(now - 3 * 86400000, now), false);
+  assert.equal(repoIsNew('', now), false);
+  assert.equal(repoIsNew(now + 60 * 1000, now), true);
+  assert.equal(repoIsNew(now + 60 * 60 * 1000, now), false);
 });
 test('metadata and explicit mappings help without inventing an unknown project type', () => {
   assert.equal(projectObject('clawdbotatg/mystery', { description: 'A wallet for small payments.' }).kind, 'wallet');

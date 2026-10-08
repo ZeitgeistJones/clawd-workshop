@@ -5,7 +5,7 @@ export function demoSnapshot(state = 'building', now = Date.now()) {
   if (state === 'planning') events.unshift(event('CreateEvent', 1, 'little-workshop', { ref_type: 'branch', ref: 'next-big-idea' }));
   if (state === 'shipping') events.unshift(event('ReleaseEvent', 1, 'little-workshop', { action: 'published', release: { tag_name: 'v1.1.0' } }));
   if (state === 'idle') events.forEach(e => { e.created_at = new Date(Date.parse(e.created_at) - 6 * 3600000).toISOString(); });
-  return { events, runs: state === 'testing' ? [{ name: 'Workshop checks', status: 'in_progress', repo: `${CONFIG.username}/little-workshop` }] : [], repos: ['little-workshop', 'robot-garage', 'tea-protocol'].map(name => ({ name, full_name: `${CONFIG.username}/${name}`, description: 'An imaginary project for the demo.', language: 'JavaScript', stargazers_count: 0 })), checkedAt: new Date(now).toISOString(), workflowWarning: '', repoWarning: '' };
+  return { events, runs: state === 'testing' ? [{ name: 'Workshop checks', status: 'in_progress', repo: `${CONFIG.username}/little-workshop` }] : [], repos: ['little-workshop', 'robot-garage', 'tea-protocol'].map((name, index) => ({ name, full_name: `${CONFIG.username}/${name}`, description: 'An imaginary project for the demo.', language: 'JavaScript', stargazers_count: 0, created_at: new Date(now - (name === 'little-workshop' ? 2 : 30 + index) * 3600000).toISOString() })), checkedAt: new Date(now).toISOString(), workflowWarning: '', repoWarning: '' };
 }
 export function demoHistory(end = Date.now()) {
   const projects = [

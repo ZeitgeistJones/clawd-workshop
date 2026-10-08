@@ -1,3 +1,7 @@
+# Validation · new repo glow · October 8, 2026
+
+A repo glows around its bench picture only when GitHub `created_at` is within the last 24 hours. At 24 hours the glow is off. A missing or far-future created time does not glow. Replay uses the chapter clock, so an old repo does not light up just because it is on screen. The demo's sample project is two hours old, so the glow shows there and is still labeled as a sample. There is no xAI or Grok key on this project, so a new repo does not call Grok to design a picture.
+
 # Validation · ask about another repo · October 8, 2026
 
 @clawd still answers from the public repo on the bench unless the question names another of clawdbotatg's public repos. "what does the incinerator do" selects clawd-incinerator while wedgie-dev is on the bench. "do you like anime?" and "why do clawd holders care" stay on the bench. A typed `clawdbotatg/name` is used even when that repo is not in the loaded list. Other people's repos are ignored. Checked with the unit tests, not a live Gemini call.

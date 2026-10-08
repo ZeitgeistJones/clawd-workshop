@@ -43,6 +43,16 @@ const rules = [
   ['undies', /\b(wedgie|undies|underwear|briefs|panties)\b/],
 ];
 
+/** A picture keeps its debut glow only for the first day after GitHub says the repo was created. */
+export const REPO_DEBUT_MS = 24 * 60 * 60 * 1000;
+
+export function repoIsNew(createdAt, now = Date.now()) {
+  const created = typeof createdAt === 'number' ? createdAt : Date.parse(createdAt || '');
+  if (!Number.isFinite(created) || !Number.isFinite(now)) return false;
+  const age = now - created;
+  return age >= -2 * 60 * 1000 && age < REPO_DEBUT_MS;
+}
+
 function words(value) { return String(value || '').toLowerCase().replace(/[-_./]/g, ' '); }
 export function projectObject(repoName, metadata = {}) {
   const override = CONFIG.visualOverrides?.[repoName];
