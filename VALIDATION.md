@@ -2,6 +2,8 @@
 
 The room radio now includes bot wallet guide (vaporwave, 113.232s, repo clawdbotatg/bot-wallet-guide) and good guy bad guy (lo-fi, 159.744s, repo clawdbotatg/good-guy-bad-guy). The five earlier tracks are marked lo-fi. The sidebar shows the playing track's genre. There is no filter control yet; the genre is stored on each track for a later filter. The shared wall-clock loop was not restarted to force a new song.
 
+`npm test`: 72 passed. `npm run build` passed. Local builds still warn that `SITE_URL` is unset. Headless Chromium on the demo page was on Slop Lessons and labeled it lo-fi. Both new files loaded in the page (about 113.2s and 159.7s). The vaporwave label fits the sidebar at 1440px and at 390px without scrolling the page sideways. Dark mode keeps a green lo-fi label and a pink vaporwave label. The two new songs were not the track the shared clock was on during that check.
+
 # Validation · new repo glow · October 8, 2026
 
 A repo glows around its bench picture only when GitHub `created_at` is within the last 24 hours. At 24 hours the glow is off. A missing or far-future created time does not glow. Replay uses the chapter clock, so an old repo does not light up just because it is on screen. The demo's sample project is two hours old, so the glow shows there and is still labeled as a sample. There is no xAI or Grok key on this project, so a new repo does not call Grok to design a picture.
