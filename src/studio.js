@@ -120,7 +120,8 @@ async function askClawd(text) {
     });
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-      say(response.status === 429 ? 'Give me a moment.' : response.status === 503 ? 'I cannot answer on this copy of the workshop yet.' : 'I could not read the public repo just now.');
+      const told = typeof data?.error === 'string' ? data.error.trim() : '';
+      say(response.status === 429 ? 'Give me a moment.' : response.status === 503 ? 'I cannot answer on this copy of the workshop yet.' : told || 'I could not read the public repo just now.');
       return;
     }
     say(typeof data?.answer === 'string' && data.answer.trim() ? data.answer : 'I do not know that from the public repo.');

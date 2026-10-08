@@ -27,7 +27,7 @@ export function cleanAnswer(raw) {
 export function readModelAnswer(payload) {
   const parts = payload?.candidates?.[0]?.content?.parts;
   if (!Array.isArray(parts)) return '';
-  return cleanAnswer(parts.map(part => (typeof part?.text === 'string' ? part.text : '')).join(' '));
+  return cleanAnswer(parts.filter(part => part?.thought !== true).map(part => (typeof part?.text === 'string' ? part.text : '')).join(' '));
 }
 
 /**

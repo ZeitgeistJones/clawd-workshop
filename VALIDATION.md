@@ -1,3 +1,7 @@
+# Validation · @clawd model · October 8, 2026
+
+Production `POST /api/ask` logged `gemini answer failed 404`. A new Gemini key cannot call `gemini-2.5-flash`. The ask route now calls `gemini-3.5-flash-lite`. This environment did not call the live key.
+
 # Validation · fireplace and @clawd · October 8, 2026
 
 The chalkboard, the walk to it, and the chalk stick are gone. Touching Clawd, @clawd, and the fireplace link remain.

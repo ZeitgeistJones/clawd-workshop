@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { buildAskPrompt, cleanAnswer, parseMention } from '../src/ask.js';
+import { buildAskPrompt, cleanAnswer, parseMention, readModelAnswer } from '../src/ask.js';
 import { handleAskRequest } from '../src/ask-api.mjs';
 
 test('@clawd pulls the question out and ignores ordinary chat', () => {
@@ -10,6 +10,7 @@ test('@clawd pulls the question out and ignores ordinary chat', () => {
   assert.equal(parseMention('hey @clawd, is the readme public'), 'hey is the readme public');
   assert.equal(parseMention('@clawd'), '');
   assert.equal(cleanAnswer('**Shipped** `v1`\n\ntoday'), 'Shipped v1 today');
+  assert.equal(readModelAnswer({ candidates: [{ content: { parts: [{ thought: true, text: 'hidden reasoning' }, { text: 'It burns tokens.' }] } }] }), 'It burns tokens.');
 });
 
 test('the prompt stays inside the public material', () => {
@@ -72,7 +73,10 @@ test('answers come from Gemini and the key stays off the request URL', async () 
   assert.equal(result.answer, 'It burns CLAWD on a timer.');
   assert.equal(calls.some(call => call.url.includes('secret-key')), false);
   assert.equal(calls.some(call => call.keyHeader === 'secret-key'), true);
-  assert.match(calls.find(call => call.url.includes('generateContent')).body, /Burns 10M CLAWD/);
+  const gemini = calls.find(call => call.url.includes('generateContent'));
+  assert.match(gemini.url, /models\/gemini-3\.5-flash-lite:generateContent$/);
+  assert.match(gemini.body, /"thinkingLevel":"MINIMAL"/);
+  assert.match(gemini.body, /Burns 10M CLAWD/);
   assert.equal(JSON.parse(lines[0]).name, 'Clawd');
   assert.equal(JSON.parse(lines[0]).text, 'It burns CLAWD on a timer.');
 

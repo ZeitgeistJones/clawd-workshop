@@ -5,7 +5,7 @@ import { appendChatMessage, redisCommand, redisConfigured } from './chat-api.mjs
 
 const OWNER = 'clawdbotatg';
 const ASK_RATE_SECONDS = 12;
-const MODEL = 'gemini-2.5-flash';
+const MODEL = 'gemini-3.5-flash-lite';
 const memoryRates = new Map();
 
 function memoryAllowed(ip, now = Date.now()) {
@@ -105,13 +105,14 @@ export async function handleAskRequest(req) {
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 120 },
+        generationConfig: { temperature: 0.3, maxOutputTokens: 256, thinkingConfig: { thinkingLevel: 'MINIMAL' } },
       }),
       signal: AbortSignal.timeout(15000),
     });
     payload = await response.json().catch(() => null);
     if (!response.ok) {
-      console.error('gemini answer failed', response.status);
+      const detail = typeof payload?.error?.message === 'string' ? payload.error.message : '';
+      console.error('gemini answer failed', response.status, detail.slice(0, 240));
       return { ok: false, status: 502, error: 'I could not answer from the public repo just now.' };
     }
   } catch (error) {
