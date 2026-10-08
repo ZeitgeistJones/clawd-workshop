@@ -4,7 +4,7 @@
 
 The illustrated studio stays. The next pass makes the room answer in the first screen, instead of reading like a brochure above the picture.
 
-Touch Clawd and he glances over. The window is just the window. In chat, @clawd answers from the public repo on the bench. The fireplace opens the incinerator site.
+Touch Clawd and he glances over. The window is just the window. In chat, @clawd answers from the public repo on the bench, in a speech bubble beside his head. The fireplace opens the incinerator site. The radio opens the beat shop. The wall photo opens the meme contest.
 
 This is a draft direction. Later notes here should say what actually shipped.
 

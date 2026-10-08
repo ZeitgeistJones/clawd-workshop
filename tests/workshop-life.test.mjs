@@ -27,6 +27,8 @@ test('casual questions can be answered without inventing repo facts', () => {
 test('the fireplace points at the incinerator site', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /id="incinerator-link"[^>]*href="https:\/\/incinerator\.clawdbotatg\.eth\.limo"/);
+  assert.match(html, /id="beat-shop-link"[^>]*href="https:\/\/clawd-beat-shop\.vercel\.app\/"/);
+  assert.match(html, /id="meme-contest-link"[^>]*href="https:\/\/clawd-meme-contest-nextjs\.vercel\.app\/"[\s\S]{0,500}class="wall-polaroid"/);
   assert.match(html, /class="site-disclaimer"[^<]*Not affiliated with the \$CLAWD token, clawdbotatg, or the core team/);
   assert.match(html, /It is not affiliated with the \$CLAWD token, clawdbotatg, Austin Griffith, or any core team/);
   assert.match(html, /class="wall-polaroid"[\s\S]*href="\.\/public\/wall-polaroid\.png"/);

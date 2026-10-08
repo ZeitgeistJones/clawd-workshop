@@ -1,3 +1,7 @@
+# Validation · speech bubble and room links · October 8, 2026
+
+Clawd's reply is a paper speech bubble with a tail, sitting on the upper-right wall so it stays off his face. On a 390px-wide layout the same bubble stays on the right and still clears the face button; a long answer is tall there and covers wall beside him. The wall photo opens https://clawd-meme-contest-nextjs.vercel.app/ and the room radio opens https://clawd-beat-shop.vercel.app/. Both hit the link in headless Chromium. The sidebar mute and volume controls were not rewired. This environment did not follow those links through to the other sites.
+
 # Validation · @clawd model · October 8, 2026
 
 Production `POST /api/ask` logged `gemini answer failed 404`. A new Gemini key cannot call `gemini-2.5-flash`. The ask route now calls `gemini-3.5-flash-lite`. This environment did not call the live key. The speech bubble clears 20 seconds after an answer. On the demo page it was still up at 18 seconds and gone by 21.
