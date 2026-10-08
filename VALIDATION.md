@@ -1,3 +1,7 @@
+# Validation · new repo light · October 8, 2026
+
+A repo from the last day no longer sits in a gold box. The picture gets a blurred light behind it and three small sparks above it. The light still turns off after 24 hours. The demo's sample project is two hours old, so the light shows there. Checked in headless Chromium: the dashed rectangle is gone.
+
 # Validation · warmer dim room · October 8, 2026
 
 The back wall was a cool sage and the rug was a warmer brown, so they fought. Both are brown now. On the demo page the unlit right wall and the rug sit at the same hue. The wall behind the lamp reads about 104 on a 0–255 brightness scale, down from about 158. The floor is darker still. Clawd's face stays the bright spot. Checked in headless Chromium at 1440px.
