@@ -1,20 +1,30 @@
 // Workshop radio playlist — add new songs here (files live in public/music/).
-// Drop the mp3 in public/music/, then append one entry with duration (seconds) and
-// optional `repo` (short name or owner/name) so the title can link to GitHub.
+// Drop the mp3 in public/music/, then append one entry with duration (seconds),
+// genre (`lofi` or `vaporwave`), and optional `repo` (short name or owner/name)
+// so the title can link to GitHub. Genre is stored so the list can be filtered later.
 // Everyone shares one live loop: position = wall-clock time through the playlist.
 
 import { CONFIG } from './config.js';
 import { repoUrl, safeGithubUrl } from './activity.js';
 
-/** @typedef {{ id: string, name: string, src: string, duration: number, repo?: string }} Track */
+/** @typedef {{ id: string, name: string, src: string, duration: number, genre: 'lofi' | 'vaporwave', repo?: string }} Track */
+
+const GENRE_LABELS = { lofi: 'lo-fi', vaporwave: 'vaporwave' };
+
+/** Short label for the radio, or '' when the track has no known genre. */
+export function genreLabel(track) {
+  return GENRE_LABELS[track?.genre] || '';
+}
 
 /** @type {Track[]} */
 export const TRACKS = [
-  { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624, repo: 'fwaah' },
-  { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752, repo: 'slop-lessons' },
-  { id: 'clawd-calendar', name: 'clawd calendar', src: './public/music/clawd-calendar.mp3', duration: 168.024, repo: 'clawd-calendar' },
-  { id: 'clawd-talk-to-your-wallet', name: 'talk to your wallet', src: './public/music/clawd-talk-to-your-wallet.mp3', duration: 158.64, repo: 'clawd-talk-to-your-wallet' },
-  { id: 'wedgie-frog', name: 'wedgie frog', src: './public/music/wedgie-frog.mp3', duration: 141.792, repo: 'wedgie-frog' },
+  { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624, genre: 'lofi', repo: 'fwaah' },
+  { id: 'slop-lessons', name: 'Slop Lessons', src: './public/music/slop-lessons.mp3', duration: 202.752, genre: 'lofi', repo: 'slop-lessons' },
+  { id: 'clawd-calendar', name: 'clawd calendar', src: './public/music/clawd-calendar.mp3', duration: 168.024, genre: 'lofi', repo: 'clawd-calendar' },
+  { id: 'clawd-talk-to-your-wallet', name: 'talk to your wallet', src: './public/music/clawd-talk-to-your-wallet.mp3', duration: 158.64, genre: 'lofi', repo: 'clawd-talk-to-your-wallet' },
+  { id: 'wedgie-frog', name: 'wedgie frog', src: './public/music/wedgie-frog.mp3', duration: 141.792, genre: 'lofi', repo: 'wedgie-frog' },
+  { id: 'bot-wallet-guide', name: 'bot wallet guide', src: './public/music/bot-wallet-guide.mp3', duration: 113.232, genre: 'vaporwave', repo: 'bot-wallet-guide' },
+  { id: 'good-guy-bad-guy', name: 'good guy bad guy', src: './public/music/good-guy-bad-guy.mp3', duration: 159.744, genre: 'lofi', repo: 'good-guy-bad-guy' },
 ];
 
 /** Resolve a track's GitHub URL, or null when no safe repo is configured. */
