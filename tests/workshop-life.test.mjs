@@ -25,6 +25,7 @@ test('the prompt stays inside the public material', () => {
 test('the fireplace points at the incinerator site', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /id="incinerator-link"[^>]*href="https:\/\/incinerator\.clawdbotatg\.eth\.limo"/);
+  assert.match(html, /class="wall-polaroid"[\s\S]*href="\.\/public\/wall-polaroid\.png"/);
   assert.doesNotMatch(html, /id="chalk-board"|id="chalk-tap"|chalk-stick/);
 });
 
