@@ -1,32 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { chalkNotes } from '../src/board.js';
 import { buildAskPrompt, cleanAnswer, parseMention } from '../src/ask.js';
 import { handleAskRequest } from '../src/ask-api.mjs';
-
-const push = (repo, minutes = 1) => ({
-  id: `push-${repo}-${minutes}`,
-  type: 'PushEvent',
-  created_at: new Date(Date.now() - minutes * 60000).toISOString(),
-  repo: { name: `clawdbotatg/${repo}` },
-  payload: { ref: 'refs/heads/main', size: 1 },
-});
-
-test('the board chalks ships, pushes, and merges, and skips chatter', () => {
-  const notes = chalkNotes([
-    push('little-workshop', 1),
-    push('little-workshop', 2),
-    { id: 'chat', type: 'IssueCommentEvent', created_at: new Date().toISOString(), repo: { name: 'clawdbotatg/little-workshop' }, payload: { issue: { title: 'hello' } } },
-    { id: 'rel', type: 'ReleaseEvent', created_at: new Date(Date.now() - 3 * 60000).toISOString(), repo: { name: 'clawdbotatg/robot-garage' }, payload: { action: 'published', release: { tag_name: 'v1.0.0', html_url: 'javascript:alert(1)' } } },
-    { id: 'pr', type: 'PullRequestEvent', created_at: new Date(Date.now() - 4 * 60000).toISOString(), repo: { name: 'clawdbotatg/little-workshop' }, payload: { action: 'closed', pull_request: { merged: true, title: 'A long title that should not become a paragraph on the board' } } },
-  ]);
-  assert.deepEqual(notes.map(note => `${note.verb} ${note.subject}`), [
-    'pushed little-workshop',
-    'shipped robot-garage v1.0.0',
-    'merged little-workshop',
-  ]);
-});
 
 test('@clawd pulls the question out and ignores ordinary chat', () => {
   assert.equal(parseMention('hello room'), null);
@@ -48,7 +24,7 @@ test('the prompt stays inside the public material', () => {
 test('the fireplace points at the incinerator site', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.match(html, /id="incinerator-link"[^>]*href="https:\/\/incinerator\.clawdbotatg\.eth\.limo"/);
-  assert.match(html, /id="chalk-board"/);
+  assert.doesNotMatch(html, /id="chalk-board"|id="chalk-tap"|chalk-stick/);
 });
 
 function fakeRedis() {

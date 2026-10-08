@@ -1,7 +1,9 @@
-# Validation · board, fireplace, and @clawd · October 8, 2026
+# Validation · fireplace and @clawd · October 8, 2026
 
-- `npm test`: **71 passed**. `npm run build` passed. Local builds still warn that `SITE_URL` is unset.
-- Headless Chromium on the demo page: about a second after load he walks to the board, the chalk stick meets the new line, and he is back at the bench when the walk ends. The fireplace hit target is the incinerator link. A 390px-wide layout did not overflow.
+The chalkboard, the walk to it, and the chalk stick are gone. Touching Clawd, @clawd, and the fireplace link remain.
+
+- `npm test`: **70 passed**. `npm run build` passed. Local builds still warn that `SITE_URL` is unset.
+- Headless Chromium on the demo page: the board, chalk stick, and board button are absent. Touching Clawd still makes him glance and say a short line. The fireplace link is `https://incinerator.clawdbotatg.eth.limo`. A 390px-wide layout was not rechecked after the board came out.
 - `@clawd` on the demo page answers that it is a sample and does not call Gemini. The Gemini request path was tested with a fake model response. The real key was not called from this environment. It is available to Production and Preview. Preview chat storage is still production-only, so on a preview his reply shows in the room's speech bubble and is posted into public chat only when Redis is configured.
 - Not checked here: a live Gemini reply on the deployed site, Redis delivery of his chat line, or the incinerator site loading after the click.
 

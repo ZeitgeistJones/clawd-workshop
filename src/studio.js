@@ -1,6 +1,5 @@
-// Focus view, a touch on Clawd, the chalk board, and @clawd.
+// Focus view, a touch on Clawd, and @clawd.
 import { parseMention } from './ask.js';
-import { chalkNotes } from './board.js';
 import { knockLine, returnNote, visitSnapshot } from './moment.js';
 
 const $ = id => document.getElementById(id);
@@ -47,13 +46,6 @@ let lastDetail = null;
 let glanceTimer = 0;
 let visitNoted = false;
 let asking = false;
-let boardSignature = null;
-let boardNotes = [];
-let boardIndex = 0;
-let boardTrip = 0;
-const walkTimers = [];
-const WALK_MS = 4400;
-const CHALK_AT_MS = 1500;
 
 function readJson(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
@@ -82,91 +74,14 @@ function maybeVisitNote(detail) {
   if (welcome) showVisitNote(welcome);
 }
 
-function reducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-function clearWalkTimers() {
-  while (walkTimers.length) clearTimeout(walkTimers.pop());
-}
-function stopWalk() {
-  boardTrip += 1;
-  clearWalkTimers();
-  $('scene')?.classList.remove('at-board', 'drawing');
-}
-function applyChalk() {
-  const note = boardNotes[boardIndex];
-  const verb = $('chalk-line-a');
-  const subject = $('chalk-line-b');
-  const board = $('chalk-board');
-  const tap = $('chalk-tap');
-  if (verb) verb.textContent = note?.verb || (boardNotes.length ? '' : 'quiet');
-  if (subject) subject.textContent = note?.subject || (boardNotes.length ? '' : 'board');
-  if (tap) tap.setAttribute('aria-label', note ? `Workshop board. ${note.verb} ${note.subject}` : 'Workshop board. Nothing public to chalk.');
-  if (!board) return;
-  board.classList.remove('writing');
-  void board.getBoundingClientRect();
-  board.classList.add('writing');
-}
-function showBoard(animate) {
-  if (!animate || reducedMotion()) {
-    stopWalk();
-    applyChalk();
-    return;
-  }
-  const trip = boardTrip + 1;
-  stopWalk();
-  boardTrip = trip;
-  const scene = $('scene');
-  scene?.classList.remove('noticed');
-  scene?.classList.add('at-board', 'drawing');
-  walkTimers.push(setTimeout(() => {
-    if (trip !== boardTrip) return;
-    applyChalk();
-  }, CHALK_AT_MS));
-  walkTimers.push(setTimeout(() => {
-    if (trip !== boardTrip) return;
-    scene?.classList.remove('at-board', 'drawing');
-  }, WALK_MS));
-}
-
-function paintBoard(events) {
-  const notes = chalkNotes(events);
-  const signature = notes.map(note => note.id).join('|');
-  if (signature === boardSignature) return;
-  const first = boardSignature === null;
-  boardSignature = signature;
-  boardNotes = notes;
-  boardIndex = 0;
-  if (!notes.length) { showBoard(false); return; }
-  if (first && !reducedMotion()) {
-    const trip = boardTrip + 1;
-    stopWalk();
-    boardTrip = trip;
-    walkTimers.push(setTimeout(() => {
-      if (trip !== boardTrip) return;
-      showBoard(true);
-    }, 1100));
-    return;
-  }
-  showBoard(true);
-}
-
 window.addEventListener('workshop:render', event => {
   lastDetail = event.detail;
   if (!lastDetail) return;
   maybeVisitNote(lastDetail);
-  paintBoard(lastDetail.allEvents || []);
-});
-
-$('chalk-tap')?.addEventListener('click', () => {
-  if (!boardNotes.length) return;
-  boardIndex = (boardIndex + 1) % boardNotes.length;
-  showBoard(true);
 });
 
 $('clawd-tap')?.addEventListener('click', () => {
   if (asking) return;
-  stopWalk();
   const scene = $('scene');
   scene?.classList.add('noticed');
   say(knockLine(lastDetail?.status?.state));
@@ -181,7 +96,6 @@ async function askClawd(text) {
   const question = parseMention(text);
   if (question === null || asking) return;
   clearTimeout(glanceTimer);
-  stopWalk();
   const scene = $('scene');
   const refuse = line => {
     say(line);
