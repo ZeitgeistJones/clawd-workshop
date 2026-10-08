@@ -4,7 +4,7 @@
 
 The illustrated studio stays. The next pass makes the room answer in the first screen, instead of reading like a brochure above the picture.
 
-Touch Clawd and he glances over. The window is just the window. No list opens from the glass, and nothing on the scene tells you to click.
+Touch Clawd and he glances over. The window is just the window. The board on the right wall chalks public pushes, merges, and releases. In chat, @clawd answers from the public repo on the bench. The fireplace opens the incinerator site.
 
 This is a draft direction. Later notes here should say what actually shipped.
 

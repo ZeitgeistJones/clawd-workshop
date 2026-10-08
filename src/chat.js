@@ -189,7 +189,18 @@ async function send(event) {
     renderMessages([data.message], {forceScroll: true});
     if (input.value === draft) input.value = '';
     setStatus(`Live chat · ${joinedName}`);
-  } catch (error) { if (generation === session && joinedName) setStatus(error.name === 'AbortError' ? 'Send timed out. Your draft is still here.' : error.message, true); }
+    if (/@clawd\b/i.test(text) && typeof window.CustomEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('workshop:mention', { detail: { text } }));
+    }
+  } catch (error) {
+    if (generation === session && joinedName) {
+      setStatus(error.name === 'AbortError' ? 'Send timed out. Your draft is still here.' : error.message, true);
+      // The room may be down, but he can still answer out loud.
+      if (/@clawd\b/i.test(text) && typeof window.CustomEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('workshop:mention', { detail: { text } }));
+      }
+    }
+  }
   finally { if (sending === generation) { sending = null; $('chat-send').disabled = false; if (joinedName) input.focus({preventScroll: true}); } }
 }
 function resetSession() {

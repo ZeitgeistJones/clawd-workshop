@@ -91,6 +91,28 @@ export async function listMessages(opts = {}) {
 }
 
 /**
+ * Store one chat line without the visitor rate limit. Used for Clawd's own replies.
+ * @param {{ name: string, text: string, redis?: typeof redisCommand, env?: Record<string, string|undefined> }} input
+ */
+export async function appendChatMessage(input) {
+  const redis = input.redis || redisCommand;
+  const env = input.env || process.env;
+  if (!redisConfigured(env)) return { ok: false, status: 503, error: 'Chat is not configured on this deployment.' };
+  const name = cleanName(input.name);
+  const text = cleanText(input.text);
+  if (!name || !text) return { ok: false, status: 400, error: 'Unusable chat line.' };
+  const message = {
+    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    text,
+    at: new Date().toISOString(),
+  };
+  await redis(['LPUSH', CHAT_KEY, JSON.stringify(message)], env);
+  await redis(['LTRIM', CHAT_KEY, '0', String(MAX_MESSAGES - 1)], env);
+  return { ok: true, status: 201, message };
+}
+
+/**
  * @param {{ name: string, text: string, ip?: string, redis?: typeof redisCommand, env?: Record<string, string|undefined> }} input
  */
 export async function postMessage(input) {

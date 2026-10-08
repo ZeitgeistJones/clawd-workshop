@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { handleAskRequest } from '../src/ask-api.mjs';
 import { handleChatRequest } from '../src/chat-api.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -39,6 +40,18 @@ http.createServer(async (req, res) => {
   try {
     const requestUrl = new URL(req.url, 'http://localhost');
     const requestPath = decodeURIComponent(requestUrl.pathname);
+
+    if (requestPath === '/api/ask' || requestPath === '/api/ask/') {
+      const result = await handleAskRequest({
+        method: req.method,
+        body: req.method === 'POST' ? await readBody(req) : undefined,
+        ip: req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.socket.remoteAddress || 'local',
+      });
+      const payload = result.ok ? { answer: result.answer } : { error: result.error };
+      res.writeHead(result.status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify(payload));
+      return;
+    }
 
     if (requestPath === '/api/chat' || requestPath === '/api/chat/') {
       const result = await handleChatRequest({
