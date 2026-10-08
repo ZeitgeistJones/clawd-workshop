@@ -44,8 +44,10 @@ dialog.addEventListener('click', event => {
 
 let lastDetail = null;
 let glanceTimer = 0;
+let speechTimer = 0;
 let visitNoted = false;
 let asking = false;
+const SPEECH_MS = 20000;
 
 function readJson(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
@@ -53,11 +55,13 @@ function readJson(key) {
 function writeJson(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage is optional. */ }
 }
-function say(text) {
+function say(text, holdMs = 0) {
   const bubble = $('speech-bubble');
   if (!bubble) return;
+  clearTimeout(speechTimer);
   bubble.textContent = text || '';
   bubble.hidden = !text;
+  if (text && holdMs > 0) speechTimer = setTimeout(() => say(''), holdMs);
 }
 function showVisitNote(text) {
   const note = $('visit-note');
@@ -98,10 +102,8 @@ async function askClawd(text) {
   clearTimeout(glanceTimer);
   const scene = $('scene');
   const refuse = line => {
-    say(line);
+    say(line, SPEECH_MS);
     scene?.classList.remove('noticed');
-    clearTimeout(glanceTimer);
-    glanceTimer = setTimeout(() => say(''), 4200);
   };
   if (lastDetail?.demo) { refuse('This is a sample workshop. Ask me on the live page.'); return; }
   if (lastDetail?.mode === 'replay') { refuse('This is a replay. Ask me on the live workshop.'); return; }
@@ -121,12 +123,12 @@ async function askClawd(text) {
     const data = await response.json().catch(() => null);
     if (!response.ok) {
       const told = typeof data?.error === 'string' ? data.error.trim() : '';
-      say(response.status === 429 ? 'Give me a moment.' : response.status === 503 ? 'I cannot answer on this copy of the workshop yet.' : told || 'I could not read the public repo just now.');
+      say(response.status === 429 ? 'Give me a moment.' : response.status === 503 ? 'I cannot answer on this copy of the workshop yet.' : told || 'I could not read the public repo just now.', SPEECH_MS);
       return;
     }
-    say(typeof data?.answer === 'string' && data.answer.trim() ? data.answer : 'I do not know that from the public repo.');
+    say(typeof data?.answer === 'string' && data.answer.trim() ? data.answer : 'I do not know that from the public repo.', SPEECH_MS);
   } catch {
-    say('I could not read the public repo just now.');
+    say('I could not read the public repo just now.', SPEECH_MS);
   } finally {
     asking = false;
     scene?.classList.remove('noticed');

@@ -1,6 +1,6 @@
 # Validation · @clawd model · October 8, 2026
 
-Production `POST /api/ask` logged `gemini answer failed 404`. A new Gemini key cannot call `gemini-2.5-flash`. The ask route now calls `gemini-3.5-flash-lite`. This environment did not call the live key.
+Production `POST /api/ask` logged `gemini answer failed 404`. A new Gemini key cannot call `gemini-2.5-flash`. The ask route now calls `gemini-3.5-flash-lite`. This environment did not call the live key. The speech bubble clears 20 seconds after an answer. On the demo page it was still up at 18 seconds and gone by 21.
 
 # Validation · fireplace and @clawd · October 8, 2026
 
