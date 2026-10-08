@@ -1,7 +1,7 @@
 # Validation · board, fireplace, and @clawd · October 8, 2026
 
 - `npm test`: **71 passed**. `npm run build` passed. Local builds still warn that `SITE_URL` is unset.
-- Headless Chromium on the demo page: the board chalked `pushed little-workshop`, a tap advanced it to the shipped release and turned his head, and the fireplace hit target is the incinerator link. His tap target does not cover the bench project. A 390px-wide layout did not overflow.
+- Headless Chromium on the demo page: about a second after load he walks to the board, the chalk stick meets the new line, and he is back at the bench when the walk ends. The fireplace hit target is the incinerator link. A 390px-wide layout did not overflow.
 - `@clawd` on the demo page answers that it is a sample and does not call Gemini. The Gemini request path was tested with a fake model response. The real key was not called from this environment. It is available to Production and Preview. Preview chat storage is still production-only, so on a preview his reply shows in the room's speech bubble and is posted into public chat only when Redis is configured.
 - Not checked here: a live Gemini reply on the deployed site, Redis delivery of his chat line, or the incinerator site loading after the click.
 
