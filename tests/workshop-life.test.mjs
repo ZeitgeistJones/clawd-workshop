@@ -78,7 +78,7 @@ test('answers come from Gemini and the key stays off the request URL', async () 
   assert.match(gemini.url, /models\/gemini-3\.5-flash-lite:generateContent$/);
   assert.match(gemini.body, /"thinkingLevel":"MINIMAL"/);
   assert.match(gemini.body, /Burns 10M CLAWD/);
-  assert.equal(JSON.parse(lines[0]).name, 'little Clawd');
+  assert.equal(JSON.parse(lines[0]).name, 'Clawd');
   assert.equal(JSON.parse(lines[0]).text, 'It burns CLAWD on a timer.');
 
   const burst = await handleAskRequest({

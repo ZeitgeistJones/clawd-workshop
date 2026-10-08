@@ -123,7 +123,7 @@ export async function handleAskRequest(req) {
   const answer = readModelAnswer(payload) || 'I do not know that from the public repo.';
   if (redisConfigured(env)) {
     try {
-      await appendChatMessage({ name: 'little Clawd', text: answer, redis: req.redis, env });
+      await appendChatMessage({ name: 'Clawd', text: answer, redis: req.redis, env });
     } catch (error) {
       console.error('ask chat post failed', error);
     }
