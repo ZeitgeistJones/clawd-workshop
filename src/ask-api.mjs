@@ -105,7 +105,7 @@ export async function handleAskRequest(req) {
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 256, thinkingConfig: { thinkingLevel: 'MINIMAL' } },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 256, thinkingConfig: { thinkingLevel: 'MINIMAL' } },
       }),
       signal: AbortSignal.timeout(15000),
     });
@@ -120,7 +120,7 @@ export async function handleAskRequest(req) {
     return { ok: false, status: 502, error: 'I could not answer from the public repo just now.' };
   }
 
-  const answer = readModelAnswer(payload) || 'I do not know that from the public repo.';
+  const answer = readModelAnswer(payload) || 'idk lol.';
   if (redisConfigured(env)) {
     try {
       await appendChatMessage({ name: 'Clawd', text: answer, redis: req.redis, env });

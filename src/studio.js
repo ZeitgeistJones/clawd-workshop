@@ -126,7 +126,7 @@ async function askClawd(text) {
       say(response.status === 429 ? 'Give me a moment.' : response.status === 503 ? 'I cannot answer on this copy of the workshop yet.' : told || 'I could not read the public repo just now.', SPEECH_MS);
       return;
     }
-    say(typeof data?.answer === 'string' && data.answer.trim() ? data.answer : 'I do not know that from the public repo.', SPEECH_MS);
+    say(typeof data?.answer === 'string' && data.answer.trim() ? data.answer : 'idk lol.', SPEECH_MS);
   } catch {
     say('I could not read the public repo just now.', SPEECH_MS);
   } finally {
