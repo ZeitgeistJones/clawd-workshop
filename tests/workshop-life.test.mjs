@@ -30,6 +30,7 @@ test('the fireplace points at the incinerator site', async () => {
   assert.match(html, /class="site-disclaimer"[^<]*Not affiliated with the \$CLAWD token, clawdbotatg, or the core team/);
   assert.match(html, /It is not affiliated with the \$CLAWD token, clawdbotatg, Austin Griffith, or any core team/);
   assert.match(html, /class="wall-polaroid"[\s\S]*href="\.\/public\/wall-polaroid\.png"/);
+  assert.doesNotMatch(html, /studio-notebook/);
   assert.doesNotMatch(html, /id="chalk-board"|id="chalk-tap"|chalk-stick/);
 });
 
