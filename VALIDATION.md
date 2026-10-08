@@ -1,8 +1,12 @@
+# Validation · dimmer room · October 8, 2026
+
+The illustrated room is dimmer. The wall behind the lamp dropped from about 219 to 158 on a 0–255 brightness scale, and the floor from about 174 to 116. Clawd's face stayed about the same. The page around the room was left as it was. Checked on the demo page at 1440px and 390px.
+
 # Validation · radio songs · October 8, 2026
 
-The room radio now includes bot wallet guide (vaporwave, 113.232s, repo clawdbotatg/bot-wallet-guide) and good guy bad guy (lo-fi, 159.744s, repo clawdbotatg/good-guy-bad-guy). The five earlier tracks are marked lo-fi. The sidebar shows the playing track's genre. There is no filter control yet; the genre is stored on each track for a later filter. The shared wall-clock loop was not restarted to force a new song.
+The room radio now includes bot wallet guide (vaporwave, 113.232s, repo clawdbotatg/bot-wallet-guide) and good guy bad guy (lo-fi, 159.744s, repo clawdbotatg/good-guy-bad-guy). The five earlier tracks are marked lo-fi in the playlist data. That mark is not shown on the radio. There is no filter control yet. The shared wall-clock loop was not restarted to force a new song.
 
-`npm test`: 72 passed. `npm run build` passed. Local builds still warn that `SITE_URL` is unset. Headless Chromium on the demo page was on Slop Lessons and labeled it lo-fi. Both new files loaded in the page (about 113.2s and 159.7s). The vaporwave label fits the sidebar at 1440px and at 390px without scrolling the page sideways. Dark mode keeps a green lo-fi label and a pink vaporwave label. The two new songs were not the track the shared clock was on during that check.
+`npm test`: 72 passed. `npm run build` passed. Local builds still warn that `SITE_URL` is unset. Headless Chromium on the demo page was on Slop Lessons and the radio showed the song name only. Both new files loaded in the page (about 113.2s and 159.7s). The two new songs were not the track the shared clock was on during that check.
 
 # Validation · new repo glow · October 8, 2026
 

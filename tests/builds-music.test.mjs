@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { access } from 'node:fs/promises';
 import { buildBrief, safeWebsite } from '../src/builds.js';
-import { TRACKS, TrackRadio, genreLabel, playlistLength, scheduleAt, trackGithubUrl } from '../src/playlist.js';
+import { TRACKS, TrackRadio, playlistLength, scheduleAt, trackGithubUrl } from '../src/playlist.js';
 
 test('build briefs keep real descriptions and chapter evidence, with safe website links', () => {
   const events = [{ type: 'PushEvent', repo: { name: 'clawdbotatg/wallet' }, created_at: new Date().toISOString(), payload: { ref: 'refs/heads/main' } }, { type: 'PushEvent', repo: { name: 'clawdbotatg/other' }, created_at: new Date().toISOString(), payload: {} }];
@@ -43,7 +43,6 @@ test('shared playlist schedule keeps listeners on the same live offset', async (
   assert.ok(TRACKS.every(t => t.repo && trackGithubUrl(t)?.startsWith('https://github.com/')));
   assert.ok(TRACKS.every(t => t.genre === 'lofi' || t.genre === 'vaporwave'));
   assert.equal(TRACKS.find(t => t.id === 'bot-wallet-guide')?.genre, 'vaporwave');
-  assert.equal(genreLabel(TRACKS.find(t => t.id === 'bot-wallet-guide')), 'vaporwave');
   assert.equal(TRACKS.find(t => t.id === 'good-guy-bad-guy')?.genre, 'lofi');
   assert.deepEqual(TRACKS.filter(t => t.genre === 'vaporwave').map(t => t.id), ['bot-wallet-guide']);
   for (const track of TRACKS) await access(new URL(`../${track.src.slice(2)}`, import.meta.url));

@@ -9,13 +9,6 @@ import { repoUrl, safeGithubUrl } from './activity.js';
 
 /** @typedef {{ id: string, name: string, src: string, duration: number, genre: 'lofi' | 'vaporwave', repo?: string }} Track */
 
-const GENRE_LABELS = { lofi: 'lo-fi', vaporwave: 'vaporwave' };
-
-/** Short label for the radio, or '' when the track has no known genre. */
-export function genreLabel(track) {
-  return GENRE_LABELS[track?.genre] || '';
-}
-
 /** @type {Track[]} */
 export const TRACKS = [
   { id: 'fwahh', name: 'fwahh', src: './public/music/fwahh.mp3', duration: 153.624, genre: 'lofi', repo: 'fwaah' },

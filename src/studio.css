@@ -60,7 +60,7 @@ h1 em { color: var(--orange); font-weight: 400; }
 .focus-button svg { width: 17px; height: 17px; }
 .focus-button:hover, .outline-button:hover, .icon-button:hover { background: #e7f0ea; border-color: #b7cbbc; text-decoration: none; }
 .focus-button[aria-pressed='true'] { background: #e2eee6; border-color: #b4cbb9; }
-.scene-wrap { position: relative; min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #e4ebe6; display: block; border: 0; outline: 0; box-shadow: none; }
+.scene-wrap { position: relative; min-height: 0; aspect-ratio: 800 / 470; overflow: hidden; isolation: isolate; background: #8f9f98; display: block; border: 0; outline: 0; box-shadow: none; }
 .workshop-tools { flex-wrap: wrap; justify-content: flex-end; }
 .scene { width: 100%; height: 100%; display: block; vertical-align: top; border: 0; outline: 0; }
 .bench-prop-toggle { border: 1px solid #c5d5cb; border-radius: 999px; background: #f7faf8; color: #4f6858; font: 9px/1 var(--mono); padding: 4px 8px; cursor: pointer; }
@@ -120,8 +120,6 @@ h1 em { color: var(--orange); font-weight: 400; }
 .radio-title:hover { text-decoration: underline; text-underline-offset: 3px; color: #3f6a51; }
 .radio-title.is-plain { pointer-events: none; cursor: default; }
 .radio-title.is-plain:hover { text-decoration: none; color: var(--ink); }
-.radio-top .radio-genre { display: block; margin: -2px 0 2px; font: 600 8px/1.2 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: #5f7358; }
-.radio-top .radio-genre[data-genre='vaporwave'] { color: #8a5a8a; }
 .radio-top div > span { font-size: 9px; line-height: 1.5; display: block; }
 .radio-play { width: 37px; height: 37px; background: #fbfff2; border-color: #cbd6ba; }
 .radio-play:hover { background: #fff; box-shadow: 0 2px 10px #5c73371a; }
@@ -392,8 +390,6 @@ html[data-theme='dark'] .radio-top div > span,
 html[data-theme='dark'] .radio-live-caption,
 html[data-theme='dark'] .radio-controls output { color: #8f9e93; }
 html[data-theme='dark'] .radio-title:hover { color: #8fbc9a; }
-html[data-theme='dark'] .radio-top .radio-genre { color: #9bb89a; }
-html[data-theme='dark'] .radio-top .radio-genre[data-genre='vaporwave'] { color: #d4a0d0; }
 html[data-theme='dark'] .radio-play { background: #24352c; border-color: #3a4d42; color: #c5d6c4; }
 html[data-theme='dark'] .radio-play:hover { background: #2c4035; box-shadow: 0 2px 10px #00000040; }
 html[data-theme='dark'] .radio-play.requires-action { background: #3f6a51; border-color: #3f6a51; color: #f4faf5; }

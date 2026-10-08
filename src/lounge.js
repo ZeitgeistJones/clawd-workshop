@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { TrackRadio, genreLabel, trackGithubUrl } from './playlist.js';
+import { TrackRadio, trackGithubUrl } from './playlist.js';
 import { MarketClient } from './market.js';
 
 const $ = id => document.getElementById(id);
@@ -149,10 +149,6 @@ function drawRadio() {
   const title = $('radio-title');
   const href = trackGithubUrl(track);
   title.textContent = track?.name || 'Workshop radio';
-  const genre = $('radio-genre');
-  genre.textContent = genreLabel(track);
-  if (track?.genre) genre.dataset.genre = track.genre;
-  else delete genre.dataset.genre;
   if (href) {
     title.href = href;
     title.removeAttribute('aria-disabled');
