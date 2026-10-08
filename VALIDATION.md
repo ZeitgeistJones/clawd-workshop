@@ -1,3 +1,7 @@
+# Validation · rug · October 8, 2026
+
+The mat under the bench was a graph-paper grid. It is now a plain brown rug with a border and a short fringe. Headless Chromium on the demo page shows a solid center and a darker edge, with no grid pattern in the markup.
+
 # Validation · dimmer room · October 8, 2026
 
 The illustrated room is dimmer. The wall behind the lamp dropped from about 219 to 158 on a 0–255 brightness scale, and the floor from about 174 to 116. Clawd's face stayed about the same. The page around the room was left as it was. Checked on the demo page at 1440px and 390px.
